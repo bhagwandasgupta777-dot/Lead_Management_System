@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Change Deal Status{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+
+            <div class="breadcrumb">
+                Workspace / Deals / {{ deal.deal_id }} / Change Status
+            </div>
+
+            <h1>Change Deal Status</h1>
+
+            <p>
+                Update the current status of {{ deal.deal_id }}.
+            </p>
+
+        </div>
+
+        <div>
+
+            <a
+                href="{% url 'deal_detail' deal.deal_id %}"
+                class="detail-action"
+            >
+                ← Back to Deal
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATUS FORM -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>Deal Status</h2>
+
+                <p>
+                    Select the current status of this deal.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- CURRENT STATUS -->
+
+        <div class="detail-info">
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Deal
+                </span>
+
+                <strong>
+                    {{ deal.deal_id }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Current Status
+                </span>
+
+                <strong>
+                    {{ deal.get_status_display }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- FORM -->
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label for="status">
+                    New Status
+                </label>
+
+                <select
+                    name="status"
+                    id="status"
+                    required
+                >
+
+                    {% for value, label in status_choices %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if deal.status == value %}selected{% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'deal_detail' deal.deal_id %}"
+                    class="detail-action"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Update Status
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

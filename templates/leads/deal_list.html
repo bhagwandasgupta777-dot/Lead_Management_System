@@ -1,0 +1,231 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Deals{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+
+            <div class="breadcrumb">
+                Workspace / Deals
+            </div>
+
+            <h1>Deals</h1>
+
+            <p>
+                View and manage deals created from successfully converted leads.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- DEAL DIRECTORY -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>Deal Directory</h2>
+
+                <p>
+                    Deals are created automatically when a lead reaches Won.
+                </p>
+
+            </div>
+
+            <div>
+
+                <strong>
+                    {{ deals|length }}
+                    Deal{{ deals|length|pluralize }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        {% if deals %}
+
+        <div class="table-wrapper">
+
+            <table class="crm-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Deal ID</th>
+
+                        <th>Deal</th>
+
+                        <th>Customer</th>
+
+                        <th>From Lead</th>
+
+                        <th>Value</th>
+
+                        <th>Status</th>
+
+                        <th>Expected Close</th>
+
+                        <th>Assigned To</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for deal in deals %}
+
+                    <tr>
+
+                        <!-- DEAL ID -->
+                        <td>
+
+                            <a
+                                href="{% url 'deal_detail' deal.deal_id %}"
+                            >
+                                <strong>
+                                    {{ deal.deal_id }}
+                                </strong>
+                            </a>
+
+                        </td>
+
+
+                        <!-- DEAL -->
+                        <td>
+
+                            <strong>
+                                {{ deal.title }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- CUSTOMER -->
+                        <td>
+
+                            {{ deal.customer.first_name }}
+                            {{ deal.customer.last_name }}
+
+                            <br>
+
+                            <small>
+                                {{ deal.customer.customer_id }}
+                            </small>
+
+                        </td>
+
+
+                        <!-- ORIGINAL LEAD -->
+                        <td>
+
+                            {% if deal.customer.lead %}
+
+                                <a
+                                    href="{% url 'lead_detail' deal.customer.lead.lead_id %}"
+                                >
+                                    {{ deal.customer.lead.lead_id }}
+                                </a>
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- DEAL VALUE -->
+                        <td>
+
+                            ₹{{ deal.deal_value }}
+
+                        </td>
+
+
+                        <!-- STATUS -->
+                        <td>
+
+                            <span class="deal-status-text">
+                                {{ deal.get_status_display }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- EXPECTED CLOSE -->
+                        <td>
+
+                            {% if deal.expected_close_date %}
+
+                                {{ deal.expected_close_date|date:"d M Y" }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ASSIGNED TO -->
+                        <td>
+
+                            {% if deal.assigned_to %}
+
+                                {{ deal.assigned_to.get_full_name|default:deal.assigned_to.username }}
+
+                            {% else %}
+
+                                Unassigned
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-detail">
+
+            <h3>No deals yet</h3>
+
+            <p>
+                Deals will appear here automatically when a lead reaches Won.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}
+```

@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Add Follow-up{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+            <div class="breadcrumb">
+                Workspace / Leads / {{ lead.lead_id }} / Add Follow-up
+            </div>
+
+            <h1>Add Follow-up</h1>
+
+            <p>
+                Schedule the next action for
+                <strong>
+                    {{ lead.first_name }} {{ lead.last_name }}
+                </strong>.
+            </p>
+        </div>
+
+        <div class="lead-detail-actions">
+            <a
+                href="{% url 'lead_detail' lead.lead_id %}"
+                class="secondary-btn"
+            >
+                ← Back to Lead
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- FOLLOW-UP FORM -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+            <div>
+                <h2>Follow-up Details</h2>
+                <p>
+                    Create a task so the customer action is not missed.
+                </p>
+            </div>
+        </div>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="form-grid">
+
+                <!-- TITLE -->
+                <div class="form-group">
+                    <label for="title">
+                        Follow-up Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="Example: Call customer"
+                        required
+                    >
+                </div>
+
+
+                <!-- DESCRIPTION -->
+                <div class="form-group">
+                    <label for="description">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        placeholder="Example: Discuss quotation and pricing."
+                    ></textarea>
+                </div>
+
+
+                <!-- DUE DATE -->
+                <div class="form-group">
+                    <label for="due_date">
+                        Due Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="due_date"
+                        name="due_date"
+                        required
+                    >
+                </div>
+
+
+                <!-- DUE TIME -->
+                <div class="form-group">
+                    <label for="due_time">
+                        Due Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="due_time"
+                        name="due_time"
+                        required
+                    >
+                </div>
+
+
+                <!-- PRIORITY -->
+                <div class="form-group">
+                    <label for="priority">
+                        Priority
+                    </label>
+
+                    <select
+                        id="priority"
+                        name="priority"
+                        required
+                    >
+
+                        {% for value, label in priority_choices %}
+                            <option
+                                value="{{ value }}"
+                                {% if value == "MEDIUM" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+
+                <!-- ASSIGNED TO -->
+                <div class="form-group">
+
+                    <label for="assigned_to">
+                        Assigned To
+                    </label>
+
+                    {% if request.user.role == "SALES" %}
+
+                        <input
+                            type="text"
+                            value="{{ request.user.username }}"
+                            readonly
+                        >
+
+                        <input
+                            type="hidden"
+                            name="assigned_to"
+                            value="{{ request.user.id }}"
+                        >
+
+                    {% else %}
+
+                        <select
+                            id="assigned_to"
+                            name="assigned_to"
+                            required
+                        >
+
+                            <option value="">
+                                Select Sales Employee
+                            </option>
+
+                            {% for user in sales_users %}
+
+                                <option value="{{ user.id }}">
+                                    {{ user.get_full_name|default:user.username }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'lead_detail' lead.lead_id %}"
+                    class="secondary-btn"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="add-lead-btn"
+                >
+                    Save Follow-up
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

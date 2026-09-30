@@ -1,0 +1,1971 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="help-page">
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <section class="help-hero">
+
+        <div class="help-hero-content">
+
+            <div class="help-badge">
+                Help Center
+            </div>
+
+            <h1>How can we help you?</h1>
+
+            <p>
+                Find answers, learn how to use the CRM, and get help with
+                leads, tasks, pipeline, reports and more.
+            </p>
+
+            <div class="help-search">
+
+                <span class="help-search-icon">⌕</span>
+
+                <input
+                    type="text"
+                    id="helpCenterSearch"
+                    placeholder="Search for help, e.g. create a lead..."
+                    autocomplete="off"
+                >
+
+                <button
+                    type="button"
+                    id="clearHelpSearch"
+                    class="help-search-clear"
+                    title="Clear search"
+                    style="display: none;"
+                >
+                    ×
+                </button>
+
+                <button type="button" class="search-shortcut" id="searchShortcut">
+    Ctrl K
+</button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         EXPLORE TOPICS
+         ===================================================== -->
+
+    <section class="help-section-block">
+
+        <div class="help-section-heading">
+
+            <div>
+                <h2>Explore Help Topics</h2>
+
+                <p>
+                    Find information based on the area you need help with.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="help-category-grid">
+
+            <button
+                type="button"
+                class="help-category-card"
+                data-category="Leads"
+            >
+
+                <div class="help-category-icon blue">
+                    <span>↗</span>
+                </div>
+
+                <div class="help-category-content">
+
+                    <h3>Leads</h3>
+
+                    <p>
+                        Create, assign, update and manage customer leads.
+                    </p>
+
+                    <span class="help-category-link">
+                        View articles →
+                    </span>
+
+                </div>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="help-category-card"
+                data-category="Tasks"
+            >
+
+                <div class="help-category-icon purple">
+                    <span>✓</span>
+                </div>
+
+                <div class="help-category-content">
+
+                    <h3>Tasks & Follow-ups</h3>
+
+                    <p>
+                        Manage follow-ups, tasks, reminders and overdue work.
+                    </p>
+
+                    <span class="help-category-link">
+                        View articles →
+                    </span>
+
+                </div>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="help-category-card"
+                data-category="Pipeline"
+            >
+
+                <div class="help-category-icon green">
+                    <span>▥</span>
+                </div>
+
+                <div class="help-category-content">
+
+                    <h3>Sales Pipeline</h3>
+
+                    <p>
+                        Understand stages, opportunities and lead progression.
+                    </p>
+
+                    <span class="help-category-link">
+                        View articles →
+                    </span>
+
+                </div>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="help-category-card"
+                data-category="Customers"
+            >
+
+                <div class="help-category-icon orange">
+                    <span>◉</span>
+                </div>
+
+                <div class="help-category-content">
+
+                    <h3>Customers & Deals</h3>
+
+                    <p>
+                        Manage converted customers and sales opportunities.
+                    </p>
+
+                    <span class="help-category-link">
+                        View articles →
+                    </span>
+
+                </div>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="help-category-card"
+                data-category="Reports"
+            >
+
+                <div class="help-category-icon red">
+                    <span>▤</span>
+                </div>
+
+                <div class="help-category-content">
+
+                    <h3>Reports & Analytics</h3>
+
+                    <p>
+                        Understand reports, sales performance and metrics.
+                    </p>
+
+                    <span class="help-category-link">
+                        View articles →
+                    </span>
+
+                </div>
+
+            </button>
+
+
+            <a
+                href="{% url 'admin_settings' %}"
+                class="help-category-card"
+            >
+
+                <div class="help-category-icon gray">
+                    <span>⚙</span>
+                </div>
+
+                <div class="help-category-content">
+
+                    <h3>Settings</h3>
+
+                    <p>
+                        Manage company settings, timezone, currency and more.
+                    </p>
+
+                    <span class="help-category-link">
+                        Open settings →
+                    </span>
+
+                </div>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ARTICLES
+         ===================================================== -->
+
+    <section
+        class="help-section-block"
+        id="helpArticlesSection"
+    >
+
+        <div class="help-section-heading">
+
+            <div>
+
+                <h2>Help Articles</h2>
+
+                <p id="articleResultText">
+                    Browse useful information about your CRM.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="showAllArticles"
+                class="help-view-all"
+                style="display: none;"
+            >
+                View all articles
+            </button>
+
+        </div>
+
+
+        <div class="help-articles">
+
+
+            <!-- LEAD ARTICLE -->
+
+            <div
+                class="help-article"
+                data-category="Leads"
+                data-search="
+                    lead leads create add new lead customer source
+                    temperature priority assignment
+                "
+            >
+
+                <button
+                    type="button"
+                    class="help-article-main"
+                >
+
+                    <div class="help-article-icon">
+                        01
+                    </div>
+
+                    <div class="help-article-content">
+
+                        <h3>
+                            How do I create a new lead?
+                        </h3>
+
+                        <p>
+                            Learn how to add customer information, source,
+                            temperature, priority and assignment details.
+                        </p>
+
+                        <div class="help-article-meta">
+
+                            <span>Leads</span>
+                            <span>•</span>
+                            <span>2 min read</span>
+
+                        </div>
+
+                    </div>
+
+                    <span class="help-article-arrow">
+                        →
+                    </span>
+
+                </button>
+
+                <div class="help-article-answer">
+
+                    <p>
+                        To create a lead, open the Leads section and use the
+                        option for adding a new lead. Enter the customer's
+                        contact details, source, temperature, priority and
+                        assigned employee. Save the lead to add it to the
+                        sales pipeline.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ASSIGNMENT ARTICLE -->
+
+            <div
+                class="help-article"
+                data-category="Leads"
+                data-search="
+                    assign assignment employee sales manager lead
+                "
+            >
+
+                <button
+                    type="button"
+                    class="help-article-main"
+                >
+
+                    <div class="help-article-icon">
+                        02
+                    </div>
+
+                    <div class="help-article-content">
+
+                        <h3>
+                            How do I assign a lead?
+                        </h3>
+
+                        <p>
+                            Learn how leads are assigned to sales employees.
+                        </p>
+
+                        <div class="help-article-meta">
+
+                            <span>Leads</span>
+                            <span>•</span>
+                            <span>2 min read</span>
+
+                        </div>
+
+                    </div>
+
+                    <span class="help-article-arrow">
+                        →
+                    </span>
+
+                </button>
+
+                <div class="help-article-answer">
+
+                    <p>
+                        Managers and administrators can assign leads to sales
+                        employees. The assigned employee becomes responsible
+                        for contacting the customer, recording activities and
+                        completing follow-ups.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- TASK ARTICLE -->
+
+            <div
+                class="help-article"
+                data-category="Tasks"
+                data-search="
+                    follow follow-up task reminder overdue due date activity
+                "
+            >
+
+                <button
+                    type="button"
+                    class="help-article-main"
+                >
+
+                    <div class="help-article-icon">
+                        03
+                    </div>
+
+                    <div class="help-article-content">
+
+                        <h3>
+                            How do follow-ups and tasks work?
+                        </h3>
+
+                        <p>
+                            Create tasks and follow-ups so important customer
+                            actions are not missed.
+                        </p>
+
+                        <div class="help-article-meta">
+
+                            <span>Tasks</span>
+                            <span>•</span>
+                            <span>3 min read</span>
+
+                        </div>
+
+                    </div>
+
+                    <span class="help-article-arrow">
+                        →
+                    </span>
+
+                </button>
+
+                <div class="help-article-answer">
+
+                    <p>
+                        A follow-up or task can contain an action, responsible
+                        employee, due date, priority and status. Pending tasks
+                        can become overdue when their due date passes. This
+                        helps the sales team track the next action for every
+                        customer.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- PIPELINE ARTICLE -->
+
+            <div
+                class="help-article"
+                data-category="Pipeline"
+                data-search="
+                    pipeline stages new contacted qualified proposal
+                    negotiation won lost sales
+                "
+            >
+
+                <button
+                    type="button"
+                    class="help-article-main"
+                >
+
+                    <div class="help-article-icon">
+                        04
+                    </div>
+
+                    <div class="help-article-content">
+
+                        <h3>
+                            Understanding the sales pipeline
+                        </h3>
+
+                        <p>
+                            Learn how leads move through the sales process.
+                        </p>
+
+                        <div class="help-article-meta">
+
+                            <span>Pipeline</span>
+                            <span>•</span>
+                            <span>4 min read</span>
+
+                        </div>
+
+                    </div>
+
+                    <span class="help-article-arrow">
+                        →
+                    </span>
+
+                </button>
+
+                <div class="help-article-answer">
+
+                    <p>
+                        Leads move through stages such as New, Contacted,
+                        Qualified, Proposal and Negotiation. The final
+                        outcomes are Won or Lost. Moving a lead through the
+                        pipeline helps the team understand its current sales
+                        position.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- CUSTOMER ARTICLE -->
+
+            <div
+                class="help-article"
+                data-category="Customers"
+                data-search="
+                    customer customers deal won conversion convert
+                "
+            >
+
+                <button
+                    type="button"
+                    class="help-article-main"
+                >
+
+                    <div class="help-article-icon">
+                        05
+                    </div>
+
+                    <div class="help-article-content">
+
+                        <h3>
+                            What happens when a lead is won?
+                        </h3>
+
+                        <p>
+                            Learn how a successful lead becomes a customer
+                            and associated deal.
+                        </p>
+
+                        <div class="help-article-meta">
+
+                            <span>Customers</span>
+                            <span>•</span>
+                            <span>3 min read</span>
+
+                        </div>
+
+                    </div>
+
+                    <span class="help-article-arrow">
+                        →
+                    </span>
+
+                </button>
+
+                <div class="help-article-answer">
+
+                    <p>
+                        When a lead is successfully converted, the system can
+                        create a customer record and an associated deal. This
+                        allows the business to continue managing the customer
+                        and sales opportunity after the lead stage.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORT ARTICLE -->
+
+            <div
+                class="help-article"
+                data-category="Reports"
+                data-search="
+                    reports analytics performance sales employee source
+                    pipeline report
+                "
+            >
+
+                <button
+                    type="button"
+                    class="help-article-main"
+                >
+
+                    <div class="help-article-icon">
+                        06
+                    </div>
+
+                    <div class="help-article-content">
+
+                        <h3>
+                            How do reports help the sales team?
+                        </h3>
+
+                        <p>
+                            Understand pipeline, lead source and employee
+                            performance information.
+                        </p>
+
+                        <div class="help-article-meta">
+
+                            <span>Reports</span>
+                            <span>•</span>
+                            <span>3 min read</span>
+
+                        </div>
+
+                    </div>
+
+                    <span class="help-article-arrow">
+                        →
+                    </span>
+
+                </button>
+
+                <div class="help-article-answer">
+
+                    <p>
+                        Reports provide visibility into pipeline stages,
+                        lead sources and sales employee activity. Managers
+                        can use this information to monitor the sales process
+                        and understand current workload and performance.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="noSearchResults"
+            class="help-no-results"
+        >
+            <strong>No articles found</strong>
+
+            <p>
+                Try another search term or select a different help topic.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FAQ
+         ===================================================== -->
+
+    <section
+        class="help-section-block"
+        id="faq"
+    >
+
+        <div class="help-section-heading">
+
+            <div>
+
+                <h2>Frequently Asked Questions</h2>
+
+                <p>
+                    Quick answers to common CRM questions.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="faq-list">
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    type="button"
+                >
+
+                    <span>
+                        What are Hot, Warm and Cold leads?
+                    </span>
+
+                    <span class="faq-plus">
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    <p>
+                        Lead temperature indicates the current level of
+                        sales interest. Hot leads have high priority,
+                        while Warm and Cold leads represent lower levels
+                        of immediate interest.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    type="button"
+                >
+
+                    <span>
+                        How do I assign a lead?
+                    </span>
+
+                    <span class="faq-plus">
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    <p>
+                        Leads can be assigned to sales employees.
+                        Managers and administrators can manage lead
+                        assignments according to their access permissions.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    type="button"
+                >
+
+                    <span>
+                        What happens when a lead is marked as Won?
+                    </span>
+
+                    <span class="faq-plus">
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    <p>
+                        A successful lead can be converted into a customer
+                        and associated deal so the sales process can
+                        continue beyond the lead stage.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    type="button"
+                >
+
+                    <span>
+                        How do I manage overdue tasks?
+                    </span>
+
+                    <span class="faq-plus">
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    <p>
+                        Tasks contain due dates and statuses. Pending tasks
+                        whose due date has passed can be identified as
+                        overdue and followed up by the responsible employee.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="faq-item">
+
+                <button
+                    class="faq-question"
+                    type="button"
+                >
+
+                    <span>
+                        Who can manage company settings?
+                    </span>
+
+                    <span class="faq-plus">
+                        +
+                    </span>
+
+                </button>
+
+                <div class="faq-answer">
+
+                    <p>
+                        Company configuration such as company information,
+                        timezone and currency is managed through the
+                        Settings section according to user permissions.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+   <!-- =====================================================
+     ADMIN SUPPORT
+     ===================================================== -->
+
+<section class="help-support">
+
+    <div class="help-support-header">
+
+       <div class="help-support-icon">
+    <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+    >
+        <path
+            d="M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+        />
+
+        <path
+            d="M19.4 15A1.7 1.7 0 0 0 19.7 16.9L20 17.3L17.3 20L16.9 19.7A1.7 1.7 0 0 0 15 19.4A1.7 1.7 0 0 0 13.8 21V21.5H10.2V21A1.7 1.7 0 0 0 9 19.4A1.7 1.7 0 0 0 7.1 19.7L6.7 20L4 17.3L4.3 16.9A1.7 1.7 0 0 0 4.6 15A1.7 1.7 0 0 0 3 13.8H2.5V10.2H3A1.7 1.7 0 0 0 4.6 9A1.7 1.7 0 0 0 4.3 7.1L4 6.7L6.7 4L7.1 4.3A1.7 1.7 0 0 0 9 4.6A1.7 1.7 0 0 0 10.2 3V2.5H13.8V3A1.7 1.7 0 0 0 15 4.6A1.7 1.7 0 0 0 16.9 4.3L17.3 4L20 6.7L19.7 7.1A1.7 1.7 0 0 0 19.4 9A1.7 1.7 0 0 0 21 10.2H21.5V13.8H21A1.7 1.7 0 0 0 19.4 15Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+        />
+    </svg>
+</div>
+        <div>
+            <span class="help-support-label">
+                ADMIN SUPPORT
+            </span>
+
+            <h2>
+                Need help managing your CRM?
+            </h2>
+
+            <p>
+                Get assistance with users, permissions, leads,
+                reports and system settings.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="help-support-actions">
+
+        <button
+    type="button"
+    class="support-action-card support-guide-button"
+    id="adminGuideButton"
+>
+    <div class="support-action-icon">
+        📘
+    </div>
+
+    <div class="support-action-content">
+        <strong>Admin Guide</strong>
+        <span>
+            Learn how to manage your CRM
+        </span>
+    </div>
+
+    <span class="support-action-arrow">→</span>
+</button>
+
+      <button
+    type="button"
+    class="support-action-card support-issue-button"
+    id="reportIssueButton"
+>
+
+    <div class="support-action-icon">
+        !
+    </div>
+
+    <div class="support-action-content">
+        <strong>Report an Issue</strong>
+
+        <span>
+            Report a technical problem
+        </span>
+    </div>
+
+    <span class="support-action-arrow">
+        →
+    </span>
+
+</button>
+
+</section>
+
+
+<!-- Admin Guide Modal -->
+<div class="admin-guide-modal" id="adminGuideModal" aria-hidden="true">
+
+    <div class="admin-guide-overlay" id="adminGuideOverlay"></div>
+
+    <div
+        class="admin-guide-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="adminGuideTitle"
+    >
+
+        <div class="admin-guide-modal-header">
+
+            <div>
+                <span class="help-support-label">
+                    ADMIN GUIDE
+                </span>
+
+                <h2 id="adminGuideTitle">
+                    Manage your CRM
+                </h2>
+            </div>
+
+            <button
+                type="button"
+                class="admin-guide-close"
+                id="closeAdminGuide"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <p class="admin-guide-modal-description">
+            Quick guidance for common administrator tasks in the CRM.
+        </p>
+
+
+        <div class="admin-guide-modal-grid">
+
+            <!-- Users -->
+            <div class="admin-guide-modal-card">
+
+                <div class="admin-guide-modal-number">
+                    01
+                </div>
+
+                <div>
+                    <h3>Manage Users</h3>
+
+                    <p>
+                        Create users, update employee information and
+                        manage access for Admin, Manager and Sales Employee roles.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Roles -->
+            <div class="admin-guide-modal-card">
+
+                <div class="admin-guide-modal-number">
+                    02
+                </div>
+
+                <div>
+                    <h3>Roles & Permissions</h3>
+
+                    <p>
+                        Control which features each role can access and
+                        ensure employees only see the information required for their work.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Settings -->
+            <div class="admin-guide-modal-card">
+
+                <div class="admin-guide-modal-number">
+                    03
+                </div>
+
+                <div>
+                    <h3>Company Settings</h3>
+
+                    <p>
+                        Configure company information, timezone, currency,
+                        date format, working hours and branding.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Leads -->
+            <div class="admin-guide-modal-card">
+
+                <div class="admin-guide-modal-number">
+                    04
+                </div>
+
+                <div>
+                    <h3>Lead Management</h3>
+
+                    <p>
+                        Monitor lead assignments, statuses, priorities,
+                        follow-ups, activities and the sales pipeline.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Reports -->
+            <div class="admin-guide-modal-card">
+
+                <div class="admin-guide-modal-number">
+                    05
+                </div>
+
+                <div>
+                    <h3>Reports & Analytics</h3>
+
+                    <p>
+                        Review pipeline performance, lead sources and
+                        sales employee activity through CRM reports.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Notifications -->
+            <div class="admin-guide-modal-card">
+
+                <div class="admin-guide-modal-number">
+                    06
+                </div>
+
+                <div>
+                    <h3>Notifications</h3>
+
+                    <p>
+                        Monitor reminders, overdue activities, task alerts,
+                        lead assignments and important status changes.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Report Issue Modal -->
+<div
+    class="issue-modal"
+    id="issueModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="issue-modal-overlay"
+        id="issueModalOverlay"
+    ></div>
+
+
+    <div
+        class="issue-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="issueModalTitle"
+    >
+
+        <!-- Header -->
+        <div class="issue-modal-header">
+
+            <div>
+                <span class="help-support-label">
+                    ADMIN SUPPORT
+                </span>
+
+                <h2 id="issueModalTitle">
+                    Report an Issue
+                </h2>
+            </div>
+
+
+            <button
+                type="button"
+                class="issue-modal-close"
+                id="closeIssueModal"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <p class="issue-modal-description">
+            Tell us what went wrong and provide enough information
+            for the issue to be investigated.
+        </p>
+
+
+        <!-- Form -->
+        <form
+    id="issueReportForm"
+    method="POST"
+    action="{% url 'report_issue' %}"
+>
+    {% csrf_token %}
+
+            <!-- Issue Title -->
+            <div class="issue-form-group">
+
+                <label for="issueSubject">
+                    Issue Title
+                </label>
+
+                <input
+                    type="text"
+                    id="issueSubject"
+                    name="subject"
+                    placeholder="Example: Unable to assign a lead"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Category -->
+            <div class="issue-form-group">
+
+                <label for="issueCategory">
+                    Category
+                </label>
+
+                <select
+                    id="issueCategory"
+                    name="category"
+                    required
+                >
+
+                    <option value="">
+                        Select category
+                    </option>
+
+                    <option value="LEAD">
+                        Lead Management
+                    </option>
+
+                    <option value="TASK">
+                        Tasks & Follow-ups
+                    </option>
+
+                    <option value="USER">
+                        Users & Permissions
+                    </option>
+
+                    <option value="REPORT">
+                        Reports & Analytics
+                    </option>
+
+                    <option value="SETTINGS">
+                        Settings
+                    </option>
+
+                    <option value="OTHER">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Priority -->
+            <div class="issue-form-group">
+
+                <label for="issuePriority">
+                    Priority
+                </label>
+
+                <select
+                    id="issuePriority"
+                    name="priority"
+                    required
+                >
+
+                    <option value="">
+                        Select priority
+                    </option>
+
+                    <option value="LOW">
+                        Low
+                    </option>
+
+                    <option value="MEDIUM">
+                        Medium
+                    </option>
+
+                    <option value="HIGH">
+                        High
+                    </option>
+
+                    <option value="URGENT">
+                        Urgent
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Description -->
+            <div class="issue-form-group">
+
+                <label for="issueDescription">
+                    Description
+                </label>
+
+                <textarea
+                    id="issueDescription"
+                    name="description"
+                    rows="5"
+                    placeholder="Describe the issue and what happened..."
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <!-- Actions -->
+            <div class="issue-form-actions">
+
+                <button
+                    type="button"
+                    class="issue-cancel-button"
+                    id="cancelIssueButton"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="issue-submit-button"
+                >
+                    Submit Issue
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
+
+    const searchInput = document.getElementById("helpCenterSearch");
+    const clearSearch = document.getElementById("clearHelpSearch");
+    const searchShortcut = document.getElementById("searchShortcut");
+
+    const articles = document.querySelectorAll(".help-article");
+
+    const categoryButtons = document.querySelectorAll(
+        ".help-category-card[data-category]"
+    );
+
+    const showAllButton =
+        document.getElementById("showAllArticles");
+
+    const noResults =
+        document.getElementById("noSearchResults");
+
+    const resultText =
+        document.getElementById("articleResultText");
+
+    const articlesSection =
+        document.getElementById("helpArticlesSection");
+
+
+    let selectedCategory = "";
+
+
+    /* =====================================================
+       CHECK REQUIRED ELEMENTS
+       ===================================================== */
+
+    console.log("Help Center JavaScript loaded");
+
+    console.log("Search input:", searchInput);
+    console.log("Search shortcut:", searchShortcut);
+    console.log("Articles:", articles.length);
+
+
+    /* =====================================================
+       ARTICLE FILTER
+       ===================================================== */
+
+    function filterArticles() {
+
+        if (!searchInput) {
+            console.error("helpSearch element not found");
+            return;
+        }
+
+        const searchTerm =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        let visibleCount = 0;
+
+
+        articles.forEach(function (article) {
+
+            const articleCategory =
+                article.dataset.category || "";
+
+            const searchData =
+                (
+                    article.innerText +
+                    " " +
+                    (article.dataset.search || "") +
+                    " " +
+                    articleCategory
+                ).toLowerCase();
+
+
+            const categoryMatches =
+                !selectedCategory ||
+                articleCategory === selectedCategory;
+
+
+            const searchMatches =
+                !searchTerm ||
+                searchData.includes(searchTerm);
+
+
+            if (categoryMatches && searchMatches) {
+
+                article.style.display = "";
+
+                visibleCount++;
+
+            } else {
+
+                article.style.display = "none";
+
+                article.classList.remove("active");
+
+            }
+
+        });
+
+
+        /* No results */
+
+        if (noResults) {
+            noResults.style.display =
+                visibleCount === 0 && searchTerm
+                    ? "block"
+                    : "none";
+        }
+
+
+        /* Result text */
+
+        if (selectedCategory) {
+
+            if (resultText) {
+                resultText.textContent =
+                    visibleCount +
+                    " article" +
+                    (visibleCount === 1 ? "" : "s") +
+                    " in " +
+                    selectedCategory;
+            }
+
+            if (showAllButton) {
+                showAllButton.style.display =
+                    "inline-flex";
+            }
+
+        } else if (searchTerm) {
+
+            if (resultText) {
+                resultText.textContent =
+                    visibleCount +
+                    " matching article" +
+                    (visibleCount === 1 ? "" : "s");
+            }
+
+            if (showAllButton) {
+                showAllButton.style.display =
+                    "inline-flex";
+            }
+
+        } else {
+
+            if (resultText) {
+                resultText.textContent =
+                    "Browse useful information about your CRM.";
+            }
+
+            if (showAllButton) {
+                showAllButton.style.display =
+                    "none";
+            }
+
+        }
+
+    }
+
+
+    /* =====================================================
+       SEARCH BOX
+       ===================================================== */
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                clearSearchVisibility();
+
+                selectedCategory = "";
+
+
+                categoryButtons.forEach(
+                    function (button) {
+
+                        button.classList.remove(
+                            "selected"
+                        );
+
+                    }
+                );
+
+
+                filterArticles();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       CLEAR SEARCH
+       ===================================================== */
+
+    function clearSearchVisibility() {
+
+        if (!clearSearch || !searchInput) {
+            return;
+        }
+
+        clearSearch.style.display =
+            searchInput.value
+                ? "flex"
+                : "none";
+    }
+
+
+    if (clearSearch && searchInput) {
+
+        clearSearch.addEventListener(
+            "click",
+            function () {
+
+                searchInput.value = "";
+
+                selectedCategory = "";
+
+                clearSearch.style.display = "none";
+
+
+                categoryButtons.forEach(
+                    function (button) {
+
+                        button.classList.remove(
+                            "selected"
+                        );
+
+                    }
+                );
+
+
+                filterArticles();
+
+                searchInput.focus();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       CLICK CTRL K BUTTON
+       ===================================================== */
+
+    if (searchShortcut && searchInput) {
+
+        searchShortcut.addEventListener(
+            "click",
+            function () {
+
+                searchInput.focus();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       KEYBOARD CTRL + K
+       ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                (event.ctrlKey || event.metaKey) &&
+                event.key.toLowerCase() === "k"
+            ) {
+
+                event.preventDefault();
+
+                if (searchInput) {
+
+                    searchInput.focus();
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       CATEGORY BUTTONS
+       ===================================================== */
+
+    categoryButtons.forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    selectedCategory =
+                        button.dataset.category;
+
+
+                    if (searchInput) {
+                        searchInput.value = "";
+                    }
+
+
+                    if (clearSearch) {
+                        clearSearch.style.display =
+                            "none";
+                    }
+
+
+                    categoryButtons.forEach(
+                        function (otherButton) {
+
+                            otherButton.classList.remove(
+                                "selected"
+                            );
+
+                        }
+                    );
+
+
+                    button.classList.add("selected");
+
+
+                    filterArticles();
+
+
+                    if (articlesSection) {
+
+                        articlesSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       SHOW ALL ARTICLES
+       ===================================================== */
+
+    if (showAllButton) {
+
+        showAllButton.addEventListener(
+            "click",
+            function () {
+
+                selectedCategory = "";
+
+
+                if (searchInput) {
+                    searchInput.value = "";
+                }
+
+
+                if (clearSearch) {
+                    clearSearch.style.display =
+                        "none";
+                }
+
+
+                categoryButtons.forEach(
+                    function (button) {
+
+                        button.classList.remove(
+                            "selected"
+                        );
+
+                    }
+                );
+
+
+                filterArticles();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       ARTICLE ACCORDION
+       ===================================================== */
+
+    document.querySelectorAll(
+        ".help-article-main"
+    ).forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const article =
+                        button.closest(
+                            ".help-article"
+                        );
+
+
+                    if (!article) {
+                        return;
+                    }
+
+
+                    const wasActive =
+                        article.classList.contains(
+                            "active"
+                        );
+
+
+                    document.querySelectorAll(
+                        ".help-article"
+                    ).forEach(
+                        function (otherArticle) {
+
+                            otherArticle.classList.remove(
+                                "active"
+                            );
+
+                        }
+                    );
+
+
+                    if (!wasActive) {
+
+                        article.classList.add(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       FAQ ACCORDION
+       ===================================================== */
+
+    document.querySelectorAll(
+        ".faq-question"
+    ).forEach(
+        function (question) {
+
+            question.addEventListener(
+                "click",
+                function () {
+
+                    const item =
+                        question.closest(
+                            ".faq-item"
+                        );
+
+
+                    if (!item) {
+                        return;
+                    }
+
+
+                    const wasActive =
+                        item.classList.contains(
+                            "active"
+                        );
+
+
+                    document.querySelectorAll(
+                        ".faq-item"
+                    ).forEach(
+                        function (otherItem) {
+
+                            otherItem.classList.remove(
+                                "active"
+                            );
+
+                        }
+                    );
+
+
+                    if (!wasActive) {
+
+                        item.classList.add(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       INITIAL STATE
+       ===================================================== */
+
+    filterArticles();
+
+});
+
+// ================================
+// ADMIN GUIDE MODAL
+// ================================
+
+const adminGuideButton = document.getElementById("adminGuideButton");
+const adminGuideModal = document.getElementById("adminGuideModal");
+const adminGuideOverlay = document.getElementById("adminGuideOverlay");
+const closeAdminGuide = document.getElementById("closeAdminGuide");
+
+
+function openAdminGuide() {
+    if (!adminGuideModal) return;
+
+    adminGuideModal.classList.add("active");
+    adminGuideModal.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+}
+
+
+function closeAdminGuideModal() {
+    if (!adminGuideModal) return;
+
+    adminGuideModal.classList.remove("active");
+    adminGuideModal.setAttribute("aria-hidden", "true");
+
+    document.body.style.overflow = "";
+}
+
+
+if (adminGuideButton) {
+    adminGuideButton.addEventListener("click", openAdminGuide);
+}
+
+
+if (closeAdminGuide) {
+    closeAdminGuide.addEventListener(
+        "click",
+        closeAdminGuideModal
+    );
+}
+
+
+if (adminGuideOverlay) {
+    adminGuideOverlay.addEventListener(
+        "click",
+        closeAdminGuideModal
+    );
+}
+
+
+document.addEventListener("keydown", function (event) {
+
+    if (event.key === "Escape") {
+        closeAdminGuideModal();
+    }
+
+});
+// ================================
+// REPORT ISSUE MODAL
+// ================================
+
+const reportIssueButton = document.getElementById("reportIssueButton");
+const issueModal = document.getElementById("issueModal");
+const issueModalOverlay = document.getElementById("issueModalOverlay");
+const closeIssueModal = document.getElementById("closeIssueModal");
+const cancelIssueButton = document.getElementById("cancelIssueButton");
+
+
+function openIssueModal() {
+
+    if (!issueModal) return;
+
+    issueModal.classList.add("active");
+    issueModal.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+}
+
+
+function closeIssueModalWindow() {
+
+    if (!issueModal) return;
+
+    issueModal.classList.remove("active");
+    issueModal.setAttribute("aria-hidden", "true");
+
+    document.body.style.overflow = "";
+}
+
+
+if (reportIssueButton) {
+
+    reportIssueButton.addEventListener(
+        "click",
+        openIssueModal
+    );
+
+}
+
+
+if (closeIssueModal) {
+
+    closeIssueModal.addEventListener(
+        "click",
+        closeIssueModalWindow
+    );
+
+}
+
+
+if (cancelIssueButton) {
+
+    cancelIssueButton.addEventListener(
+        "click",
+        closeIssueModalWindow
+    );
+
+}
+
+
+if (issueModalOverlay) {
+
+    issueModalOverlay.addEventListener(
+        "click",
+        closeIssueModalWindow
+    );
+
+}
+
+
+document.addEventListener("keydown", function (event) {
+
+    if (event.key === "Escape") {
+
+        closeIssueModalWindow();
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

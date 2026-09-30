@@ -1,0 +1,1336 @@
+{% extends "base.html" %}
+
+{% load crm_filters %}
+
+{% block title %}Pipeline | LeadFlow{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   PIPELINE PAGE
+========================================================= */
+
+.pipeline-page {
+    padding: 4px 0 24px;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.pipeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.pipeline-title-area h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    color: #172033;
+    letter-spacing: -0.4px;
+}
+
+.pipeline-title-area p {
+    margin: 5px 0 0;
+    color: #7b8497;
+    font-size: 13px;
+}
+
+.new-lead-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, .18);
+    transition: .18s ease;
+}
+
+.new-lead-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    color: #ffffff;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.pipeline-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.summary-card {
+    background: #ffffff;
+    border: 1px solid #e6eaf0;
+    border-radius: 10px;
+    padding: 11px 14px;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, .035);
+}
+
+.summary-label {
+    color: #7c879b;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .35px;
+    margin-bottom: 5px;
+}
+
+.summary-value {
+    color: #172033;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.summary-sub {
+    color: #8a93a5;
+    font-size: 9px;
+    margin-top: 3px;
+}
+
+/* =========================================================
+   FILTER PANEL
+========================================================= */
+
+.pipeline-filters {
+    background: #ffffff;
+    border: 1px solid #e6eaf0;
+    border-radius: 10px;
+    padding: 11px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, .035);
+}
+
+.filter-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 9px;
+}
+
+.filter-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #253047;
+}
+
+.filter-title-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+}
+
+.reset-filter {
+    color: #6b7280;
+    font-size: 10px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.reset-filter:hover {
+    color: #2563eb;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1.7fr repeat(7, 1fr) auto;
+    gap: 7px;
+    align-items: end;
+}
+
+.filter-field {
+    min-width: 0;
+}
+
+.filter-field label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    color: #6b7280;
+    margin-bottom: 3px;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    height: 34px;
+    border: 1px solid #dfe4ec;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #263248;
+    padding: 0 8px;
+    font-size: 10px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+    border-color: #93b4f8;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .07);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.apply-filter-btn {
+    height: 34px;
+    border: none;
+    border-radius: 6px;
+    padding: 0 13px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.apply-filter-btn:hover {
+    background: #1d4ed8;
+}
+
+/* =========================================================
+   PIPELINE BOARD
+========================================================= */
+
+.pipeline-board-wrapper {
+    background: #f5f7fa;
+    border: 1px solid #e2e7ee;
+    border-radius: 12px;
+    padding: 9px;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    /*
+       Fixed board height.
+       The page itself will NOT become extremely long.
+    */
+    height: 560px;
+
+    box-sizing: border-box;
+}
+
+.pipeline-board {
+    display: flex;
+    gap: 9px;
+    min-width: max-content;
+    height: 100%;
+    align-items: stretch;
+}
+
+/* =========================================================
+   PIPELINE COLUMN
+========================================================= */
+
+.pipeline-column {
+    width: 215px;
+    min-width: 215px;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #eef1f5;
+    border: 1px solid #e0e5eb;
+    border-radius: 9px;
+
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   COLUMN HEADER
+========================================================= */
+
+.pipeline-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 3px 3px 6px;
+
+    flex-shrink: 0;
+}
+
+.stage-name-area {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+}
+
+.stage-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+}
+
+.stage-dot.new {
+    background: #64748b;
+}
+
+.stage-dot.contacted {
+    background: #3b82f6;
+}
+
+.stage-dot.qualified {
+    background: #8b5cf6;
+}
+
+.stage-dot.proposal {
+    background: #f59e0b;
+}
+
+.stage-dot.negotiation {
+    background: #f97316;
+}
+
+.stage-dot.won {
+    background: #16a34a;
+}
+
+.stage-dot.lost {
+    background: #ef4444;
+}
+
+.stage-name {
+    font-size: 11px;
+    font-weight: 800;
+    color: #334155;
+}
+
+.stage-count {
+    min-width: 21px;
+    height: 19px;
+    padding: 0 5px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+    border: 1px solid #dfe4eb;
+    border-radius: 5px;
+
+    color: #64748b;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   STAGE VALUE
+========================================================= */
+
+.stage-value {
+    padding: 0 3px 7px;
+
+    color: #7b8494;
+    font-size: 9px;
+    font-weight: 700;
+
+    flex-shrink: 0;
+
+    border-bottom: 1px solid #dfe4ea;
+    margin-bottom: 7px;
+}
+
+/* =========================================================
+   IMPORTANT:
+   ONLY LEAD CARDS SCROLL
+========================================================= */
+
+.pipeline-column-leads {
+    flex: 1;
+    min-height: 0;
+
+    overflow-y: auto;
+
+    padding-right: 3px;
+}
+
+/* Scrollbar */
+
+.pipeline-column-leads::-webkit-scrollbar {
+    width: 5px;
+}
+
+.pipeline-column-leads::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pipeline-column-leads::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.pipeline-column-leads::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* =========================================================
+   LEAD CARD
+========================================================= */
+
+.pipeline-card {
+    position: relative;
+
+    background: #ffffff;
+    border: 1px solid #e1e6ed;
+    border-radius: 8px;
+
+    padding: 9px;
+    margin-bottom: 7px;
+
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .035);
+
+    transition: .16s ease;
+}
+
+.pipeline-card:hover {
+    transform: translateY(-1px);
+    border-color: #b9c8df;
+    box-shadow: 0 5px 12px rgba(15, 23, 42, .08);
+}
+
+/* =========================================================
+   CLICKABLE CARD
+========================================================= */
+
+.pipeline-card-link {
+    display: block;
+
+    text-decoration: none;
+    color: inherit;
+}
+
+.pipeline-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* =========================================================
+   CARD TOP
+========================================================= */
+
+.lead-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 7px;
+    align-items: flex-start;
+}
+
+.lead-name {
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    line-height: 1.25;
+
+    padding-right: 20px;
+}
+
+.pipeline-card:hover .lead-name {
+    color: #2563eb;
+}
+
+.lead-id {
+    color: #94a3b8;
+    font-size: 8px;
+    margin-top: 2px;
+}
+
+.company-name {
+    margin-top: 5px;
+
+    color: #64748b;
+    font-size: 9px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   LEAD VALUE
+========================================================= */
+
+.lead-value {
+    margin-top: 6px;
+
+    color: #172033;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   META
+========================================================= */
+
+.lead-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.meta-pill {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.temperature-hot {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.temperature-warm {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.temperature-cold {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.priority-high {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.priority-medium {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.priority-low {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* =========================================================
+   CARD FOOTER
+========================================================= */
+
+.lead-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 6px;
+
+    border-top: 1px solid #edf0f4;
+
+    margin-top: 7px;
+    padding-top: 6px;
+}
+
+.assigned-user {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.avatar {
+    width: 20px;
+    height: 20px;
+
+    flex: 0 0 20px;
+
+    border-radius: 50%;
+
+    background: #e8efff;
+    color: #2563eb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.assigned-name {
+    max-width: 82px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: #64748b;
+    font-size: 8px;
+    font-weight: 600;
+}
+
+.follow-up {
+    color: #64748b;
+    font-size: 8px;
+
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* =========================================================
+   OPEN INDICATOR
+========================================================= */
+
+.open-indicator {
+    position: absolute;
+
+    top: 8px;
+    right: 8px;
+
+    width: 19px;
+    height: 19px;
+
+    border-radius: 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f5f9;
+    color: #64748b;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    opacity: .8;
+
+    transition: .16s ease;
+}
+
+.pipeline-card:hover .open-indicator {
+    background: #eff6ff;
+    color: #2563eb;
+    opacity: 1;
+}
+
+/* =========================================================
+   EMPTY COLUMN
+========================================================= */
+
+.empty-column {
+    text-align: center;
+
+    padding: 25px 8px;
+
+    color: #94a3b8;
+    font-size: 9px;
+}
+
+.empty-icon {
+    width: 28px;
+    height: 28px;
+
+    margin: 0 auto 7px;
+
+    border-radius: 50%;
+
+    background: #e5e9ef;
+    color: #94a3b8;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    .filter-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .filter-field.search-field {
+        grid-column: span 4;
+    }
+}
+
+@media (max-width: 900px) {
+
+    .pipeline-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .filter-field.search-field {
+        grid-column: span 3;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .pipeline-header {
+        flex-direction: column;
+    }
+
+    .new-lead-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pipeline-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-field.search-field {
+        grid-column: auto;
+    }
+
+    .filter-actions {
+        width: 100%;
+    }
+
+    .apply-filter-btn {
+        width: 100%;
+    }
+
+    .pipeline-board-wrapper {
+        margin-left: -10px;
+        margin-right: -10px;
+
+        border-radius: 0;
+
+        height: 520px;
+    }
+}
+
+</style>
+
+
+<div class="pipeline-page">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="pipeline-header">
+
+        <div class="pipeline-title-area">
+
+            <h1>Sales Pipeline</h1>
+
+            <p>
+                Track and manage leads through every stage of the sales process.
+            </p>
+
+        </div>
+
+        <a href="/leads/new/" class="new-lead-btn">
+
+            <span>+</span>
+
+            New Lead
+
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUMMARY
+    ====================================================== -->
+
+    <div class="pipeline-summary">
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                TOTAL LEADS
+            </div>
+
+            <div class="summary-value">
+                {{ total_leads }}
+            </div>
+
+            <div class="summary-sub">
+                Leads in current view
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                OPEN PIPELINE
+            </div>
+
+            <div class="summary-value">
+                {{ open_leads }}
+            </div>
+
+            <div class="summary-sub">
+                Active opportunities
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                PIPELINE VALUE
+            </div>
+
+            <div class="summary-value">
+                ₹{{ total_value|floatformat:0 }}
+            </div>
+
+            <div class="summary-sub">
+                Total lead value
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                HOT LEADS
+            </div>
+
+            <div class="summary-value">
+                {{ hot_leads }}
+            </div>
+
+            <div class="summary-sub">
+                High-priority opportunities
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTERS
+    ====================================================== -->
+
+    <form method="get" class="pipeline-filters">
+
+        <div class="filter-top">
+
+            <div class="filter-title">
+
+                <span class="filter-title-icon">
+                    ⚙
+                </span>
+
+                Pipeline Filters
+
+            </div>
+
+            <a href="{% url 'pipeline' %}" class="reset-filter">
+                Reset filters
+            </a>
+
+        </div>
+
+
+        <div class="filter-grid">
+
+            <!-- SEARCH -->
+
+            <div class="filter-field search-field">
+
+                <label>
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search }}"
+                    placeholder="Lead name, company, phone or ID"
+                >
+
+            </div>
+
+
+            <!-- STAGE -->
+
+            <div class="filter-field">
+
+                <label>
+                    Stage
+                </label>
+
+                <select name="stage">
+
+                    <option value="">
+                        All stages
+                    </option>
+
+                    {% for value, label in status_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_stage == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- TEMPERATURE -->
+
+            <div class="filter-field">
+
+                <label>
+                    Temperature
+                </label>
+
+                <select name="temperature">
+
+                    <option value="">
+                        All
+                    </option>
+
+                    {% for value, label in temperature_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_temperature == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- PRIORITY -->
+
+            <div class="filter-field">
+
+                <label>
+                    Priority
+                </label>
+
+                <select name="priority">
+
+                    <option value="">
+                        All
+                    </option>
+
+                    {% for value, label in priority_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_priority == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- ASSIGNED -->
+
+            <div class="filter-field">
+
+                <label>
+                    Assigned To
+                </label>
+
+                <select name="assigned_to">
+
+                    <option value="">
+                        Everyone
+                    </option>
+
+                    {% for employee in employees %}
+
+                        <option
+                            value="{{ employee.id }}"
+                            {% if selected_assigned_to == employee.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ employee.get_full_name|default:employee.username }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- MIN VALUE -->
+
+            <div class="filter-field">
+
+                <label>
+                    Min Value
+                </label>
+
+                <input
+                    type="number"
+                    name="min_value"
+                    value="{{ min_value }}"
+                    placeholder="₹ 0"
+                >
+
+            </div>
+
+
+            <!-- MAX VALUE -->
+
+            <div class="filter-field">
+
+                <label>
+                    Max Value
+                </label>
+
+                <input
+                    type="number"
+                    name="max_value"
+                    value="{{ max_value }}"
+                    placeholder="₹ 0"
+                >
+
+            </div>
+
+
+            <!-- CREATED FROM -->
+
+            <div class="filter-field">
+
+                <label>
+                    Created From
+                </label>
+
+                <input
+                    type="date"
+                    name="from_date"
+                    value="{{ from_date }}"
+                >
+
+            </div>
+
+
+            <!-- CREATED TO -->
+
+            <div class="filter-field">
+
+                <label>
+                    Created To
+                </label>
+
+                <input
+                    type="date"
+                    name="to_date"
+                    value="{{ to_date }}"
+                >
+
+            </div>
+
+
+            <!-- APPLY -->
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="apply-filter-btn"
+                >
+                    Apply
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+
+    <!-- =====================================================
+         PIPELINE BOARD
+    ====================================================== -->
+
+    <div class="pipeline-board-wrapper">
+
+        <div class="pipeline-board">
+
+            {% for stage in pipeline_stages %}
+
+                {% with stage_data=pipeline|get_item:stage %}
+
+                    <div class="pipeline-column">
+
+                        <!-- COLUMN HEADER -->
+
+                        <div class="pipeline-column-header">
+
+                            <div class="stage-name-area">
+
+                                <span class="stage-dot {{ stage|lower }}"></span>
+
+                                <span class="stage-name">
+                                    {{ stage_data.label }}
+                                </span>
+
+                            </div>
+
+                            <span class="stage-count">
+                                {{ stage_data.count }}
+                            </span>
+
+                        </div>
+
+
+                        <!-- STAGE VALUE -->
+
+                        <div class="stage-value">
+
+                            ₹{{ stage_data.value|floatformat:0 }}
+
+                        </div>
+
+
+                        <!-- =================================================
+                             SCROLLABLE LEADS AREA
+                        ================================================== -->
+
+                        <div class="pipeline-column-leads">
+
+                            {% for lead in stage_data.leads %}
+
+                                <div class="pipeline-card">
+
+                                    <a
+                                        href="{% url 'lead_stage_workflow' lead.lead_id %}?stage={{ lead.status }}"
+                                        class="pipeline-card-link"
+                                    >
+
+                                        <!-- OPEN -->
+
+                                        <span class="open-indicator">
+                                            →
+                                        </span>
+
+
+                                        <!-- LEAD NAME -->
+
+                                        <div class="lead-card-top">
+
+                                            <div>
+
+                                                <div class="lead-name">
+
+                                                    {{ lead.first_name }}
+                                                    {{ lead.last_name }}
+
+                                                </div>
+
+                                                <div class="lead-id">
+
+                                                    {{ lead.lead_id }}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- COMPANY -->
+
+                                        {% if lead.company %}
+
+                                            <div class="company-name">
+
+                                                {{ lead.company }}
+
+                                            </div>
+
+                                        {% endif %}
+
+
+                                        <!-- VALUE -->
+
+                                        <div class="lead-value">
+
+                                            ₹{{ lead.lead_value|floatformat:0 }}
+
+                                        </div>
+
+
+                                        <!-- META -->
+
+                                        <div class="lead-meta">
+
+                                            <span
+                                                class="meta-pill temperature-{{ lead.temperature|lower }}"
+                                            >
+
+                                                {{ lead.get_temperature_display }}
+
+                                            </span>
+
+
+                                            <span
+                                                class="meta-pill priority-{{ lead.priority|lower }}"
+                                            >
+
+                                                {{ lead.get_priority_display }}
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <!-- FOOTER -->
+
+                                        <div class="lead-footer">
+
+                                            <div class="assigned-user">
+
+                                                <span class="avatar">
+
+                                                    {% if lead.assigned_to %}
+
+                                                        {{ lead.assigned_to.first_name|first|upper }}
+
+                                                    {% else %}
+
+                                                        ?
+
+                                                    {% endif %}
+
+                                                </span>
+
+
+                                                <span class="assigned-name">
+
+                                                    {% if lead.assigned_to %}
+
+                                                        {{ lead.assigned_to.get_full_name|default:lead.assigned_to.username }}
+
+                                                    {% else %}
+
+                                                        Unassigned
+
+                                                    {% endif %}
+
+                                                </span>
+
+                                            </div>
+
+
+                                            {% if lead.next_follow_up %}
+
+                                                <span class="follow-up">
+
+                                                    Follow-up
+                                                    {{ lead.next_follow_up|date:"d M" }}
+
+                                                </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </a>
+
+                                </div>
+
+                            {% empty %}
+
+                                <div class="empty-column">
+
+                                    <div class="empty-icon">
+                                        —
+                                    </div>
+
+                                    No leads in this stage
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                {% endwith %}
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+
+{% block title %}Team Members{% endblock %}
+
+{% block content %}
+
+<div class="team-page">
+
+    <!-- HEADER -->
+    <div class="team-page-header">
+
+        <div>
+            <div class="team-breadcrumb">
+                Settings / Team Members
+            </div>
+
+            <h1>Team Members</h1>
+
+            <p>
+                Manage your sales team and CRM access.
+            </p>
+        </div>
+
+        <a href="{% url 'add_sales_employee' %}" class="team-primary-btn">
+            <span>+</span>
+            Add Sales Employee
+        </a>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+    <div class="team-summary-grid">
+
+        <div class="team-summary-card">
+
+            <div class="team-summary-icon">
+                👥
+            </div>
+
+            <div>
+                <span>Sales Employees</span>
+                <strong>{{ sales_employees|length }}</strong>
+            </div>
+
+        </div>
+
+
+       
+
+    </div>
+
+
+    <!-- SALES EMPLOYEES -->
+    <section class="team-section">
+
+        <div class="team-section-header">
+
+            <div>
+                <h2>Sales Employees</h2>
+
+                <p>
+                    Sales employees can access and update leads assigned to them.
+                </p>
+            </div>
+
+            <span class="team-member-count">
+                {{ sales_employees|length }} members
+            </span>
+
+        </div>
+
+
+        <div class="team-table-container">
+
+            <table class="team-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Employee</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for employee in sales_employees %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="team-employee">
+
+                                <div class="team-avatar">
+                                    {{ employee.username|first|upper }}
+                                </div>
+
+                                <div class="team-employee-info">
+
+                                    <strong>
+    <a
+        href="{% url 'sales_employee_detail' employee.id %}"
+        class="team-employee-link"
+    >
+        {% if employee.first_name %}
+            {{ employee.first_name }}
+            {{ employee.last_name }}
+        {% else %}
+            {{ employee.username }}
+        {% endif %}
+    </a>
+</strong>
+
+                                    <span>
+                                        Sales Employee
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            <span class="team-email">
+                                {{ employee.email }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="team-username">
+                                {{ employee.username }}
+                            </span>
+                        </td>
+
+
+                        <td>
+
+                            {% if employee.is_active %}
+
+                                <span class="team-status active">
+                                    <span class="status-dot"></span>
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="team-status inactive">
+                                    <span class="status-dot"></span>
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="team-role">
+                                Sales Employee
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="5">
+
+                            <div class="team-empty">
+
+                                <div class="team-empty-icon">
+                                    👥
+                                </div>
+
+                                <strong>
+                                    No sales employees yet
+                                </strong>
+
+                                <span>
+                                    Add your first Sales Employee to start assigning leads.
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+   
+
+</div>
+
+
+<style>
+
+/* =========================================
+   TEAM PAGE
+========================================= */
+
+.team-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+/* HEADER */
+
+.team-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 28px;
+}
+
+.team-breadcrumb {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 7px;
+}
+
+.team-page-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.team-page-header p {
+    margin: 7px 0 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* PRIMARY BUTTON */
+
+.team-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 16px;
+    background: #1e293b;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.team-primary-btn:hover {
+    background: #334155;
+}
+
+.team-primary-btn span {
+    font-size: 17px;
+    line-height: 1;
+}
+
+
+/* SUMMARY */
+
+.team-summary-grid {
+    display: flex;
+    justify-content: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.team-summary-card {
+    width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.team-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.team-summary-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 8px;
+    font-size: 17px;
+}
+
+.team-summary-card span {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.team-summary-card strong {
+    display: block;
+    font-size: 22px;
+    color: #0f172a;
+}
+
+
+/* SECTION */
+
+.team-section {
+    margin-bottom: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.team-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.team-section-header h2 {
+    margin: 0;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.team-section-header p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.team-member-count {
+    font-size: 12px;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+
+/* TABLE */
+
+.team-table-container {
+    overflow-x: auto;
+}
+
+.team-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-table th {
+    padding: 12px 22px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.team-table td {
+    padding: 15px 22px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+    color: #334155;
+}
+
+.team-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.team-table tbody tr:hover {
+    background: #fafafa;
+}
+
+
+/* EMPLOYEE */
+
+.team-employee {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.team-avatar {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.team-employee-info strong {
+    display: block;
+    font-size: 13px;
+    color: #1e293b;
+}
+
+.team-employee-info span {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.team-email {
+    color: #475569;
+}
+
+.team-username {
+    color: #64748b;
+}
+
+
+/* STATUS */
+
+.team-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.team-status.active {
+    color: #15803d;
+}
+
+.team-status.inactive {
+    color: #dc2626;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+
+/* ROLE */
+
+.team-role {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 5px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.team-role.manager {
+    background: #f8fafc;
+}
+
+
+/* EMPTY */
+
+.team-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.team-empty-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    font-size: 18px;
+}
+
+.team-empty strong {
+    color: #334155;
+    font-size: 13px;
+}
+
+.team-empty span {
+    margin-top: 5px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .team-page-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .team-primary-btn {
+        justify-content: center;
+    }
+
+    .team-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .team-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+</style>
+
+{% endblock %}

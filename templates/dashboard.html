@@ -1,0 +1,1038 @@
+{% extends "base.html" %}
+{% load crm_filters %}
+
+{% block title %}My Workspace{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="modern-workspace-header">
+
+        <div class="workspace-header-left">
+
+            <div class="breadcrumb">
+                Workspace <span>/</span> Today
+            </div>
+
+            <h1>
+                Good morning, {{ request.user.username }}
+            </h1>
+
+            <p>
+                Here’s what needs your attention today.
+            </p>
+
+        </div>
+
+        <div class="workspace-header-actions">
+
+            <a
+                href="{% url 'lead_list' %}"
+                class="dashboard-btn dashboard-btn-secondary"
+            >
+                View Leads
+            </a>
+
+            {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+
+            <a
+                href="{% url 'create_lead' %}"
+                class="dashboard-btn dashboard-btn-primary"
+            >
+                <span>+</span>
+                New Lead
+            </a>
+
+            {% endif %}
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         ATTENTION
+    ====================================================== -->
+
+    <section class="dashboard-section">
+
+        <div class="dashboard-section-header">
+
+            <div>
+
+                <span class="dashboard-eyebrow">
+                    TODAY
+                </span>
+
+                <h2>
+                    What needs your attention?
+                </h2>
+
+                <p>
+                    Prioritized work so you know what to do next.
+                </p>
+
+            </div>
+
+            <a
+                href="{% url 'lead_list' %}"
+                class="dashboard-link"
+            >
+                View all leads →
+            </a>
+
+        </div>
+
+
+        <div class="attention-cards">
+
+
+            <!-- HOT -->
+
+            <a
+                href="{% url 'lead_list' %}?temperature=HOT"
+                class="attention-card attention-hot"
+            >
+
+                <div class="attention-card-top">
+
+                    <div class="attention-icon">
+                        🔥
+                    </div>
+
+                    <span class="attention-arrow">
+                        →
+                    </span>
+
+                </div>
+
+                <strong class="attention-number">
+                    {{ hot_leads }}
+                </strong>
+
+                <span class="attention-title">
+                    Hot Leads
+                </span>
+
+                <span class="attention-description">
+                    High-interest opportunities
+                </span>
+
+            </a>
+
+
+            <!-- FOLLOW UPS -->
+
+            <a
+                href="{% url 'follow_up_list' %}"
+                class="attention-card attention-followup"
+            >
+
+                <div class="attention-card-top">
+
+                    <div class="attention-icon">
+                        ✓
+                    </div>
+
+                    <span class="attention-arrow">
+                        →
+                    </span>
+
+                </div>
+
+                <strong class="attention-number">
+                    {{ pending_tasks }}
+                </strong>
+
+                <span class="attention-title">
+                    Follow-ups
+                </span>
+
+                <span class="attention-description">
+                    Pending actions
+                </span>
+
+            </a>
+
+
+            <!-- OVERDUE -->
+
+            <a
+                href="{% url 'follow_up_list' %}"
+                class="attention-card attention-overdue"
+            >
+
+                <div class="attention-card-top">
+
+                    <div class="attention-icon">
+                        !
+                    </div>
+
+                    <span class="attention-arrow">
+                        →
+                    </span>
+
+                </div>
+
+                <strong class="attention-number">
+                    {{ overdue_tasks }}
+                </strong>
+
+                <span class="attention-title">
+                    Overdue
+                </span>
+
+                <span class="attention-description">
+                    Need immediate attention
+                </span>
+
+            </a>
+
+
+            <!-- NEW LEADS -->
+
+            <a
+                href="{% url 'lead_inbox' %}"
+                class="attention-card attention-new"
+            >
+
+                <div class="attention-card-top">
+
+                    <div class="attention-icon">
+                        +
+                    </div>
+
+                    <span class="attention-arrow">
+                        →
+                    </span>
+
+                </div>
+
+                <strong class="attention-number">
+                    {{ new_leads }}
+                </strong>
+
+                <span class="attention-title">
+                    New Leads
+                </span>
+
+                <span class="attention-description">
+                    Not contacted yet
+                </span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <div class="dashboard-main-grid">
+
+
+        <!-- =================================================
+             MY LEADS
+        ================================================== -->
+
+        <section class="dashboard-panel leads-panel">
+
+            <div class="dashboard-panel-header">
+
+                <div>
+
+                    <span class="dashboard-eyebrow">
+                        SALES WORK
+                    </span>
+
+                    <h2>
+                        My Leads
+                    </h2>
+
+                    <p>
+                        Leads that require your action.
+                    </p>
+
+                </div>
+
+                <a
+                    href="{% url 'lead_list' %}"
+                    class="dashboard-link"
+                >
+                    View all →
+                </a>
+
+            </div>
+
+
+            <div class="crm-leads-list">
+
+                {% if my_leads %}
+
+                    {% for lead in my_leads %}
+
+                    <article class="crm-lead-card">
+
+                        <!-- PERSON -->
+
+                        <div class="crm-lead-identity">
+
+                            <div class="crm-avatar">
+
+                                {{ lead.first_name|first|upper }}{{ lead.last_name|first|upper }}
+
+                            </div>
+
+                            <div class="crm-lead-name">
+
+                                <a
+                                    href="{% url 'lead_detail' lead.lead_id %}"
+                                >
+                                    {{ lead.first_name }}
+                                    {{ lead.last_name }}
+                                </a>
+
+                                {% if lead.company %}
+
+                                <span>
+                                    {{ lead.company }}
+                                </span>
+
+                                {% else %}
+
+                                <span>
+                                    No company
+                                </span>
+
+                                {% endif %}
+
+                                <small>
+                                    {{ lead.lead_id }}
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="crm-lead-status">
+
+                            <span class="crm-temperature {{ lead.temperature|lower }}">
+                                {{ lead.get_temperature_display }}
+                            </span>
+
+                            <strong>
+                                {{ lead.get_status_display }}
+                            </strong>
+
+                            <span>
+                                {{ lead.lead_value|currency }}
+                            </span>
+
+                        </div>
+
+
+                        <!-- FOLLOW UP -->
+
+                        <div class="crm-lead-followup">
+
+                            <small>
+                                NEXT FOLLOW-UP
+                            </small>
+
+                            {% if lead.next_follow_up %}
+
+                                <strong>
+                                    Follow-up
+                                </strong>
+
+                                <span>
+                                    {{ lead.next_follow_up|date:"d M Y · h:i A" }}
+                                </span>
+
+                            {% else %}
+
+                                <strong class="no-followup">
+                                    No follow-up
+                                </strong>
+
+                                <span>
+                                    Action required
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- DOCUMENT -->
+
+                        <div class="crm-lead-document">
+
+                            <small>
+                                DOCUMENT
+                            </small>
+
+                            {% with documents=lead.documents.all %}
+
+                                {% if documents %}
+
+                                <div class="document-pill document-present">
+
+                                    <span class="document-check">
+                                        ✓
+                                    </span>
+
+                                    <div>
+
+                                        <strong>
+                                            Uploaded
+                                        </strong>
+
+                                        {% for document in documents|slice:":1" %}
+
+                                        <a
+                                            href="{{ document.file.url }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title="View {{ document.original_name|default:document.file.name }}"
+                                        >
+                                            {{ document.original_name|default:document.file.name }}
+                                        </a>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                </div>
+
+                                {% else %}
+
+                                <div class="document-pill document-missing">
+
+                                    <span class="document-warning">
+                                        !
+                                    </span>
+
+                                    <div>
+
+                                        <strong>
+                                            Not uploaded
+                                        </strong>
+
+                                        <span>
+                                            No document yet
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                {% endif %}
+
+                            {% endwith %}
+
+                        </div>
+
+
+                        <!-- ACTIONS -->
+
+                        <div class="crm-lead-actions">
+
+                            {% if lead.phone %}
+
+                            <a
+                                href="tel:{{ lead.phone }}"
+                                class="crm-action"
+                                title="Call {{ lead.first_name }}"
+                            >
+                                ☎
+                            </a>
+
+                            {% endif %}
+
+
+                            {% if lead.whatsapp_number %}
+
+                            <a
+                                href="https://wa.me/{{ lead.whatsapp_number }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="crm-action crm-whatsapp"
+                                title="WhatsApp {{ lead.first_name }}"
+                            >
+                                ◉
+                            </a>
+
+                            {% endif %}
+
+
+                            <a
+                                href="{% url 'lead_detail' lead.lead_id %}"
+                                class="crm-view-action"
+                                title="View Lead"
+                            >
+                                View →
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                <div class="crm-empty-state">
+
+                    <div class="crm-empty-icon">
+                        ✓
+                    </div>
+
+                    <strong>
+                        No leads assigned
+                    </strong>
+
+                    <span>
+                        Your assigned leads will appear here.
+                    </span>
+
+                    <a href="{% url 'lead_list' %}">
+                        View all leads →
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PRODUCTIVITY
+        ================================================== -->
+
+        <section class="dashboard-panel productivity-panel">
+
+            <div class="dashboard-panel-header">
+
+                <div>
+
+                    <span class="dashboard-eyebrow">
+                        PRODUCTIVITY
+                    </span>
+
+                    <h2>
+                        Today's Activity
+                    </h2>
+
+                    <p>
+                        Your activity summary.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="activity-cards">
+
+
+                <div class="activity-card">
+
+                    <div class="activity-card-icon">
+                        ☎
+                    </div>
+
+                    <strong
+                        id="todayCalls"
+                        data-count="{{ today_calls }}"
+                    >
+                        {{ today_calls }}
+                    </strong>
+
+                    <span>
+                        Calls
+                    </span>
+
+                </div>
+
+
+                <div class="activity-card">
+
+                    <div class="activity-card-icon">
+                        @
+                    </div>
+
+                    <strong
+                        id="todayEmails"
+                        data-count="{{ today_emails }}"
+                    >
+                        {{ today_emails }}
+                    </strong>
+
+                    <span>
+                        Emails
+                    </span>
+
+                </div>
+
+
+                <div class="activity-card">
+
+                    <div class="activity-card-icon">
+                        ◉
+                    </div>
+
+                    <strong
+                        id="todayMessages"
+                        data-count="{{ today_messages }}"
+                    >
+                        {{ today_messages }}
+                    </strong>
+
+                    <span>
+                        WhatsApp
+                    </span>
+
+                </div>
+
+
+                <div class="activity-card">
+
+                    <div class="activity-card-icon">
+                        ▣
+                    </div>
+
+                    <strong
+                        id="todayMeetings"
+                        data-count="{{ today_meetings }}"
+                    >
+                        {{ today_meetings }}
+                    </strong>
+
+                    <span>
+                        Meetings
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- DAILY TARGET -->
+
+            <div class="daily-target">
+
+                <div class="daily-target-header">
+
+                    <div>
+
+                        <strong>
+                            Daily activity
+                        </strong>
+
+                        <span id="activityMessage">
+                            No activities recorded today
+                        </span>
+
+                    </div>
+
+                    <strong>
+                        <span id="activityTotal">0</span> / 25
+                    </strong>
+
+                </div>
+
+
+                <div class="daily-progress-track">
+
+                    <div
+                        id="activityProgress"
+                        class="daily-progress-fill"
+                        style="width: 0%;"
+                    ></div>
+
+                </div>
+
+
+                <div class="daily-target-footer">
+
+                    <span>
+                        Daily target
+                    </span>
+
+                    <span id="activityRemaining">
+                        25 remaining
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =====================================================
+         SALES PIPELINE
+    ====================================================== -->
+
+    <section class="dashboard-panel pipeline-panel">
+
+        <div class="dashboard-panel-header">
+
+            <div>
+
+                <span class="dashboard-eyebrow">
+                    SALES PIPELINE
+                </span>
+
+                <h2>
+                    Pipeline
+                </h2>
+
+                <p>
+                    Where your opportunities stand.
+                </p>
+
+            </div>
+
+            <a
+                href="{% url 'pipeline' %}"
+                class="dashboard-link"
+            >
+                Open pipeline →
+            </a>
+
+        </div>
+
+
+        <div class="pipeline-container">
+
+
+            <!-- NEW -->
+
+            <a
+                href="{% url 'pipeline' %}?stage=NEW"
+                class="pipeline-box pipeline-new"
+            >
+
+                <span>
+                    New
+                </span>
+
+                <strong>
+                    {{ new_leads }}
+                </strong>
+
+                <small>
+                    New leads
+                </small>
+
+            </a>
+
+
+            <span class="pipeline-connector">
+                →
+            </span>
+
+
+            <!-- CONTACTED -->
+
+            <a
+                href="{% url 'pipeline' %}?stage=CONTACTED"
+                class="pipeline-box pipeline-contacted"
+            >
+
+                <span>
+                    Contacted
+                </span>
+
+                <strong>
+                    {{ leads_contacted }}
+                </strong>
+
+                <small>
+                    Contacted
+                </small>
+
+            </a>
+
+
+            <span class="pipeline-connector">
+                →
+            </span>
+
+
+            <!-- QUALIFIED -->
+
+            <a
+                href="{% url 'pipeline' %}?stage=QUALIFIED"
+                class="pipeline-box pipeline-qualified"
+            >
+
+                <span>
+                    Qualified
+                </span>
+
+                <strong>
+                    {{ leads_qualified }}
+                </strong>
+
+                <small>
+                    Qualified
+                </small>
+
+            </a>
+
+
+            <span class="pipeline-connector">
+                →
+            </span>
+
+
+            <!-- PROPOSAL -->
+
+            <a
+                href="{% url 'pipeline' %}?stage=PROPOSAL"
+                class="pipeline-box pipeline-proposal"
+            >
+
+                <span>
+                    Proposal
+                </span>
+
+                <strong>
+                    {{ leads_proposal }}
+                </strong>
+
+                <small>
+                    Proposal
+                </small>
+
+            </a>
+
+
+            <span class="pipeline-connector">
+                →
+            </span>
+
+
+            <!-- NEGOTIATION -->
+
+            <a
+                href="{% url 'pipeline' %}?stage=NEGOTIATION"
+                class="pipeline-box pipeline-negotiation"
+            >
+
+                <span>
+                    Negotiation
+                </span>
+
+                <strong>
+                    {{ leads_negotiation }}
+                </strong>
+
+                <small>
+                    Negotiation
+                </small>
+
+            </a>
+
+
+            <span class="pipeline-connector">
+                →
+            </span>
+
+
+            <!-- WON -->
+
+            <a
+                href="{% url 'pipeline' %}?stage=WON"
+                class="pipeline-box pipeline-won"
+            >
+
+                <span>
+                    Won
+                </span>
+
+                <strong>
+                    {{ won_leads }}
+                </strong>
+
+                <small>
+                    {{ won_value|currency }}
+                </small>
+
+            </a>
+
+        </div>
+
+
+        <div class="pipeline-summary">
+
+            <span>
+                Total active opportunities
+            </span>
+
+            <strong>
+                {{ new_leads|add:leads_contacted|add:leads_qualified|add:leads_proposal|add:leads_negotiation }}
+            </strong>
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <div class="dashboard-footer">
+
+        <span>
+            Keep your leads updated to maintain an accurate pipeline.
+        </span>
+
+        <a href="{% url 'lead_list' %}">
+            Manage leads →
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ACTIVITY SCRIPT
+====================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const callsElement =
+        document.getElementById("todayCalls");
+
+    const emailsElement =
+        document.getElementById("todayEmails");
+
+    const messagesElement =
+        document.getElementById("todayMessages");
+
+    const meetingsElement =
+        document.getElementById("todayMeetings");
+
+    const totalElement =
+        document.getElementById("activityTotal");
+
+    const progressElement =
+        document.getElementById("activityProgress");
+
+    const remainingElement =
+        document.getElementById("activityRemaining");
+
+    const messageElement =
+        document.getElementById("activityMessage");
+
+
+    if (
+        !callsElement ||
+        !emailsElement ||
+        !messagesElement ||
+        !meetingsElement
+    ) {
+        return;
+    }
+
+
+    const calls =
+        parseInt(callsElement.dataset.count || "0", 10);
+
+    const emails =
+        parseInt(emailsElement.dataset.count || "0", 10);
+
+    const messages =
+        parseInt(messagesElement.dataset.count || "0", 10);
+
+    const meetings =
+        parseInt(meetingsElement.dataset.count || "0", 10);
+
+
+    const total =
+        calls +
+        emails +
+        messages +
+        meetings;
+
+
+    const target = 25;
+
+
+    const percentage =
+        Math.min((total / target) * 100, 100);
+
+
+    if (totalElement) {
+        totalElement.textContent = total;
+    }
+
+
+    if (progressElement) {
+        progressElement.style.width =
+            percentage + "%";
+    }
+
+
+    if (remainingElement) {
+
+        const remaining =
+            Math.max(target - total, 0);
+
+        remainingElement.textContent =
+            remaining > 0
+                ? remaining + " remaining"
+                : "Target completed";
+
+    }
+
+
+    if (messageElement) {
+
+        if (total === 0) {
+
+            messageElement.textContent =
+                "No activities recorded today";
+
+        } else if (total >= target) {
+
+            messageElement.textContent =
+                "Daily activity target completed";
+
+        } else {
+
+            messageElement.textContent =
+                "Activity recorded today";
+
+        }
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

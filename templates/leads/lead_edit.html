@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Lead{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <div class="workspace-header">
+        <div>
+            <div class="breadcrumb">
+                Workspace / Leads / {{ lead.lead_id }} / Edit
+            </div>
+
+            <h1>Edit Lead</h1>
+
+            <p>
+                Update information and sales details for
+                {{ lead.first_name }} {{ lead.last_name }}.
+            </p>
+        </div>
+
+        <a href="{% url 'lead_detail' lead.lead_id %}" class="secondary-btn">
+            ← Back to Lead
+        </a>
+    </div>
+
+
+    <form method="post" class="workspace-card lead-form">
+
+        {% csrf_token %}
+
+        <!-- CONTACT INFORMATION -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Contact Information</h2>
+                <p>Update the customer's contact details.</p>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>First Name <span>*</span></label>
+
+                    <input
+                        type="text"
+                        name="first_name"
+                        value="{{ lead.first_name }}"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label>Last Name</label>
+
+                    <input
+                        type="text"
+                        name="last_name"
+                        value="{{ lead.last_name }}"
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label>Phone <span>*</span></label>
+
+                    <input
+                        type="tel"
+                        name="phone"
+                        value="{{ lead.phone }}"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label>WhatsApp Number</label>
+
+                    <input
+                        type="tel"
+                        name="whatsapp_number"
+                        value="{{ lead.whatsapp_number }}"
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ lead.email }}"
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label>Company</label>
+
+                    <input
+                        type="text"
+                        name="company"
+                        value="{{ lead.company }}"
+                    >
+                </div>
+
+                <div class="form-group">
+    <label>Location</label>
+    <input
+        type="text"
+        name="location"
+        value="{{ lead.location }}"
+        placeholder="Enter customer location"
+    >
+</div>
+<div class="form-group">
+    <label>Category</label>
+    <input
+        type="text"
+        name="category"
+        value="{{ lead.category }}"
+        maxlength="100"
+        placeholder="e.g. Hospital"
+    >
+</div>
+
+<div class="form-group">
+    <label>Total Employees</label>
+    <input
+        type="number"
+        name="total_employees"
+        value="{{ lead.total_employees|default:'' }}"
+        min="0"
+        placeholder="e.g. 1500"
+    >
+</div>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-divider"></div>
+
+
+        <!-- LEAD QUALIFICATION -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Lead Qualification</h2>
+                <p>Manage the opportunity and its current sales position.</p>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Lead Source</label>
+
+                    <select name="source">
+
+                        {% for value, label in source_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if lead.source == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+
+    <label>Status</label>
+
+    <input
+        type="text"
+        value="{{ lead.get_status_display }}"
+        class="form-control"
+        readonly
+    >
+
+    <small class="form-help">
+        Stage changes are managed from the Lead List.
+    </small>
+
+    {% if lead.status == "LOST" %}
+
+        <div class="form-group" style="margin-top: 12px;">
+
+            <label for="lost_reason">
+                Lost Reason
+            </label>
+
+            <input
+                type="text"
+                id="lost_reason"
+                name="lost_reason"
+                value="{{ lead.lost_reason }}"
+                placeholder="Example: Price too high"
+            >
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+               <div class="form-group">
+    <label>Temperature</label>
+    <select name="temperature" id="temperature">
+        {% for value, label in temperature_choices %}
+            <option
+                value="{{ value }}"
+                {% if lead.temperature == value %}selected{% endif %}
+            >
+                {{ label }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+                <div class="form-group">
+    <label>Priority</label>
+    <select name="priority" id="priority">
+        {% for value, label in priority_choices %}
+            <option
+                value="{{ value }}"
+                {% if lead.priority == value %}selected{% endif %}
+            >
+                {{ label }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+                <div class="form-group">
+    <label>Assigned To</label>
+    <select name="assigned_to">
+        <option value="">Unassigned</option>
+
+        {% for user in sales_users %}
+            <option
+                value="{{ user.id }}"
+                {% if lead.assigned_to and lead.assigned_to.id == user.id %}
+                    selected
+                {% endif %}
+            >
+                {{ user.username }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+
+                <div class="form-group">
+                    <label>Estimated Lead Value</label>
+
+                    <div class="input-with-prefix">
+
+                        <span>₹</span>
+
+                        <input
+                            type="number"
+                            name="lead_value"
+                            min="0"
+                            step="0.01"
+                            value="{{ lead.lead_value }}"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+                    <label>Next Follow-up</label>
+
+                    <input
+                        type="datetime-local"
+                        name="next_follow_up"
+                        value="{{ lead.next_follow_up|date:'Y-m-d\TH:i' }}"
+                    >
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-divider"></div>
+
+
+        <!-- NOTES -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Notes</h2>
+                <p>Keep important information about this opportunity.</p>
+            </div>
+
+            <div class="form-group">
+
+                <label>Lead Notes</label>
+
+                <textarea
+                    name="notes"
+                    rows="6"
+                    placeholder="Requirements, conversation notes, customer expectations..."
+                >{{ lead.notes }}</textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="form-footer">
+
+            <a
+                href="{% url 'lead_detail' lead.lead_id %}"
+                class="secondary-btn"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="add-lead-btn"
+            >
+                Save Changes
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+    
+
+<script>
+    const temperatureField = document.getElementById("temperature");
+    const priorityField = document.getElementById("priority");
+
+    function updatePriority() {
+        const temperature = temperatureField.value;
+
+        // Enable all priority options first
+        Array.from(priorityField.options).forEach(option => {
+            option.disabled = false;
+        });
+
+        if (temperature === "HOT") {
+            priorityField.value = "HIGH";
+
+            Array.from(priorityField.options).forEach(option => {
+                if (option.value !== "HIGH" && option.value !== "") {
+                    option.disabled = true;
+                }
+            });
+        }
+
+        else if (temperature === "WARM") {
+            priorityField.value = "MEDIUM";
+
+            Array.from(priorityField.options).forEach(option => {
+                if (option.value !== "MEDIUM" && option.value !== "") {
+                    option.disabled = true;
+                }
+            });
+        }
+
+        else if (temperature === "COLD") {
+            priorityField.value = "LOW";
+
+            Array.from(priorityField.options).forEach(option => {
+                if (option.value !== "LOW" && option.value !== "") {
+                    option.disabled = true;
+                }
+            });
+        }
+    }
+
+    temperatureField.addEventListener("change", updatePriority);
+
+    // Apply rule when editing an old lead
+    updatePriority();
+</script>
+
+
+
+{% endblock %}

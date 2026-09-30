@@ -1,0 +1,514 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}{{ deal.title }}{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- PAGE HEADER -->
+    <div class="workspace-header">
+
+        <div>
+
+            <div class="breadcrumb">
+                Workspace / Deals / {{ deal.deal_id }}
+            </div>
+
+            <div class="deal-title-row">
+
+                <div>
+                    <h1>{{ deal.title }}</h1>
+
+                    <p>
+                        {{ deal.deal_id }}
+                        · Customer Deal
+                    </p>
+                </div>
+
+                <!-- CURRENT STATUS -->
+                <span class="deal-stage-badge">
+                    {{ deal.get_status_display }}
+                </span>
+
+            </div>
+
+        </div>
+
+        <div>
+
+            <a
+                href="{% url 'deal_list' %}"
+                class="detail-action"
+            >
+                ← Back to Deals
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- TOP SUMMARY -->
+    <div class="deal-summary-grid">
+
+        <!-- DEAL VALUE -->
+        <div class="deal-summary-card">
+
+            <div class="summary-icon">
+                ₹
+            </div>
+
+            <div>
+                <span class="summary-label">
+                    Deal Value
+                </span>
+
+                <strong class="summary-value">
+                    ₹{{ deal.deal_value }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <!-- CUSTOMER -->
+        <div class="deal-summary-card">
+
+            <div class="summary-icon">
+                C
+            </div>
+
+            <div>
+
+                <span class="summary-label">
+                    Customer
+                </span>
+
+                <strong class="summary-value">
+                    {{ deal.customer.first_name }}
+                    {{ deal.customer.last_name }}
+                </strong>
+
+                <small>
+                    {{ deal.customer.customer_id }}
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- ASSIGNED TO -->
+        <div class="deal-summary-card">
+
+            <div class="summary-icon">
+                A
+            </div>
+
+            <div>
+
+                <span class="summary-label">
+                    Assigned To
+                </span>
+
+                <strong class="summary-value">
+
+                    {% if deal.assigned_to %}
+                        {{ deal.assigned_to.get_full_name|default:deal.assigned_to.username }}
+                    {% else %}
+                        Unassigned
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- CLOSE DATE -->
+        <div class="deal-summary-card">
+
+            <div class="summary-icon">
+                D
+            </div>
+
+            <div>
+
+                <span class="summary-label">
+                    Expected Close
+                </span>
+
+                <strong class="summary-value">
+
+                    {% if deal.expected_close_date %}
+                        {{ deal.expected_close_date|date:"d M Y" }}
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="deal-content-grid">
+
+
+        <!-- LEFT COLUMN -->
+        <div>
+
+
+            <!-- DEAL INFORMATION -->
+            <section class="workspace-card">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2>Deal Information</h2>
+
+                        <p>
+                            Important information about this customer deal.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="deal-info-grid">
+
+                    <!-- DEAL ID -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Deal ID
+                        </span>
+
+                        <strong>
+                            {{ deal.deal_id }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- DEAL TITLE -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Deal Title
+                        </span>
+
+                        <strong>
+                            {{ deal.title }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- CUSTOMER -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Customer
+                        </span>
+
+                        <strong>
+                            {{ deal.customer.first_name }}
+                            {{ deal.customer.last_name }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- ORIGINAL LEAD -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Original Lead
+                        </span>
+
+                        <strong>
+
+                            {% if deal.customer.lead %}
+
+                                {{ deal.customer.lead.lead_id }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <!-- DEAL VALUE -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Deal Value
+                        </span>
+
+                        <strong>
+                            ₹{{ deal.deal_value }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Status
+                        </span>
+
+                        <strong>
+                            {{ deal.get_status_display }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- EXPECTED CLOSE -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Expected Close
+                        </span>
+
+                        <strong>
+
+                            {% if deal.expected_close_date %}
+
+                                {{ deal.expected_close_date|date:"d M Y" }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <!-- CREATED -->
+                    <div class="deal-info-item">
+
+                        <span>
+                            Created
+                        </span>
+
+                        <strong>
+                            {{ deal.created_at|date:"d M Y, h:i A" }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- NOTES -->
+            <section class="workspace-card">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2>Notes</h2>
+
+                        <p>
+                            Information recorded about this deal.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                {% if deal.notes %}
+
+                    <div class="deal-notes-box">
+
+                        {{ deal.notes|linebreaks }}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-detail">
+
+                        <h3>No notes added</h3>
+
+                        <p>
+                            Add notes when you edit the deal.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+        <div>
+
+
+            <!-- CUSTOMER -->
+            <section class="workspace-card">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2>Customer</h2>
+
+                        <p>
+                            Customer associated with this deal.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="customer-mini-card">
+
+                    <div class="customer-avatar">
+
+                        {{ deal.customer.first_name|first }}
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+
+                            {{ deal.customer.first_name }}
+                            {{ deal.customer.last_name }}
+
+                        </strong>
+
+                        <span>
+                            {{ deal.customer.customer_id }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="customer-contact-list">
+
+                    {% if deal.customer.phone %}
+
+                        <div>
+
+                            <span>
+                                Phone
+                            </span>
+
+                            <strong>
+                                {{ deal.customer.phone }}
+                            </strong>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if deal.customer.email %}
+
+                        <div>
+
+                            <span>
+                                Email
+                            </span>
+
+                            <strong>
+                                {{ deal.customer.email }}
+                            </strong>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- ACTIONS -->
+            <section class="workspace-card">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2>Actions</h2>
+
+                        <p>
+                            Manage this deal.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="deal-action-list">
+
+                    <!-- EDIT DEAL -->
+                    <a
+                        href="{% url 'edit_deal' deal.deal_id %}"
+                        class="deal-primary-action"
+                    >
+
+                        ✎
+
+                        <span>
+
+                            Edit Deal
+
+                            <small>
+                                Update deal information
+                            </small>
+
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}
+```

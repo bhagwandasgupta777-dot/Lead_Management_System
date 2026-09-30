@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Create Deal{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+
+            <div class="breadcrumb">
+                Workspace / Deals / New Deal
+            </div>
+
+            <h1>Create Deal</h1>
+
+            <p>
+                Create a deal for an existing customer.
+            </p>
+
+        </div>
+
+        <div>
+
+            <a
+                href="{% url 'deal_list' %}"
+                class="detail-action"
+            >
+                ← Back to Deals
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- DEAL FORM -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>Deal Information</h2>
+
+                <p>
+                    Enter the details of the customer deal.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-grid">
+
+
+                <!-- CUSTOMER -->
+
+                <div class="form-group">
+
+                    <label for="customer">
+                        Customer
+                    </label>
+
+                    <select
+                        name="customer"
+                        id="customer"
+                        required
+                    >
+
+                        <option value="">
+                            Select Customer
+                        </option>
+
+                        {% for customer in customers %}
+
+                        <option value="{{ customer.id }}">
+
+                            {{ customer.customer_id }} -
+                            {{ customer.first_name }}
+                            {{ customer.last_name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- DEAL TITLE -->
+
+                <div class="form-group">
+
+                    <label for="title">
+                        Deal Title
+                    </label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        id="title"
+                        placeholder="Example: Website Development Project"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DEAL VALUE -->
+
+                <div class="form-group">
+
+                    <label for="deal_value">
+                        Deal Value (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        name="deal_value"
+                        id="deal_value"
+                        min="0"
+                        step="0.01"
+                        placeholder="150000"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+
+<div class="form-group">
+
+    <label for="status">
+        Status
+    </label>
+
+    <select
+        name="status"
+        id="status"
+        required
+    >
+
+        {% for value, label in status_choices %}
+
+        <option
+            value="{{ value }}"
+            {% if value == "ACTIVE" %}selected{% endif %}
+        >
+            {{ label }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+</div>
+
+
+                <!-- EXPECTED CLOSE DATE -->
+
+                <div class="form-group">
+
+                    <label for="expected_close_date">
+                        Expected Close Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="expected_close_date"
+                        id="expected_close_date"
+                    >
+
+                </div>
+
+
+                <!-- ASSIGNED TO -->
+
+                {% if request.user.role != "SALES" %}
+
+                <div class="form-group">
+
+                    <label for="assigned_to">
+                        Assigned To
+                    </label>
+
+                    <select
+                        name="assigned_to"
+                        id="assigned_to"
+                    >
+
+                        <option value="">
+                            Select Sales Employee
+                        </option>
+
+                        {% for user in sales_users %}
+
+                        <option value="{{ user.id }}">
+
+                            {{ user.get_full_name|default:user.username }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+            <!-- NOTES -->
+
+            <div class="form-group form-group-full">
+
+                <label for="notes">
+                    Notes
+                </label>
+
+                <textarea
+                    name="notes"
+                    id="notes"
+                    rows="5"
+                    placeholder="Add important information about this deal..."
+                ></textarea>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'deal_list' %}"
+                    class="detail-action"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Create Deal
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

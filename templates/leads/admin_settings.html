@@ -1,0 +1,1031 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="settings-page">
+
+    <div class="page-header">
+        <div>
+            <h1>Settings</h1>
+            <p>
+                Manage your company information and system settings.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="settings-card">
+
+        <div class="settings-card-header">
+            <div>
+                <h2>Company Settings</h2>
+
+                <p>
+                    Configure company information, regional preferences,
+                    and working hours.
+                </p>
+            </div>
+        </div>
+
+
+        <!-- VALIDATION ERRORS -->
+
+        {% if settings_errors %}
+
+            <div class="settings-validation-errors">
+
+                <div class="settings-error-title">
+                    Please correct the following:
+                </div>
+
+                {% for error in settings_errors %}
+
+                    <div class="settings-error-item">
+                        • {{ error }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="form-grid">
+
+
+                <!-- COMPANY NAME -->
+
+                <div class="form-group">
+
+                    <label for="company_name">
+                        Company Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="company_name"
+                        name="company_name"
+                        value="{{ form_data.company_name }}"
+                        placeholder="Enter company name"
+                        maxlength="150"
+                    >
+
+                </div>
+
+
+                <!-- COMPANY EMAIL -->
+
+                <div class="form-group">
+
+                    <label for="company_email">
+                        Company Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="company_email"
+                        name="company_email"
+                        value="{{ form_data.company_email }}"
+                        placeholder="company@example.com"
+                        maxlength="254"
+                    >
+
+                </div>
+
+
+                <!-- COMPANY PHONE -->
+
+                <div class="form-group">
+
+                    <label for="company_phone">
+                        Company Phone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="company_phone"
+                        name="company_phone"
+                        value="{{ form_data.company_phone }}"
+                        placeholder="Enter phone number"
+                        maxlength="20"
+                    >
+
+                    <small class="field-help">
+                        10 to 15 digits. Spaces, +, hyphens and brackets are allowed.
+                    </small>
+
+                </div>
+
+
+                <!-- WEBSITE -->
+
+                <div class="form-group">
+
+                    <label for="website">
+                        Website
+                    </label>
+
+                    <input
+                        type="url"
+                        id="website"
+                        name="website"
+                        value="{{ form_data.website }}"
+                        placeholder="https://example.com"
+                        maxlength="200"
+                    >
+
+                </div>
+
+
+                <!-- COMPANY ADDRESS -->
+
+                <div class="form-group full-width">
+
+                    <label for="company_address">
+                        Company Address
+                    </label>
+
+                    <textarea
+                        id="company_address"
+                        name="company_address"
+                        rows="4"
+                        placeholder="Enter company address"
+                    >{{ form_data.company_address }}</textarea>
+
+                </div>
+
+
+                <!-- TIMEZONE -->
+
+                <div class="form-group">
+
+                    <label for="timezone">
+                        Timezone
+                    </label>
+
+                    <select
+                        id="timezone"
+                        name="timezone"
+                    >
+
+                        <option
+                            value="Asia/Kolkata"
+                            {% if form_data.timezone == "Asia/Kolkata" %}
+                                selected
+                            {% endif %}
+                        >
+                            India Standard Time (Asia/Kolkata)
+                        </option>
+
+
+                        <option
+                            value="Asia/Dubai"
+                            {% if form_data.timezone == "Asia/Dubai" %}
+                                selected
+                            {% endif %}
+                        >
+                            Gulf Standard Time (Asia/Dubai)
+                        </option>
+
+
+                        <option
+                            value="Asia/Singapore"
+                            {% if form_data.timezone == "Asia/Singapore" %}
+                                selected
+                            {% endif %}
+                        >
+                            Singapore Time (Asia/Singapore)
+                        </option>
+
+
+                        <option
+                            value="Europe/London"
+                            {% if form_data.timezone == "Europe/London" %}
+                                selected
+                            {% endif %}
+                        >
+                            London Time (Europe/London)
+                        </option>
+
+
+                        <option
+                            value="America/New_York"
+                            {% if form_data.timezone == "America/New_York" %}
+                                selected
+                            {% endif %}
+                        >
+                            Eastern Time (America/New_York)
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- CURRENCY -->
+
+                <div class="form-group">
+
+                    <label for="currency">
+                        Currency
+                    </label>
+
+                    <select
+                        id="currency"
+                        name="currency"
+                    >
+
+                        <option
+                            value="INR"
+                            {% if form_data.currency == "INR" %}
+                                selected
+                            {% endif %}
+                        >
+                            INR - Indian Rupee
+                        </option>
+
+
+                        <option
+                            value="USD"
+                            {% if form_data.currency == "USD" %}
+                                selected
+                            {% endif %}
+                        >
+                            USD - US Dollar
+                        </option>
+
+
+                        <option
+                            value="EUR"
+                            {% if form_data.currency == "EUR" %}
+                                selected
+                            {% endif %}
+                        >
+                            EUR - Euro
+                        </option>
+
+
+                        <option
+                            value="GBP"
+                            {% if form_data.currency == "GBP" %}
+                                selected
+                            {% endif %}
+                        >
+                            GBP - British Pound
+                        </option>
+
+
+                        <option
+                            value="AED"
+                            {% if form_data.currency == "AED" %}
+                                selected
+                            {% endif %}
+                        >
+                            AED - UAE Dirham
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- DATE FORMAT -->
+
+                <div class="form-group">
+
+                    <label for="date_format">
+                        Date Format
+                    </label>
+
+                    <select
+                        id="date_format"
+                        name="date_format"
+                    >
+
+                        <option
+                            value="DD/MM/YYYY"
+                            {% if form_data.date_format == "DD/MM/YYYY" %}
+                                selected
+                            {% endif %}
+                        >
+                            DD/MM/YYYY
+                        </option>
+
+
+                        <option
+                            value="MM/DD/YYYY"
+                            {% if form_data.date_format == "MM/DD/YYYY" %}
+                                selected
+                            {% endif %}
+                        >
+                            MM/DD/YYYY
+                        </option>
+
+
+                        <option
+                            value="YYYY-MM-DD"
+                            {% if form_data.date_format == "YYYY-MM-DD" %}
+                                selected
+                            {% endif %}
+                        >
+                            YYYY-MM-DD
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- WORKING HOURS START -->
+
+                <div class="form-group">
+
+                    <label for="working_hours_start">
+                        Working Hours Start
+                    </label>
+
+                    <input
+                        type="time"
+                        id="working_hours_start"
+                        name="working_hours_start"
+                        value="{{ form_data.working_hours_start }}"
+                    >
+
+                </div>
+
+
+                <!-- WORKING HOURS END -->
+
+                <div class="form-group">
+
+                    <label for="working_hours_end">
+                        Working Hours End
+                    </label>
+
+                    <input
+                        type="time"
+                        id="working_hours_end"
+                        name="working_hours_end"
+                        value="{{ form_data.working_hours_end }}"
+                    >
+
+                </div>
+
+
+                <!-- COMPANY LOGO -->
+
+                <div class="form-group full-width">
+
+                    <label for="company_logo">
+                        Company Logo
+                    </label>
+
+                    <input
+                        type="file"
+                        id="company_logo"
+                        name="company_logo"
+                        accept="image/png,image/jpeg,image/webp"
+                    >
+
+                    <small class="field-help">
+                        Maximum size: 2 MB. Recommended: PNG, JPG or WebP.
+                    </small>
+
+
+                    <!-- CURRENT LOGO -->
+
+                    {% if settings_obj.company_logo %}
+
+                        <div class="current-logo">
+
+                            <img
+                                src="{{ settings_obj.company_logo.url }}"
+                                alt="Company Logo"
+                            >
+
+
+                            <div class="current-logo-info">
+
+                                <strong>
+                                    Current Logo
+                                </strong>
+
+                                <span>
+                                    Upload a new logo to replace it.
+                                </span>
+
+
+                                <label class="remove-logo-option">
+
+                                    <input
+                                        type="checkbox"
+                                        name="remove_logo"
+                                        value="1"
+                                        {% if form_data.remove_logo %}
+                                            checked
+                                        {% endif %}
+                                    >
+
+                                    Remove current logo
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- FORM ACTIONS -->
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+    </form>
+</div>
+
+
+<!-- TEAM MANAGEMENT -->
+
+<div class="team-management-section">
+
+    <div class="team-management-header">
+
+        <div class="team-management-title">
+            <div class="team-management-icon">
+                <span>👥</span>
+            </div>
+
+            <div>
+                <h2>Team Management</h2>
+                <p>
+                    Manage your sales team, responsibilities and CRM access
+                    from one place.
+                </p>
+            </div>
+        </div>
+
+        <a href="{% url 'team_members' %}" class="team-management-btn">
+            Manage Team
+            <span>→</span>
+        </a>
+
+    </div>
+
+
+    <div class="team-management-content">
+
+        <div class="team-management-info">
+
+            <div class="team-info-icon">
+                👤
+            </div>
+
+            <div>
+                <h3>Sales Team</h3>
+                <p>
+                    Create and manage Sales Employees directly from the CRM.
+                    Each employee can work only with the leads assigned to them.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="team-feature">
+
+            <div class="team-feature-icon">
+                👤
+            </div>
+
+            <div>
+                <strong>Sales Employees</strong>
+                <span>Create and manage team members</span>
+            </div>
+
+        </div>
+
+
+        <div class="team-feature">
+
+            <div class="team-feature-icon">
+                🔐
+            </div>
+
+            <div>
+                <strong>Role-Based Access</strong>
+                <span>Control CRM permissions by role</span>
+            </div>
+
+        </div>
+
+
+        <div class="team-feature">
+
+            <div class="team-feature-icon">
+                ✓
+            </div>
+
+            <div>
+                <strong>Lead Access</strong>
+                <span>Employees see their assigned leads</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================
+   SETTINGS PAGE
+========================================= */
+
+.settings-page {
+    max-width: 1000px;
+}
+
+
+/* =========================================
+   VALIDATION ERRORS
+========================================= */
+
+.settings-validation-errors {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #b91c1c;
+}
+
+.settings-error-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.settings-error-item {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.settings-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+
+.settings-card-header {
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+
+.settings-card-header h2 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+    color: #1e293b;
+}
+
+
+.settings-card-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* =========================================
+   FORM GRID
+========================================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================
+   LABELS
+========================================= */
+
+.form-group label {
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 13px;
+    color: #1e293b;
+    background: #ffffff;
+    outline: none;
+}
+
+
+.form-group textarea {
+    resize: vertical;
+}
+
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #64748b;
+}
+
+
+/* =========================================
+   HELP TEXT
+========================================= */
+
+.field-help {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+
+/* =========================================
+   CURRENT LOGO
+========================================= */
+
+.current-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #f8fafc;
+}
+
+
+.current-logo img {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #ffffff;
+}
+
+
+.current-logo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+
+.current-logo-info strong {
+    font-size: 12px;
+    color: #334155;
+}
+
+
+.current-logo-info span {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+
+/* =========================================
+   REMOVE LOGO
+========================================= */
+
+.remove-logo-option {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 5px;
+    font-size: 11px;
+    color: #dc2626;
+    cursor: pointer;
+}
+
+
+.remove-logo-option input {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+
+/* =========================================
+   FORM ACTIONS
+========================================= */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: auto;
+    }
+
+    .settings-card {
+        padding: 18px;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+    }
+
+    .form-actions button {
+        width: 100%;
+    }
+
+}
+/* =========================================
+   TEAM MANAGEMENT
+========================================= */
+
+.team-management-section {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+
+/* Header */
+
+.team-management-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.team-management-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.team-management-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.team-management-title h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #172033;
+}
+
+.team-management-title p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* Button */
+
+.team-management-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 16px;
+    background: #2563eb;
+    color: #ffffff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.team-management-btn:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.team-management-btn span {
+    font-size: 16px;
+}
+
+
+/* Main content */
+
+.team-management-content {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 14px;
+    padding-top: 22px;
+}
+
+
+/* Main info */
+
+.team-management-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 11px;
+}
+
+.team-info-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 9px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    border: 1px solid #e5e7eb;
+}
+
+.team-management-info h3 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.team-management-info p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* Feature boxes */
+
+.team-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 17px;
+    border: 1px solid #eef0f3;
+    border-radius: 11px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.team-feature:hover {
+    border-color: #dbeafe;
+    background: #f8fbff;
+    transform: translateY(-1px);
+}
+
+.team-feature-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 9px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+}
+
+.team-feature strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.team-feature span {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+
+    .team-management-content {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .team-management-info {
+        grid-column: 1 / -1;
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .team-management-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .team-management-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .team-management-content {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+{% endblock %}

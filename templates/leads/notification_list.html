@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Notifications</h1>
+        <p>Stay updated with important activities and actions.</p>
+    </div>
+</div>
+
+<div class="notification-container">
+
+    {% if notifications %}
+
+        {% for notification in notifications %}
+
+            <div class="notification-card {% if not notification.is_read %}unread{% else %}read{% endif %}">
+
+                <div class="notification-icon">
+                    {% if notification.notification_type == "LEAD_ASSIGNED" %}
+                        👤
+                    {% elif notification.notification_type == "FOLLOW_UP" %}
+                        📅
+                    {% elif notification.notification_type == "TASK" %}
+                        ✓
+                    {% elif notification.notification_type == "OVERDUE" %}
+                        ⚠
+                    {% else %}
+                        🔔
+                    {% endif %}
+                </div>
+
+                <div class="notification-content">
+
+                    <div class="notification-top">
+
+                        <h3>{{ notification.title }}</h3>
+
+                        {% if not notification.is_read %}
+                            <span class="notification-new">
+                                NEW
+                            </span>
+                        {% else %}
+                            <span class="notification-read">
+                                READ
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    <p>{{ notification.message }}</p>
+
+                    <div class="notification-meta">
+
+                        <span>
+                            {{ notification.created_at|date:"d M Y, h:i A" }}
+                        </span>
+
+                        {% if notification.lead %}
+                            <span>•</span>
+
+                            <span class="notification-lead">
+                                {{ notification.lead.lead_id }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <a href="{% url 'mark_notification_read' notification.id %}"
+                   class="notification-action">
+
+                    {% if not notification.is_read %}
+                        View & Mark Read
+                    {% else %}
+                        View
+                    {% endif %}
+
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="notification-empty">
+
+            <div class="empty-icon">
+                🔔
+            </div>
+
+            <h2>You're all caught up</h2>
+
+            <p>No new notifications at the moment.</p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Reassign Task</h1>
+        <p>Change the Sales Employee responsible for this task.</p>
+    </div>
+
+    <a href="{% url 'task_detail' task.id %}" class="btn-secondary">
+        ← Back to Task
+    </a>
+</div>
+
+
+<div class="form-card">
+
+    <div class="task-summary">
+        <span class="summary-label">Task</span>
+        <strong>{{ task.title }}</strong>
+
+        {% if task.lead %}
+            <span class="summary-lead">
+                Related Lead: {{ task.lead.lead_id }}
+            </span>
+        {% endif %}
+    </div>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div class="form-group">
+
+            <label for="assigned_to">
+                Assign To <span>*</span>
+            </label>
+
+            {% if sales_users|length <= 1 %}
+
+    <div class="info-message">
+        No other Sales Employee is available for reassignment.
+    </div>
+
+{% else %}
+
+    <select
+        name="assigned_to"
+        id="assigned_to"
+        required
+    >
+        <option value="">
+            Select Sales Employee
+        </option>
+
+        {% for user in sales_users %}
+            <option
+                value="{{ user.id }}"
+                {% if task.assigned_to and task.assigned_to.id == user.id %}
+                    selected
+                {% endif %}
+            >
+                {{ user.username }}
+            </option>
+        {% endfor %}
+    </select>
+
+{% endif %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'task_detail' task.id %}"
+                class="btn-secondary"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="btn-primary"
+            >
+                Reassign Task
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<style>
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    margin: 0 0 5px;
+    font-size: 26px;
+    color: #1e293b;
+}
+
+.page-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.form-card {
+    max-width: 700px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.task-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.summary-label {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: .4px;
+}
+
+.task-summary strong {
+    color: #1e293b;
+    font-size: 16px;
+}
+
+.summary-lead {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.info-message {
+    padding: 12px 14px;
+    border: 1px solid #dbe3ec;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.form-group label span {
+    color: #dc2626;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #fff;
+    color: #334155;
+    font-size: 13px;
+    outline: none;
+}
+
+.form-group select:focus {
+    border-color: #2563eb;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: inline-block;
+    padding: 9px 15px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-secondary {
+    border: 1px solid #dbe3ec;
+    background: #fff;
+    color: #334155;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+}
+
+</style>
+
+{% endblock %}

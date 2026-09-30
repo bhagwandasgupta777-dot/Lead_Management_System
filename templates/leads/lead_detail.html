@@ -1,0 +1,1576 @@
+{% extends "base.html" %}
+{% load crm_filters %}
+
+{% block title %}{{ lead.first_name }} {{ lead.last_name }}{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+            <div class="breadcrumb">
+                Workspace / Leads / {{ lead.lead_id }}
+            </div>
+
+            <h1>
+                {{ lead.first_name }} {{ lead.last_name }}
+            </h1>
+
+            <p>
+                {{ lead.company|default:"Individual Lead" }}
+                · {{ lead.lead_id }}
+            </p>
+        </div>
+
+        <div class="lead-detail-actions">
+            <a href="{% url 'lead_list' %}" class="secondary-btn">
+                ← Back to Leads
+            </a>
+
+           {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+    <a href="{% url 'edit_lead' lead.lead_id %}" class="...">
+        Edit Lead
+    </a>
+{% endif %}
+        </div>
+
+    </div>
+
+
+    <!-- LEAD SUMMARY -->
+    <div class="lead-detail-grid">
+
+        <!-- MAIN INFORMATION -->
+        <section class="workspace-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Lead Information</h2>
+                    <p>Customer and opportunity details.</p>
+                </div>
+            </div>
+
+
+            <div class="detail-fields">
+
+                <div class="detail-field">
+                    <span>Lead ID</span>
+                    <strong>{{ lead.lead_id }}</strong>
+                </div>
+
+                <div class="detail-field">
+                    <span>Full Name</span>
+                    <strong>
+                        {{ lead.first_name }} {{ lead.last_name }}
+                    </strong>
+                </div>
+
+                <div class="detail-field">
+                    <span>Phone</span>
+                    <strong>{{ lead.phone }}</strong>
+                </div>
+
+                <div class="detail-field">
+                    <span>WhatsApp</span>
+
+                    <strong>
+                        {% if lead.whatsapp_number %}
+                            {{ lead.whatsapp_number }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="detail-field">
+                    <span>Email</span>
+
+                    <strong>
+                        {% if lead.email %}
+                            {{ lead.email }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="detail-field">
+    <span>Company</span>
+    <strong>
+        {{ lead.company|default:"—" }}
+    </strong>
+</div>
+
+<div class="detail-field">
+    <span>Category</span>
+    <strong>
+        {{ lead.category|default:"—" }}
+    </strong>
+</div>
+
+<div class="detail-field">
+    <span>Total Employees</span>
+    <strong>
+        {% if lead.total_employees %}
+            {{ lead.total_employees }}
+        {% else %}
+            —
+        {% endif %}
+    </strong>
+</div>
+<div class="detail-field">
+    <span>Lead Score</span>
+    <strong>
+        <span class="lead-score
+            {% if lead.lead_score >= 80 %}
+                score-high
+            {% elif lead.lead_score >= 60 %}
+                score-medium
+            {% else %}
+                score-low
+            {% endif %}
+        ">
+            {{ lead.lead_score }} / 100
+        </span>
+    </strong>
+</div>
+
+<div class="detail-field">
+    <span>Lead Source</span>
+    <strong>{{ lead.get_source_display }}</strong>
+</div>
+                <div class="detail-field">
+                    <span>Lead Value</span>
+                    <strong>₹{{ lead.lead_value|floatformat:0 }}</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STATUS -->
+        <section class="workspace-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Lead Status</h2>
+                    <p>Current opportunity position.</p>
+                </div>
+            </div>
+
+
+            <div class="status-detail">
+
+                <div>
+                    <span>Status</span>
+
+                    <strong class="status-badge status-{{ lead.status|lower }}">
+                        {{ lead.get_status_display }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span>Temperature</span>
+
+                    <strong class="temperature-badge temperature-{{ lead.temperature|lower }}">
+                        {{ lead.get_temperature_display }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span>Priority</span>
+
+                    <strong class="priority-badge priority-{{ lead.priority|lower }}">
+                        {{ lead.get_priority_display }}
+                    </strong>
+                </div>
+
+
+               <div>
+    <span>Assigned To</span>
+
+    <strong>
+        {% if lead.assigned_to %}
+            {{ lead.assigned_to.get_full_name|default:lead.assigned_to.username }}
+        {% else %}
+            Unassigned
+        {% endif %}
+    </strong>
+
+    {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+        <form method="post"
+              action="{% url 'assign_lead' lead.lead_id %}"
+              style="margin-top: 10px;">
+
+            {% csrf_token %}
+
+            <div style="display: flex; gap: 8px; align-items: center;">
+
+                <select name="assigned_to"
+                        required
+                        style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+
+                    <option value="">Select Sales Employee</option>
+
+                    {% for user in sales_users %}
+                        <option value="{{ user.id }}"
+                            {% if lead.assigned_to and lead.assigned_to.id == user.id %}
+                                selected
+                            {% endif %}>
+                            {{ user.get_full_name|default:user.username }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+                <button type="submit"
+                        style="padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer;">
+                    Assign Lead
+                </button>
+
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+
+               <div>
+    <span>Next Follow-up</span>
+
+    <strong>
+        {% if lead.next_follow_up %}
+            {{ lead.next_follow_up|company_datetime }}
+        {% else %}
+            No follow-up scheduled
+        {% endif %}
+    </strong>
+
+    <!-- DOCUMENT STATUS -->
+    {% with documents=lead.documents.all %}
+        {% if documents %}
+
+            <div style="
+                margin-top: 14px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                background: #eff8ff;
+                border: 1px solid #b2ddff;
+            ">
+
+                <div style="
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: #175cd3;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                    margin-bottom: 6px;
+                ">
+                    📄 Required Document
+                </div>
+
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                ">
+
+                    <div>
+                        <div style="
+                            font-weight: 700;
+                            color: #101828;
+                            margin-bottom: 4px;
+                        ">
+                            🟢 Document Uploaded
+                        </div>
+
+                        {% for document in documents %}
+                            <div style="
+                                font-size: 13px;
+                                color: #475467;
+                                margin-top: 4px;
+                            ">
+                                {{ document.original_name|default:document.file.name }}
+
+                                {% if document.file_size %}
+                                    · {{ document.file_size|filesizeformat }}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% for document in documents %}
+                        <a
+                            href="{{ document.file.url }}"
+                            target="_blank"
+                            rel="noopener"
+                            style="
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 6px;
+                                padding: 7px 12px;
+                                border-radius: 7px;
+                                background: #1570ef;
+                                color: #fff;
+                                text-decoration: none;
+                                font-size: 13px;
+                                font-weight: 600;
+                            "
+                        >
+                            View Document
+                        </a>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div style="
+                margin-top: 14px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                background: #fffaeb;
+                border: 1px solid #fedf89;
+            ">
+
+                <div style="
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: #b54708;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                    margin-bottom: 6px;
+                ">
+                    📄 Required Document
+                </div>
+
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                ">
+
+                    <div>
+                        <div style="
+                            font-weight: 700;
+                            color: #7a2e0b;
+                            margin-bottom: 4px;
+                        ">
+                            🟠 Not uploaded yet
+                        </div>
+
+                        <div style="
+                            font-size: 13px;
+                            color: #667085;
+                        ">
+                            No document has been uploaded for this lead.
+                        </div>
+                    </div>
+
+                    <a
+                        href="#lead-documents"
+                        style="
+                            display: inline-flex;
+                            align-items: center;
+                            padding: 7px 12px;
+                            border-radius: 7px;
+                            background: #f79009;
+                            color: #fff;
+                            text-decoration: none;
+                            font-size: 13px;
+                            font-weight: 600;
+                        "
+                    >
+                        Upload Document
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+    {% endwith %}
+</div>
+
+                {% if lead.status == "LOST" and lead.lost_reason %}
+    <div>
+        <span>Lost Reason</span>
+        <strong>{{ lead.lost_reason }}</strong>
+    </div>
+{% endif %}
+
+            </div>
+
+        </section>
+
+        </div>
+
+   <!-- LEAD STAGE PROGRESS -->
+<section class="workspace-card lead-stage-card">
+
+    <div class="section-heading">
+        <div>
+            <h2>Lead Progress</h2>
+            <p>Follow the sales process from enquiry to conversion.</p>
+        </div>
+    </div>
+
+    <div class="lead-stage-progress">
+
+    <!-- 1. NEW LEAD -->
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=NEW"
+       class="stage-item
+       {% if lead.status == 'NEW' %}
+           active
+       {% elif lead.status == 'CONTACTED' or lead.status == 'QUALIFIED' or lead.status == 'PROPOSAL' or lead.status == 'NEGOTIATION' or lead.status == 'WON' or lead.status == 'LOST' %}
+           completed
+       {% endif %}">
+
+        <div class="stage-circle">1</div>
+        <span>New Lead</span>
+
+    </a>
+
+
+    <div class="stage-line"></div>
+
+
+    <!-- 2. CONTACTED -->
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=CONTACTED"
+       class="stage-item
+       {% if lead.status == 'CONTACTED' %}
+           active
+       {% elif lead.status == 'QUALIFIED' or lead.status == 'PROPOSAL' or lead.status == 'NEGOTIATION' or lead.status == 'WON' or lead.status == 'LOST' %}
+           completed
+       {% endif %}">
+
+        <div class="stage-circle">2</div>
+        <span>Contacted</span>
+
+    </a>
+
+
+    <div class="stage-line"></div>
+
+
+    <!-- 3. QUALIFIED -->
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=QUALIFIED"
+       class="stage-item
+       {% if lead.status == 'QUALIFIED' %}
+           active
+       {% elif lead.status == 'PROPOSAL' or lead.status == 'NEGOTIATION' or lead.status == 'WON' or lead.status == 'LOST' %}
+           completed
+       {% endif %}">
+
+        <div class="stage-circle">3</div>
+        <span>Qualified</span>
+
+    </a>
+
+
+    <div class="stage-line"></div>
+
+
+    <!-- 4. PROPOSAL -->
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=PROPOSAL"
+       class="stage-item
+       {% if lead.status == 'PROPOSAL' %}
+           active
+       {% elif lead.status == 'NEGOTIATION' or lead.status == 'WON' or lead.status == 'LOST' %}
+           completed
+       {% endif %}">
+
+        <div class="stage-circle">4</div>
+        <span>Proposal</span>
+
+    </a>
+
+
+    <div class="stage-line"></div>
+
+
+    <!-- 5. NEGOTIATION -->
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=NEGOTIATION"
+       class="stage-item
+       {% if lead.status == 'NEGOTIATION' %}
+           active
+       {% elif lead.status == 'WON' or lead.status == 'LOST' %}
+           completed
+       {% endif %}">
+
+        <div class="stage-circle">5</div>
+        <span>Negotiation</span>
+
+    </a>
+
+
+    <div class="stage-line"></div>
+
+
+    <!-- 6. WON -->
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=WON"
+       class="stage-item
+       {% if lead.status == 'WON' %}
+           active
+       {% endif %}">
+
+        <div class="stage-circle">6</div>
+        <span>Won</span>
+
+    </a>
+
+</div>
+
+
+    <!-- CURRENT STAGE INFORMATION -->
+
+    {% if lead.status == "NEW" %}
+
+        <div class="next-stage-box">
+            <strong>Current Stage: New Lead</strong>
+            <p>
+                Next step: Contact the customer and understand their requirement.
+            </p>
+
+            <a href="tel:{{ lead.phone }}" class="primary-btn">
+                ☎ Contact Customer
+            </a>
+        </div>
+
+
+    {% elif lead.status == "CONTACTED" %}
+
+        <div class="next-stage-box">
+            <strong>Current Stage: Contacted</strong>
+            <p>
+                Next step: Understand the customer's requirement and qualify the lead.
+            </p>
+        </div>
+
+
+    {% elif lead.status == "QUALIFIED" %}
+
+        <div class="next-stage-box">
+            <strong>Current Stage: Qualified</strong>
+            <p>
+                Next step: Prepare and send the proposal.
+            </p>
+        </div>
+
+
+    {% elif lead.status == "PROPOSAL" %}
+
+        <div class="next-stage-box">
+            <strong>Current Stage: Proposal</strong>
+            <p>
+                Next step: Follow up with the customer about the proposal.
+            </p>
+        </div>
+
+
+    {% elif lead.status == "NEGOTIATION" %}
+
+        <div class="next-stage-box">
+            <strong>Current Stage: Negotiation</strong>
+            <p>
+                Next step: Finalize the terms and close the deal.
+            </p>
+        </div>
+
+
+    {% elif lead.status == "WON" %}
+
+        <div class="next-stage-box">
+            <strong>Lead Won 🎉</strong>
+            <p>
+                This lead has been converted into a customer.
+            </p>
+        </div>
+
+
+    {% elif lead.status == "LOST" %}
+
+        <div class="next-stage-box lost-stage">
+
+            <strong>Lead Lost</strong>
+
+            <p>
+                This opportunity was not converted.
+
+                {% if lead.lost_reason %}
+                    Reason: {{ lead.lost_reason }}
+                {% endif %}
+            </p>
+
+            <a href="{% url 'lead_detail' lead.lead_id %}?stage=LOST#stage-details"
+               class="primary-btn">
+                View Lost Details
+            </a>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- SELECTED STAGE DETAILS -->
+
+    {% if selected_stage == "NEW" %}
+
+        <div class="stage-details-box" id="stage-details">
+
+            <h3>New Lead Details</h3>
+
+            <div class="stage-details-grid">
+
+                <div>
+                    <span>First Name</span>
+                    <strong>{{ lead.first_name|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Last Name</span>
+                    <strong>{{ lead.last_name|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Phone</span>
+                    <strong>{{ lead.phone|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>WhatsApp</span>
+                    <strong>{{ lead.whatsapp_number|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Email</span>
+                    <strong>{{ lead.email|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Company</span>
+                    <strong>{{ lead.company|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Location</span>
+                    <strong>{{ lead.location|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Category</span>
+                    <strong>{{ lead.category|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Total Employees</span>
+                    <strong>{{ lead.total_employees|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Source</span>
+                    <strong>{{ lead.get_source_display }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% elif selected_stage == "CONTACTED" and stage_data.CONTACTED %}
+
+        <div class="stage-details-box" id="stage-details">
+
+            <h3>Contacted Details</h3>
+
+            <div class="stage-details-grid">
+
+                <div>
+                    <span>Contact Person</span>
+                    <strong>{{ stage_data.CONTACTED.contact_person|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Company Name</span>
+                    <strong>{{ stage_data.CONTACTED.company_name|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Phone</span>
+                    <strong>{{ stage_data.CONTACTED.phone|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Location</span>
+                    <strong>{{ stage_data.CONTACTED.location|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Email</span>
+                    <strong>{{ stage_data.CONTACTED.email|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Preferred Contact Method</span>
+                    <strong>{{ stage_data.CONTACTED.preferred_contact_method|default:"—" }}</strong>
+                </div>
+
+                <div class="stage-detail-full">
+                    <span>Remarks</span>
+                    <strong>{{ stage_data.CONTACTED.remarks|default:"—" }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% elif selected_stage == "QUALIFIED" and stage_data.QUALIFIED %}
+
+        <div class="stage-details-box" id="stage-details">
+
+            <h3>Qualified Details</h3>
+
+            <div class="stage-details-grid">
+
+                <div class="stage-detail-full">
+                    <span>Customer Requirement</span>
+                    <strong>{{ stage_data.QUALIFIED.customer_requirement|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Budget</span>
+                    <strong>{{ stage_data.QUALIFIED.budget|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Purchase Timeline</span>
+                    <strong>{{ stage_data.QUALIFIED.purchase_timeline|default:"—" }}</strong>
+                </div>
+
+                <div>
+                    <span>Decision Maker</span>
+                    <strong>{{ stage_data.QUALIFIED.decision_maker|default:"—" }}</strong>
+                </div>
+
+                <div class="stage-detail-full">
+                    <span>Qualification Notes</span>
+                    <strong>{{ stage_data.QUALIFIED.qualification_notes|default:"—" }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% elif selected_stage == "PROPOSAL" and stage_data.PROPOSAL %}
+
+        <div class="stage-details-box" id="stage-details">
+
+            <h3>Proposal Details</h3>
+
+            <div class="stage-details-grid">
+
+                <div>
+                    <span>Proposal Value</span>
+                    <strong>₹{{ stage_data.PROPOSAL.proposal_value|default:"0" }}</strong>
+                </div>
+
+                <div>
+                    <span>Proposal Date</span>
+                    <strong>{{ stage_data.PROPOSAL.proposal_date|default:"—" }}</strong>
+                </div>
+
+                <div class="stage-detail-full">
+                    <span>Proposal Details</span>
+                    <strong>{{ stage_data.PROPOSAL.proposal_details|default:"—" }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% elif selected_stage == "NEGOTIATION" and stage_data.NEGOTIATION %}
+
+        <div class="stage-details-box" id="stage-details">
+
+            <h3>Negotiation Details</h3>
+
+            <div class="stage-details-grid">
+
+                <div>
+                    <span>Negotiation Value</span>
+                    <strong>₹{{ stage_data.NEGOTIATION.negotiation_value|default:"0" }}</strong>
+                </div>
+
+                <div>
+                    <span>Expected Closing Date</span>
+                    <strong>{{ stage_data.NEGOTIATION.expected_closing_date|default:"—" }}</strong>
+                </div>
+
+                <div class="stage-detail-full">
+                    <span>Negotiation Notes</span>
+                    <strong>{{ stage_data.NEGOTIATION.negotiation_notes|default:"—" }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% elif selected_stage == "WON" and stage_data.WON %}
+
+        <div class="stage-details-box" id="stage-details">
+
+            <h3>Won Details</h3>
+
+            <div class="stage-details-grid">
+
+                <div>
+                    <span>Final Deal Value</span>
+                    <strong>₹{{ stage_data.WON.final_deal_value|default:"0" }}</strong>
+                </div>
+
+                <div>
+                    <span>Closing Date</span>
+                    <strong>{{ stage_data.WON.closing_date|default:"—" }}</strong>
+                </div>
+
+                <div class="stage-detail-full">
+                    <span>Final Notes</span>
+                    <strong>{{ stage_data.WON.final_notes|default:"—" }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% elif selected_stage == "LOST" %}
+
+        <div class="stage-details-box lost-stage-details" id="stage-details">
+
+            <h3>Lost Details</h3>
+
+            <div class="stage-details-grid">
+
+                <div class="stage-detail-full">
+                    <span>Lost Reason</span>
+                    <strong>
+                        {{ stage_data.LOST.lost_reason|default:lead.lost_reason|default:"—" }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Changed From</span>
+                    <strong>
+                        {{ stage_data.LOST.changed_from|default:"—" }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Completed At</span>
+                    <strong>
+                        {{ stage_data.LOST.completed_at|default:"—" }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+    <!-- QUICK ACTIONS -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Quick Actions</h2>
+                <p>Take action on this lead.</p>
+            </div>
+
+        </div>
+
+
+        <div class="detail-quick-actions">
+
+    <!-- CALL -->
+    <a href="tel:{{ lead.phone }}" class="detail-action">
+        <strong>☎</strong>
+        <span>Call Lead</span>
+    </a>
+
+    <button
+        type="button"
+        class="detail-action"
+        onclick="prepareActivity('CALL')"
+    >
+        <strong>✓</strong>
+        <span>Log Call</span>
+    </button>
+
+
+    <!-- WHATSAPP -->
+    {% if lead.whatsapp_number %}
+
+    <a
+        href="https://wa.me/{{ lead.whatsapp_number }}"
+        target="_blank"
+        rel="noopener"
+        class="detail-action"
+    >
+        <strong>◉</strong>
+        <span>WhatsApp</span>
+    </a>
+
+    <button
+        type="button"
+        class="detail-action"
+        onclick="prepareActivity('WHATSAPP')"
+    >
+        <strong>✓</strong>
+        <span>Log WhatsApp</span>
+    </button>
+
+    {% endif %}
+
+
+    <!-- EMAIL -->
+    {% if lead.email %}
+
+    <a
+        href="mailto:{{ lead.email }}"
+        class="detail-action"
+    >
+        <strong>✉</strong>
+        <span>Send Email</span>
+    </a>
+
+    <button
+        type="button"
+        class="detail-action"
+        onclick="prepareActivity('EMAIL')"
+    >
+        <strong>✓</strong>
+        <span>Log Email</span>
+    </button>
+
+    {% endif %}
+
+
+    <!-- FOLLOW-UP -->
+    <a
+        href="{% url 'add_follow_up' lead.lead_id %}"
+        class="detail-action"
+    >
+        <strong>＋</strong>
+        <span>Add Follow-up</span>
+    </a>
+
+
+    <!-- WON LEAD -->
+    {% if lead.status == "WON" %}
+
+        {% if not lead.customer %}
+
+            <form
+                method="POST"
+                action="{% url 'convert_lead_to_customer' lead.lead_id %}"
+                style="display: inline;"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="detail-action"
+                >
+                    <strong>✓</strong>
+                    <span>Convert to Customer</span>
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <a
+                href="{% url 'create_deal' %}"
+                class="detail-action"
+            >
+                <strong>₹</strong>
+                <span>Create Deal</span>
+            </a>
+
+        {% endif %}
+
+    {% endif %}
+    {% if request.user.role == "ADMIN" and lead.status == "WON" %}
+
+    <a
+        href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=LOST"
+        class="detail-action won-to-lost-action"
+    >
+        <strong>×</strong>
+        <span>Change Won to Lost</span>
+    </a>
+
+{% endif %}
+
+</div>
+       </section>
+
+
+    <!-- ASSIGNMENT HISTORY -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Assignment History</h2>
+                <p>Track who handled this lead and when it was assigned.</p>
+            </div>
+
+        </div>
+
+        <div class="assignment-history">
+
+            {% for assignment in assignment_history %}
+
+            <div class="assignment-item">
+
+                <div class="assignment-avatar">
+                    {% if assignment.assigned_to %}
+                        {{ assignment.assigned_to.username|first|upper }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+
+                <div class="assignment-info">
+
+                    <div class="assignment-top">
+
+                        <strong>
+                            {% if assignment.assigned_to %}
+                                {{ assignment.assigned_to.username }}
+                            {% else %}
+                                Unassigned
+                            {% endif %}
+                        </strong>
+
+                        <span>
+                            {{ assignment.assigned_at|company_datetime }}
+                        </span>
+
+                    </div>
+
+                    <p>
+                        Assigned by
+                        <strong>
+                            {% if assignment.assigned_by %}
+                                {{ assignment.assigned_by.username }}
+                            {% else %}
+                                System
+                            {% endif %}
+                        </strong>
+                    </p>
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <div class="empty-detail">
+                No assignment history available.
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- ACTIVITY + TASKS -->
+    <div class="lead-detail-grid">
+
+      
+
+        <!-- ACTIVITY -->
+<section class="workspace-card">
+
+    <div class="section-heading">
+        <div>
+            <h2>Activity Timeline</h2>
+            <p>Track every interaction and update for this lead.</p>
+        </div>
+    </div>
+
+    <!-- ADD ACTIVITY -->
+    <div class="activity-form">
+
+        <form method="post"
+              action="{% url 'add_activity' lead.lead_id %}">
+
+            {% csrf_token %}
+
+            <div class="activity-form-grid">
+
+                <!-- Activity Type -->
+                <div class="form-group">
+
+                    <label>Activity Type</label>
+
+                    <select name="activity_type" required>
+
+                        <option value="">Select activity</option>
+
+                        <option value="CALL">
+                            Call
+                        </option>
+
+                        <option value="WHATSAPP">
+                            WhatsApp
+                        </option>
+
+                        <option value="EMAIL">
+                            Email
+                        </option>
+
+                        <option value="MEETING">
+                            Meeting
+                        </option>
+
+                        <option value="NOTE">
+                            Note
+                        </option>
+
+                        <option value="FOLLOW_UP">
+                            Follow-up
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- Description -->
+                <div class="form-group activity-description">
+
+                    <label>What happened?</label>
+
+                    <textarea
+                        name="description"
+                        rows="2"
+                        maxlength="1000"
+                        placeholder="Example: Spoke with customer about pricing and requested a proposal."
+                        required
+                    ></textarea>
+
+                </div>
+
+                <!-- Submit -->
+                <div class="activity-submit">
+
+                    <button
+                        type="submit"
+                        class="add-lead-btn"
+                    >
+                        + Add Activity
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- TIMELINE -->
+    <div class="timeline">
+
+        {% for activity in activities %}
+
+        <div class="timeline-item">
+
+            <!-- Timeline Dot -->
+            <div class="timeline-dot"></div>
+
+            <!-- Timeline Content -->
+            <div class="timeline-content">
+
+                <div class="timeline-top">
+
+                    <strong>
+                        {{ activity.get_activity_type_display }}
+                    </strong>
+
+                    <small>
+                        {{ activity.created_at|company_datetime }}
+                    </small>
+
+                </div>
+
+                <p>
+                    {{ activity.description }}
+                </p>
+
+                {% if activity.created_by %}
+
+                    <div class="timeline-user">
+
+                        Added by
+                        <strong>
+                            {{ activity.created_by.get_full_name|default:activity.created_by.username }}
+                        </strong>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="timeline-user">
+                        Added by System
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="empty-detail">
+
+            <strong>No activities recorded yet.</strong>
+
+            <p>
+                Calls, WhatsApp messages, emails, meetings and notes
+                will appear here.
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+        <!-- TASKS -->
+        <section class="workspace-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Tasks</h2>
+                    <p>Tasks related to this lead.</p>
+                </div>
+
+            </div>
+
+
+            <div class="task-list">
+
+                {% for task in tasks %}
+
+                <div class="detail-task">
+
+                    <div>
+
+                        <strong>
+                            {{ task.title }}
+                        </strong>
+
+                        {% if task.description %}
+                            <p>{{ task.description }}</p>
+                        {% endif %}
+
+                        <small>
+                            Due:
+                            {{ task.due_date|company_datetime }}
+                        </small>
+
+                    </div>
+
+
+                    <span class="task-status">
+                        {{ task.get_status_display }}
+                    </span>
+
+                </div>
+
+                {% empty %}
+
+                <div class="empty-detail">
+                    No tasks for this lead.
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+   <!-- Lead Documents -->
+<div id="lead-documents" class="workspace-card" style="margin-top: 20px;">
+    <div class="section-heading">
+        <div>
+            <h2>Documents</h2>
+            <p>Upload and manage files related to this lead.</p>
+        </div>
+    </div>
+
+    <!-- Upload Document -->
+    <form method="post"
+          enctype="multipart/form-data"
+          action="{% url 'upload_lead_document' lead.lead_id %}">
+
+        {% csrf_token %}
+
+        <div style="
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        ">
+            <input
+                type="file"
+                name="file"
+                required
+            >
+
+            <button type="submit" class="add-lead-btn">
+                Upload Document
+            </button>
+        </div>
+    </form>
+
+    <!-- Document List -->
+    {% if lead.documents.all %}
+        <div style="margin-top: 24px;">
+
+            {% for document in lead.documents.all %}
+
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 20px;
+                    padding: 16px 0;
+                    border-bottom: 1px solid #eee;
+                    flex-wrap: wrap;
+                ">
+
+                    <!-- File Information -->
+                    <div style="flex: 1; min-width: 250px;">
+
+                        <div style="
+                            font-weight: 600;
+                            margin-bottom: 6px;
+                        ">
+                            📄
+                            {{ document.original_name|default:document.file.name }}
+                        </div>
+
+                        <div style="
+                            font-size: 13px;
+                            color: #777;
+                        ">
+                            {% if document.file_size %}
+                                {{ document.file_size|filesizeformat }}
+                            {% endif %}
+
+                            {% if document.uploaded_by %}
+                                &nbsp; • &nbsp;
+                                Uploaded by {{ document.uploaded_by.username }}
+                            {% endif %}
+
+                            &nbsp; • &nbsp;
+                            {{ document.uploaded_at|company_datetime }}
+                        </div>
+
+                    </div>
+
+                    <!-- Actions -->
+<div style="
+    display: flex;
+    gap: 8px;
+    align-items: center;
+">
+
+    <a
+        href="{{ document.file.url }}"
+        target="_blank"
+        class="pagination-btn"
+    >
+        View
+    </a>
+
+    <form
+        method="post"
+        action="{% url 'delete_lead_document' document.id %}"
+        onsubmit="return confirm('Are you sure you want to delete this document?');"
+        style="margin: 0;"
+    >
+        {% csrf_token %}
+
+        <button
+            type="submit"
+            class="pagination-btn"
+            style="
+                border: none;
+                cursor: pointer;
+                background: #fff1f2;
+                color: #b42318;
+            "
+        >
+            Delete
+        </button>
+    </form>
+
+</div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p style="
+            margin-top: 20px;
+            color: #777;
+        ">
+            No documents uploaded yet.
+        </p>
+
+    {% endif %}
+</div>
+
+   <!-- NOTES -->
+<section class="workspace-card">
+
+    <div class="section-heading">
+
+        <div>
+            <h2>Notes</h2>
+            <p>Important information about this lead.</p>
+        </div>
+
+        {% if request.user.role != "SALES" or lead.assigned_to == request.user %}
+            <button
+                type="button"
+                class="btn btn-primary"
+                id="editNotesBtn"
+                onclick="toggleNotesEdit()"
+            >
+                Edit Notes
+            </button>
+        {% endif %}
+
+    </div>
+
+    <!-- Current Notes -->
+    <div class="lead-notes" id="notesDisplay">
+
+        {% if lead.notes %}
+            {{ lead.notes|linebreaks }}
+        {% else %}
+            <span>No notes added.</span>
+        {% endif %}
+
+    </div>
+
+    <!-- Edit Notes Form -->
+    <form
+        method="post"
+        action="{% url 'update_lead_notes' lead.lead_id %}"
+        id="notesEditForm"
+        style="display: none;"
+    >
+
+        {% csrf_token %}
+
+        <textarea
+            name="notes"
+            class="form-control"
+            rows="6"
+            placeholder="Enter important information about this lead..."
+        >{{ lead.notes }}</textarea>
+
+        <div style="margin-top: 12px; display: flex; gap: 10px;">
+
+            <button type="submit" class="btn btn-primary">
+                Save Notes
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="toggleNotesEdit()"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+</div>
+<script>
+function toggleNotesEdit() {
+
+    const notesDisplay = document.getElementById("notesDisplay");
+    const notesForm = document.getElementById("notesEditForm");
+    const editButton = document.getElementById("editNotesBtn");
+
+    if (notesForm.style.display === "none") {
+
+        notesDisplay.style.display = "none";
+        notesForm.style.display = "block";
+
+        if (editButton) {
+            editButton.style.display = "none";
+        }
+
+    } else {
+
+        notesDisplay.style.display = "block";
+        notesForm.style.display = "none";
+
+        if (editButton) {
+            editButton.style.display = "inline-flex";
+        }
+
+    }
+}
+</script>
+
+
+
+{% endblock %}

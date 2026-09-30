@@ -1,0 +1,600 @@
+{% extends "base.html" %}
+
+{% block title %}My Leads{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- PAGE HEADER -->
+    <div class="workspace-header">
+
+        <div>
+            <div class="breadcrumb">Workspace / Leads</div>
+
+            <h1>My Leads</h1>
+
+            <p>
+                Manage your assigned leads and take the next action.
+            </p>
+        </div>
+
+        {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+    <a href="{% url 'create_lead' %}" class="add-lead-btn">
+        + New Lead
+    </a>
+{% endif %}
+
+    </div>
+
+
+    <!-- FILTER / SEARCH BAR -->
+    <section class="workspace-card lead-toolbar">
+
+        <form method="get" style="display: contents;">
+
+            <div class="lead-search">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Search by name, phone, email, company, location or category..."
+                >
+
+            </div>
+
+
+           <select name="status" onchange="this.form.submit()">
+    <option value="">All Status</option>
+    {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+            {{ label }}
+        </option>
+    {% endfor %}
+</select>
+
+<select name="temperature" onchange="this.form.submit()">
+    <option value="">All Temperature</option>
+    {% for value, label in temperature_choices %}
+        <option value="{{ value }}" {% if temperature_filter == value %}selected{% endif %}>
+            {{ label }}
+        </option>
+    {% endfor %}
+</select>
+
+<select name="priority" onchange="this.form.submit()">
+    <option value="">All Priority</option>
+    {% for value, label in priority_choices %}
+        <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>
+            {{ label }}
+        </option>
+    {% endfor %}
+</select>
+
+<select name="source" onchange="this.form.submit()">
+    <option value="">All Sources</option>
+    {% for value, label in source_choices %}
+        <option value="{{ value }}" {% if source_filter == value %}selected{% endif %}>
+            {{ label }}
+        </option>
+    {% endfor %}
+</select>
+
+<select name="assigned_to" onchange="this.form.submit()">
+    <option value="">All Employees</option>
+    {% for user in sales_users %}
+        <option value="{{ user.id }}" {% if assigned_to_filter == user.id|stringformat:"s" %}selected{% endif %}>
+            {{ user.get_full_name|default:user.username }}
+        </option>
+    {% endfor %}
+</select>
+<select name="sort" class="filter-select">
+    <option value="">Newest First</option>
+
+    <option value="score_high"
+        {% if request.GET.sort == "score_high" %}selected{% endif %}>
+        Lead Score: High to Low
+    </option>
+
+    <option value="score_low"
+        {% if request.GET.sort == "score_low" %}selected{% endif %}>
+        Lead Score: Low to High
+    </option>
+</select>
+
+
+            <button type="submit" class="lead-search-btn">
+    Search
+</button>
+
+        </form>
+
+    </section>
+
+
+    <!-- ACTIVE FILTERS -->
+    {% if search or status_filter or temperature_filter or priority_filter or source_filter or assigned_to_filter %}
+
+    <div style="margin: 12px 0;">
+
+        <a href="{% url 'lead_list' %}" class="clear-filter-btn">
+            Clear Filters
+        </a>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- LEAD TABLE -->
+
+<section class="workspace-card lead-list-card">
+
+    <!-- TABLE HEADER -->
+
+    <div class="section-heading lead-list-heading">
+
+        <div>
+            <h2>Lead List</h2>
+
+            <p>
+                {{ leads|length }}
+                lead{{ leads|length|pluralize }}
+            </p>
+        </div>
+
+        <div class="table-summary">
+            <span class="table-summary-dot"></span>
+            Active Leads
+        </div>
+
+    </div>
+
+
+    <!-- TABLE -->
+
+    <div class="lead-table-wrapper production-table-wrapper">
+
+        <table class="lead-table production-lead-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Lead</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Employees</th>
+                    <th>Contact</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Temperature</th>
+                    <th>Priority</th>
+                    <th>Score</th>
+                    <th>Value</th>
+                    <th>Assigned To</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for lead in leads %}
+
+                <tr class="lead-row">
+
+                    <!-- LEAD -->
+
+                    <td>
+
+                        <div class="production-lead-info">
+
+                            <div class="lead-avatar">
+
+                                {{ lead.first_name|first|upper }}{{ lead.last_name|first|upper }}
+
+                            </div>
+
+
+                            <div class="lead-main-info">
+
+                                <a
+                                    href="{% url 'lead_detail' lead.lead_id %}"
+                                    class="production-lead-name"
+                                >
+                                    {{ lead.first_name }}
+                                    {{ lead.last_name }}
+                                </a>
+
+                                <span class="production-lead-id">
+                                    {{ lead.lead_id }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        <span class="production-date">
+
+                            {{ lead.created_at|date:"d M Y" }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- LOCATION -->
+
+                    <td>
+
+                        {% if lead.location %}
+
+                            <span
+                                class="table-location"
+                                title="{{ lead.location }}"
+                            >
+                                {{ lead.location }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="table-muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- CATEGORY -->
+
+                    <td>
+
+                        {% if lead.category %}
+
+                            <span class="category-text">
+                                {{ lead.category }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="table-muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- EMPLOYEES -->
+
+                    <td>
+
+                        {% if lead.total_employees %}
+
+                            <span class="employee-count">
+                                {{ lead.total_employees }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="table-muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- CONTACT -->
+
+                    <td>
+
+                        <div class="production-contact">
+
+                            <strong>
+                                {{ lead.phone }}
+                            </strong>
+
+                            {% if lead.email %}
+
+                                <span title="{{ lead.email }}">
+                                    {{ lead.email }}
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- SOURCE -->
+
+                    <td>
+
+                        <span class="source-badge">
+
+                            {{ lead.get_source_display }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                      {% if lead.status == "NEW" %}
+
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage=CONTACTED"
+       class="stage-current stage-new"
+       title="Open Contacted stage">
+        New
+    </a>
+
+{% elif lead.status == "LOST" %}
+
+    <a href="{% url 'lead_detail' lead.lead_id %}"
+       class="stage-current stage-lost"
+       title="View lost lead details">
+        Lost ×
+    </a>
+
+{% else %}
+
+    <a href="{% url 'lead_stage_workflow' lead.lead_id %}?stage={{ lead.status }}"
+       class="stage-current stage-{{ lead.status|lower }}"
+       title="Open {{ lead.get_status_display }} stage">
+
+        {{ lead.get_status_display }}
+
+        {% if lead.status == "WON" %}
+            ✓
+        {% endif %}
+
+    </a>
+
+{% endif %}
+
+                    </td>
+
+
+                    <!-- TEMPERATURE -->
+
+                    <td>
+
+                        <span
+                            class="production-temperature temperature-{{ lead.temperature|lower }}"
+                        >
+
+                            <span class="temperature-dot"></span>
+
+                            {{ lead.get_temperature_display }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- PRIORITY -->
+
+                    <td>
+
+                        <span
+                            class="production-priority priority-{{ lead.priority|lower }}"
+                        >
+
+                            {{ lead.get_priority_display }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- SCORE -->
+
+                    <td>
+
+                        <div class="score-wrapper">
+
+                            <span class="score-number">
+                                {{ lead.lead_score }}
+                            </span>
+
+                            <div class="score-bar">
+
+                                <div
+                                    class="score-fill
+                                    {% if lead.lead_score >= 80 %}
+                                        score-high
+                                    {% elif lead.lead_score >= 60 %}
+                                        score-medium
+                                    {% else %}
+                                        score-low
+                                    {% endif %}"
+                                    style="width: {{ lead.lead_score }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- VALUE -->
+
+                    <td>
+
+                        <strong class="production-lead-value">
+
+                            ₹{{ lead.lead_value|floatformat:0 }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- ASSIGNED -->
+
+                    <td>
+
+                        {% if lead.assigned_to %}
+
+                            <div class="assigned-user-production">
+
+                                <div class="assigned-avatar">
+
+                                    {{ lead.assigned_to.first_name|first|upper }}{{ lead.assigned_to.last_name|first|upper }}
+
+                                </div>
+
+                                <span>
+
+                                    {{ lead.assigned_to.get_full_name|default:lead.assigned_to.username }}
+
+                                </span>
+
+                            </div>
+
+                        {% else %}
+
+                            <span class="unassigned-production">
+                                Unassigned
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="13"
+                        class="production-empty-state"
+                    >
+
+                        <div class="empty-state-icon">
+                            +
+                        </div>
+
+                        <strong>
+                            No leads found
+                        </strong>
+
+                        <span>
+                            Try changing your search or filters.
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- PAGINATION -->
+
+    {% if page_obj.paginator.num_pages > 1 %}
+
+    <div class="production-pagination">
+
+        <div class="pagination-left">
+
+            Showing
+
+            <strong>
+                {{ page_obj.start_index }}
+            </strong>
+
+            -
+
+            <strong>
+                {{ page_obj.end_index }}
+            </strong>
+
+            of
+
+            <strong>
+                {{ page_obj.paginator.count }}
+            </strong>
+
+        </div>
+
+
+        <div class="pagination-right">
+
+            {% if page_obj.has_previous %}
+
+                <a
+                    href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if temperature_filter %}&temperature={{ temperature_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if source_filter %}&source={{ source_filter }}{% endif %}{% if assigned_to_filter %}&assigned_to={{ assigned_to_filter }}{% endif %}"
+                    class="production-page-btn"
+                >
+                    ←
+                </a>
+
+            {% endif %}
+
+
+            <span class="production-page-number">
+
+                {{ page_obj.number }}
+
+                /
+
+                {{ page_obj.paginator.num_pages }}
+
+            </span>
+
+
+            {% if page_obj.has_next %}
+
+                <a
+                    href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if temperature_filter %}&temperature={{ temperature_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if source_filter %}&source={{ source_filter }}{% endif %}{% if assigned_to_filter %}&assigned_to={{ assigned_to_filter }}{% endif %}"
+                    class="production-page-btn"
+                >
+                    →
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+</div>
+
+{% endblock %}

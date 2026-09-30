@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block title %}Follow-ups{% endblock %}
+
+{% block content %}
+
+<div class="followups-page">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div>
+            <div class="breadcrumb">Workspace / Follow-ups</div>
+            <h1>Follow-ups</h1>
+            <p>Stay on top of every pending customer action.</p>
+        </div>
+
+       {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+    <a href="{% url 'create_lead' %}" class="add-lead-btn">
+        + New Lead
+    </a>
+{% endif %}
+    </div>
+
+
+    <!-- SUMMARY -->
+    <div class="followup-summary">
+
+    <div class="followup-summary-card">
+        <span>Total pending</span>
+        <strong>{{ total_followups }}</strong>
+    </div>
+
+    <div class="followup-summary-card overdue-summary">
+        <span>Overdue</span>
+        <strong>{{ overdue_count }}</strong>
+    </div>
+
+    <div class="followup-summary-card today-summary">
+        <span>Today</span>
+        <strong>{{ today_count }}</strong>
+    </div>
+
+    <div class="followup-summary-card upcoming-summary">
+        <span>Upcoming</span>
+        <strong>{{ upcoming_count }}</strong>
+    </div>
+
+</div>
+
+
+    <!-- OVERDUE -->
+    <section class="followup-section">
+
+        <div class="section-heading">
+            <div>
+                <h2>Overdue</h2>
+                <p>These follow-ups need immediate attention.</p>
+            </div>
+        </div>
+
+        {% if overdue_tasks %}
+
+            <div class="followup-list">
+
+                {% for task in overdue_tasks %}
+
+                    <div class="followup-row overdue-row">
+
+                        <div class="followup-lead">
+
+                            <div class="initial">
+                                {{ task.lead.first_name|first|upper }}{{ task.lead.last_name|first|upper }}
+                            </div>
+
+                            <div>
+                                <strong>
+                                    {{ task.lead.first_name }}
+                                    {{ task.lead.last_name }}
+                                </strong>
+
+                                <span>
+                                    {% if task.lead.company %}
+                                        {{ task.lead.company }}
+                                    {% else %}
+                                        No company
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="followup-task">
+
+                            <strong>{{ task.title }}</strong>
+
+                            {% if task.description %}
+                                <span>{{ task.description }}</span>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="followup-due">
+
+                            <small>Due</small>
+
+                           <strong>
+    {{ task.due_date|date:"d M Y" }}
+</strong>
+
+<span>
+    {{ task.due_date|date:"h:i A" }}
+</span>
+
+                        </div>
+
+
+                        <div class="followup-priority">
+
+                            <span class="priority-badge {{ task.priority|lower }}">
+                                {{ task.get_priority_display }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="followup-actions">
+
+                            <a
+                                href="tel:{{ task.lead.phone }}"
+                                title="Call"
+                            >
+                                ☎
+                            </a>
+
+                            {% if task.lead.whatsapp_number %}
+
+                                <a
+                                    href="https://wa.me/{{ task.lead.whatsapp_number }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="WhatsApp"
+                                >
+                                    ◉
+                                </a>
+
+                            {% endif %}
+
+                            <a
+                                href="{% url 'lead_detail' task.lead.lead_id %}"
+                                title="View Lead"
+                            >
+                                →
+                            </a>
+
+                            <form
+    method="post"
+    action="{% url 'complete_task' task.id %}"
+    style="display:inline;"
+>
+    {% csrf_token %}
+    <button
+        type="submit"
+        title="Mark as completed"
+        class="complete-task-btn"
+    >
+        ✓
+    </button>
+</form>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                <strong>No overdue follow-ups</strong>
+                <span>You're all caught up.</span>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- TODAY -->
+<section class="followup-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Today</h2>
+            <p>Follow-ups that need to be completed today.</p>
+        </div>
+    </div>
+
+    {% if today_tasks %}
+
+        <div class="followup-list">
+
+            {% for task in today_tasks %}
+
+                <div class="followup-row today-row">
+
+                    <!-- LEAD -->
+                    <div class="followup-lead">
+
+                        <div class="initial">
+                            {{ task.lead.first_name|first|upper }}{{ task.lead.last_name|first|upper }}
+                        </div>
+
+                        <div>
+                            <strong>
+                                {{ task.lead.first_name }}
+                                {{ task.lead.last_name }}
+                            </strong>
+
+                            <span>
+                                {% if task.lead.company %}
+                                    {{ task.lead.company }}
+                                {% else %}
+                                    No company
+                                {% endif %}
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- TASK -->
+                    <div class="followup-task">
+
+                        <strong>
+                            {{ task.title }}
+                        </strong>
+
+                        {% if task.description %}
+                            <span>
+                                {{ task.description }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- DUE TIME -->
+                    <div class="followup-due">
+
+                        <small>
+                            Due Today
+                        </small>
+
+                      <strong>
+    {{ task.due_date|date:"h:i A" }}
+</strong>
+
+                    </div>
+
+
+                    <!-- PRIORITY -->
+                    <div class="followup-priority">
+
+                        <span class="priority-badge {{ task.priority|lower }}">
+                            {{ task.get_priority_display }}
+                        </span>
+
+                    </div>
+
+
+                    <!-- ACTIONS -->
+                    <div class="followup-actions">
+
+                        <a
+                            href="tel:{{ task.lead.phone }}"
+                            title="Call"
+                        >
+                            ☎
+                        </a>
+
+
+                        {% if task.lead.whatsapp_number %}
+
+                            <a
+                                href="https://wa.me/{{ task.lead.whatsapp_number }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="WhatsApp"
+                            >
+                                ◉
+                            </a>
+
+                        {% endif %}
+
+
+                        <a
+                            href="{% url 'lead_detail' task.lead.lead_id %}"
+                            title="View Lead"
+                        >
+                            →
+                        </a>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'complete_task' task.id %}"
+                            style="display:inline;"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                title="Mark as completed"
+                                class="complete-task-btn"
+                            >
+                                ✓
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <strong>
+                No follow-ups for today
+            </strong>
+
+            <span>
+                You have no customer actions scheduled for today.
+            </span>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+    <!-- UPCOMING -->
+    <section class="followup-section">
+
+        <div class="section-heading">
+            <div>
+                <h2>Upcoming</h2>
+                <p>Future follow-ups scheduled for your leads.</p>
+            </div>
+        </div>
+
+        {% if upcoming_tasks %}
+
+            <div class="followup-list">
+
+                {% for task in upcoming_tasks %}
+
+                    <div class="followup-row">
+
+                        <div class="followup-lead">
+
+                            <div class="initial">
+                                {{ task.lead.first_name|first|upper }}{{ task.lead.last_name|first|upper }}
+                            </div>
+
+                            <div>
+                                <strong>
+                                    {{ task.lead.first_name }}
+                                    {{ task.lead.last_name }}
+                                </strong>
+
+                                <span>
+                                    {% if task.lead.company %}
+                                        {{ task.lead.company }}
+                                    {% else %}
+                                        No company
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="followup-task">
+
+                            <strong>{{ task.title }}</strong>
+
+                            {% if task.description %}
+                                <span>{{ task.description }}</span>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="followup-due">
+
+                            <small>Due</small>
+
+                            <strong>
+                                {{ task.due_date|date:"d M Y" }}
+                            </strong>
+
+                            <span>
+                                {{ task.due_date|date:"h:i A" }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="followup-priority">
+
+                            <span class="priority-badge {{ task.priority|lower }}">
+                                {{ task.get_priority_display }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="followup-actions">
+
+                            <a
+                                href="tel:{{ task.lead.phone }}"
+                                title="Call"
+                            >
+                                ☎
+                            </a>
+
+                            {% if task.lead.whatsapp_number %}
+
+                                <a
+                                    href="https://wa.me/{{ task.lead.whatsapp_number }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="WhatsApp"
+                                >
+                                    ◉
+                                </a>
+
+                            {% endif %}
+
+                            <a
+                                href="{% url 'lead_detail' task.lead.lead_id %}"
+                                title="View Lead"
+                            >
+                                →
+                            </a>
+
+                            <form method="post"
+      action="{% url 'complete_task' task.id %}"
+      style="display:inline;">
+    {% csrf_token %}
+    <button type="submit"
+            title="Mark as completed"
+            class="complete-task-btn">
+        ✓
+    </button>
+</form>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                <strong>No upcoming follow-ups</strong>
+                <span>Schedule your next customer action from a lead.</span>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

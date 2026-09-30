@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="create-task-page">
+
+    <div class="create-task-header">
+        <div>
+            <h1>Create Task</h1>
+            <p>Create and assign a task to your sales team.</p>
+        </div>
+
+        <a href="{% url 'admin_task_list' %}" class="back-button">
+            ← Back to Tasks
+        </a>
+    </div>
+
+
+    <div class="create-task-card">
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <div class="form-section">
+
+                <h2>Task Details</h2>
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+                        <label>Task Title *</label>
+
+                        <input
+                            type="text"
+                            name="title"
+                            placeholder="Enter task title"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group full-width">
+                        <label>Description</label>
+
+                        <textarea
+                            name="description"
+                            rows="4"
+                            placeholder="Describe what needs to be done..."
+                        ></textarea>
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Related Lead</label>
+
+                        <select name="lead">
+
+                            <option value="">
+                                No Lead
+                            </option>
+
+                            {% for lead in leads %}
+
+                                <option value="{{ lead.id }}">
+                                    {{ lead.lead_id }} -
+                                    {{ lead.first_name }}
+                                    {{ lead.last_name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Assign To *</label>
+
+                        <select name="assigned_to" required>
+
+                            <option value="">
+                                Select Sales Employee
+                            </option>
+
+                            {% for user in sales_users %}
+
+                                <option value="{{ user.id }}">
+                                    {{ user.username }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Due Date & Time *</label>
+
+                        <input
+                            type="datetime-local"
+                            name="due_date"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Priority</label>
+
+                        <select name="priority">
+
+                            {% for value, label in priority_choices %}
+
+                                <option value="{{ value }}"
+                                    {% if value == "MEDIUM" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ label }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'admin_task_list' %}"
+                    class="cancel-button"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="create-button"
+                >
+                    Create Task
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.create-task-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.create-task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.create-task-header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #172033;
+}
+
+.create-task-header p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.back-button {
+    padding: 9px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #475569 !important;
+    text-decoration: none !important;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.create-task-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.form-section {
+    padding: 28px;
+}
+
+.form-section h2 {
+    margin: 0 0 22px;
+    font-size: 18px;
+    color: #172033;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #334155;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+.form-group input,
+.form-group select {
+    height: 44px;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 18px 28px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cancel-button {
+    padding: 10px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #475569 !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.create-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.create-button:hover {
+    background: #1d4ed8;
+}
+
+@media (max-width: 700px) {
+
+    .create-task-page {
+        padding: 18px;
+    }
+
+    .create-task-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: auto;
+    }
+
+}
+
+</style>
+
+{% endblock %}

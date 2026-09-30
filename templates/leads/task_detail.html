@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Task Details</h1>
+        <p>View task information and current status.</p>
+    </div>
+
+    <a href="{% url 'admin_task_list' %}" class="btn-secondary">
+        ← Back to Tasks
+    </a>
+</div>
+
+
+<div class="task-detail-container">
+
+    <!-- Task Information -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <div>
+                <h2>{{ task.title }}</h2>
+
+                {% if task.status == "PENDING" %}
+                    <span class="status-badge status-pending">Pending</span>
+                {% elif task.status == "COMPLETED" %}
+                    <span class="status-badge status-completed">Completed</span>
+                {% elif task.status == "CANCELLED" %}
+                    <span class="status-badge status-cancelled">Cancelled</span>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <div class="detail-grid">
+
+            <div class="detail-item">
+                <span class="detail-label">Task Title</span>
+                <span class="detail-value">{{ task.title }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Priority</span>
+                <span class="detail-value">
+                    {{ task.get_priority_display }}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Assigned To</span>
+                <span class="detail-value">
+                    {% if task.assigned_to %}
+                        {{ task.assigned_to.username }}
+                    {% else %}
+                        Unassigned
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-item">
+    <span class="detail-label">Due Date</span>
+    <span class="detail-value">
+        {% if task.due_date %}
+    {{ task.due_date|date:"d M Y, h:i A" }}
+{% else %}
+    —
+{% endif %}
+    </span>
+</div>
+
+            <div class="detail-item">
+                <span class="detail-label">Related Lead</span>
+                <span class="detail-value">
+                    {% if task.lead %}
+                        <a href="{% url 'lead_detail' task.lead.lead_id %}">
+                            {{ task.lead.lead_id }}
+                        </a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Created</span>
+                <span class="detail-value">
+                    {{ task.created_at|date:"d M Y, h:i A" }}
+                </span>
+            </div>
+
+        </div>
+
+
+        {% if task.description %}
+        <div class="description-section">
+            <span class="detail-label">Description</span>
+
+            <div class="description-box">
+                {{ task.description }}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+
+    <!-- Assignment History -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <div>
+                <h2>Assignment History</h2>
+                <p>Track who assigned this task and when.</p>
+            </div>
+        </div>
+
+        {% if assignment_history %}
+
+            <div class="history-list">
+
+                {% for history in assignment_history %}
+
+                    <div class="history-item">
+
+                        <div class="history-main">
+
+                            <div class="history-assignee">
+                                {% if history.assigned_to %}
+                                    {{ history.assigned_to.username }}
+                                {% else %}
+                                    Unassigned
+                                {% endif %}
+                            </div>
+
+                            <div class="history-details">
+                                Assigned by
+
+                                {% if history.assigned_by %}
+                                    <strong>
+                                        {{ history.assigned_by.username }}
+                                    </strong>
+                                {% else %}
+                                    <strong>System</strong>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                       <div class="history-date">
+    {{ history.assigned_at|date:"d M Y, h:i A" }}
+</div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-history">
+                No assignment history available.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Actions -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <div>
+                <h2>Task Actions</h2>
+                <p>Manage the current task.</p>
+            </div>
+        </div>
+
+        <div class="task-actions">
+
+            {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+
+                <a
+                    href="{% url 'reassign_task' task.id %}"
+                    class="btn-secondary"
+                >
+                    Reassign Task
+                </a>
+
+            {% endif %}
+
+
+            {% if task.status == "PENDING" %}
+
+                <a
+                    href="{% url 'complete_task' task.id %}"
+                    class="btn-primary"
+                >
+                    Mark Completed
+                </a>
+
+                <a
+                    href="{% url 'cancel_task' task.id %}"
+                    class="btn-danger"
+                >
+                    Cancel Task
+                </a>
+
+            {% else %}
+
+                <span class="action-info">
+                    This task is {{ task.get_status_display|lower }}.
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    margin: 0 0 5px;
+    font-size: 26px;
+    color: #1e293b;
+}
+
+.page-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.btn-secondary {
+    padding: 9px 14px;
+    border: 1px solid #dbe3ec;
+    border-radius: 7px;
+    background: #fff;
+    color: #334155;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+}
+
+.task-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 1100px;
+}
+
+.detail-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 22px;
+}
+
+.detail-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 22px;
+}
+
+.detail-card-header h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: #1e293b;
+}
+
+.detail-card-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.detail-label {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: .4px;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #334155;
+    font-weight: 500;
+}
+
+.detail-value a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.detail-value a:hover {
+    text-decoration: underline;
+}
+
+.description-section {
+    margin-top: 24px;
+}
+
+.description-box {
+    margin-top: 8px;
+    padding: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* Assignment History */
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.history-item:first-child {
+    padding-top: 0;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.history-main {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.history-assignee {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.history-details {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.history-details strong {
+    color: #334155;
+}
+
+.history-date {
+    font-size: 12px;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.empty-history {
+    padding: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+/* Task Actions */
+
+.task-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-primary,
+.btn-danger {
+    display: inline-block;
+    padding: 9px 15px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-primary {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.btn-danger {
+    border: 1px solid #dc2626;
+    background: #fff;
+    color: #dc2626;
+}
+
+.action-info {
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+@media (max-width: 700px) {
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .task-actions {
+        flex-direction: column;
+    }
+
+    .history-item {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+}
+
+</style>
+
+{% endblock %}

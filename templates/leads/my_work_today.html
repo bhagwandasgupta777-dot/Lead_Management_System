@@ -1,0 +1,1779 @@
+{% extends "base.html" %}
+
+{% block title %}My Work Today{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   MY WORK TODAY
+   ========================================================= */
+
+.work-today-page {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+
+/* HEADER */
+
+.work-today-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.work-today-breadcrumb {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.work-today-header h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px;
+    font-weight: 750;
+    letter-spacing: -0.5px;
+}
+
+.work-today-header p {
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.work-today-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.work-today-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 16px;
+    border-radius: 9px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.work-today-btn-primary {
+    background: #2563eb;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, .18);
+}
+
+.work-today-btn-primary:hover {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.work-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 26px;
+}
+
+.work-summary-card {
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px;
+    min-height: 125px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .035);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.work-summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+}
+
+.work-summary-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.work-summary-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.work-summary-number {
+    margin-top: 14px;
+    color: #0f172a;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 750;
+}
+
+.work-summary-title {
+    margin-top: 7px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.work-summary-description {
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+
+/* CARD COLORS */
+
+.summary-today .work-summary-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.summary-overdue .work-summary-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.summary-new .work-summary-icon {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.summary-hot .work-summary-icon {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.summary-overdue {
+    border-top: 3px solid #ef4444;
+}
+
+.summary-hot {
+    border-top: 3px solid #f97316;
+}
+
+
+/* =========================================================
+   MAIN GRID
+   ========================================================= */
+
+.work-main-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.work-panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .035);
+}
+
+.work-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 22px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.work-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.work-panel-title h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.work-panel-title p {
+    margin: 4px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.work-panel-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.icon-danger {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.icon-primary {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.icon-orange {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.icon-green {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.work-panel-link {
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.work-panel-link:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   FOLLOW-UP ROWS
+   ========================================================= */
+
+.work-list {
+    padding: 4px 22px 10px;
+}
+
+.work-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.work-row:last-child {
+    border-bottom: none;
+}
+
+.work-avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 11px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.work-row-main {
+    min-width: 0;
+    flex: 1;
+}
+
+.work-row-name {
+    display: block;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.work-row-name:hover {
+    color: #2563eb;
+}
+
+.work-row-meta {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.work-row-time {
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.work-row-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.work-mini-action {
+    width: 31px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #475569;
+}
+
+.work-mini-action:hover {
+    background: #f8fafc;
+    color: #2563eb;
+}
+
+
+/* OVERDUE */
+
+.overdue-row {
+    background: #fffafa;
+    margin: 0 -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 9px;
+}
+
+.overdue-row .work-avatar {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.overdue-label {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 9px;
+    font-weight: 750;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   HOT LEADS
+   ========================================================= */
+
+.hot-lead-grid {
+    padding: 18px 22px 22px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.hot-lead-card {
+    border: 1px solid #edf2f7;
+    border-radius: 11px;
+    padding: 15px;
+    transition: all .2s ease;
+}
+
+.hot-lead-card:hover {
+    border-color: #fed7aa;
+    box-shadow: 0 6px 16px rgba(234, 88, 12, .08);
+}
+
+.hot-lead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.hot-lead-person {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.hot-lead-avatar {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 9px;
+    background: #fff7ed;
+    color: #ea580c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.hot-lead-name {
+    color: #0f172a;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hot-lead-company {
+    margin-top: 3px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.hot-badge {
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: #fff7ed;
+    color: #ea580c;
+    font-size: 9px;
+    font-weight: 750;
+}
+
+.hot-lead-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 11px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.hot-lead-value {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.hot-lead-status {
+    color: #64748b;
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   TASKS
+   ========================================================= */
+
+.task-list {
+    padding: 4px 22px 10px;
+}
+
+.task-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.task-row:last-child {
+    border-bottom: none;
+}
+
+.task-check {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-title {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.task-lead {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.task-due {
+    margin-top: 5px;
+    color: #dc2626;
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.task-complete-form {
+    margin: 0;
+}
+
+.task-complete-btn {
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #15803d;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.task-complete-btn:hover {
+    background: #dcfce7;
+}
+
+
+/* =========================================================
+   COMPLETED
+   ========================================================= */
+
+.completed-panel {
+    margin-bottom: 25px;
+}
+
+.completed-list {
+    padding: 5px 22px 10px;
+}
+
+.completed-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.completed-row:last-child {
+    border-bottom: none;
+}
+
+.completed-check {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.completed-title {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.completed-status {
+    margin-left: auto;
+    color: #16a34a;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.work-empty {
+    padding: 35px 20px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.work-empty-icon {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 10px;
+    border-radius: 12px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.work-empty strong {
+    display: block;
+    color: #475569;
+    font-size: 13px;
+}
+
+.work-empty span {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+}
+/* =========================================================
+   OVERDUE FOLLOW-UPS - IMPROVED
+   ========================================================= */
+
+.overdue-followups-panel {
+    min-width: 0;
+}
+
+.overdue-total {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    color: #dc2626;
+    font-size: 22px;
+    font-weight: 750;
+}
+
+.overdue-total span {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* LIST */
+
+.overdue-followups-list {
+    padding: 8px 22px 14px;
+}
+
+
+/* CARD */
+
+.overdue-followup-card {
+    display: grid;
+    grid-template-columns: 1.3fr 1.2fr 1fr .8fr auto;
+    align-items: center;
+    gap: 18px;
+
+    padding: 16px 14px;
+
+    border-bottom: 1px solid #f1f5f9;
+
+    transition: background .2s ease;
+}
+
+.overdue-followup-card:last-child {
+    border-bottom: none;
+}
+
+.overdue-followup-card:hover {
+    background: #fffafa;
+}
+
+
+/* CUSTOMER */
+
+.overdue-customer {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.overdue-avatar {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #fef2f2;
+    color: #dc2626;
+
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.overdue-customer-info {
+    min-width: 0;
+}
+
+.overdue-customer-name {
+    display: block;
+
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.overdue-customer-name:hover {
+    color: #2563eb;
+}
+
+.overdue-company {
+    margin-top: 3px;
+
+    color: #94a3b8;
+    font-size: 10px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* TASK */
+
+.overdue-task-info {
+    min-width: 0;
+}
+
+.overdue-label-small {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #94a3b8;
+    font-size: 9px;
+    font-weight: 750;
+
+    letter-spacing: .4px;
+}
+
+.overdue-task-title {
+    color: #334155;
+    font-size: 12px;
+    font-weight: 650;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* DUE */
+
+.overdue-due-info {
+    min-width: 0;
+}
+
+.overdue-due-date {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+
+/* STATUS */
+
+.overdue-status-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.overdue-priority,
+.overdue-status-badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    font-size: 9px;
+    font-weight: 750;
+}
+
+.priority-high {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.priority-medium {
+    background: #fffbeb;
+    color: #a16207;
+}
+
+.priority-low {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.overdue-status-badge {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+
+/* BUTTON */
+
+.overdue-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.overdue-view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 11px;
+
+    border: 1px solid #dbe3ec;
+    border-radius: 7px;
+
+    background: #fff;
+
+    color: #475569;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition: all .2s ease;
+}
+
+.overdue-view-btn:hover {
+    background: #f8fafc;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+
+    .overdue-followup-card {
+        grid-template-columns: 1.2fr 1fr 1fr auto;
+    }
+
+    .overdue-task-info {
+        grid-column: span 2;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .overdue-followup-card {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .overdue-task-info,
+    .overdue-due-info,
+    .overdue-status-info {
+        grid-column: auto;
+    }
+
+    .overdue-action {
+        justify-content: flex-start;
+    }
+
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .work-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .work-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .work-today-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .work-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hot-lead-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .work-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .work-row-time {
+        width: 100%;
+        padding-left: 54px;
+    }
+
+    .work-row-actions {
+        margin-left: 54px;
+    }
+
+}
+
+</style>
+
+
+<div class="work-today-page">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="work-today-header">
+
+        <div>
+
+            <div class="work-today-breadcrumb">
+                Workspace / My Work Today
+            </div>
+
+            <h1>
+                My Work Today
+            </h1>
+
+            <p>
+                Your priority work, follow-ups and tasks for today.
+            </p>
+
+        </div>
+
+
+        <div class="work-today-header-actions">
+
+            <a
+                href="{% url 'lead_list' %}"
+                class="work-today-btn work-today-btn-primary"
+            >
+                View All Leads →
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUMMARY
+         ===================================================== -->
+
+    <div class="work-summary-grid">
+
+
+        <!-- TODAY -->
+
+        <div class="work-summary-card summary-today">
+
+            <div class="work-summary-top">
+
+                <div>
+                    <div class="work-summary-number">
+                        {{ todays_followups|length }}
+                    </div>
+
+                    <div class="work-summary-title">
+                        Today's Follow-ups
+                    </div>
+
+                    <div class="work-summary-description">
+                        Scheduled for today
+                    </div>
+                </div>
+
+                <div class="work-summary-icon">
+                    ✓
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- OVERDUE -->
+
+        <div class="work-summary-card summary-overdue">
+
+            <div class="work-summary-top">
+
+                <div>
+                    <div class="work-summary-number">
+                        {{ overdue_followups|length }}
+                    </div>
+
+                    <div class="work-summary-title">
+                        Overdue
+                    </div>
+
+                    <div class="work-summary-description">
+                        Need immediate attention
+                    </div>
+                </div>
+
+                <div class="work-summary-icon">
+                    !
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- NEW -->
+
+        <div class="work-summary-card summary-new">
+
+            <div class="work-summary-top">
+
+                <div>
+                    <div class="work-summary-number">
+                        {{ new_leads|length }}
+                    </div>
+
+                    <div class="work-summary-title">
+                        New Leads
+                    </div>
+
+                    <div class="work-summary-description">
+                        Not contacted yet
+                    </div>
+                </div>
+
+                <div class="work-summary-icon">
+                    +
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- HOT -->
+
+        <div class="work-summary-card summary-hot">
+
+            <div class="work-summary-top">
+
+                <div>
+                    <div class="work-summary-number">
+                        {{ hot_leads|length }}
+                    </div>
+
+                    <div class="work-summary-title">
+                        Hot Leads
+                    </div>
+
+                    <div class="work-summary-description">
+                        Active opportunities
+                    </div>
+                </div>
+
+                <div class="work-summary-icon">
+                    !
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         OVERDUE + TODAY
+         ===================================================== -->
+
+    <div class="work-main-grid">
+
+
+        <!-- =====================================================
+     OVERDUE FOLLOW-UPS
+     ===================================================== -->
+
+<section class="work-panel overdue-followups-panel">
+
+    <div class="work-panel-header">
+
+        <div class="work-panel-title">
+
+            <div class="work-panel-icon icon-danger">
+                !
+            </div>
+
+            <div>
+                <h2>
+                    Overdue Follow-ups
+                </h2>
+
+                <p>
+                    Follow-ups that need immediate attention.
+                </p>
+            </div>
+
+        </div>
+
+        <strong class="overdue-total">
+            {{ overdue_followups|length }}
+            <span>overdue</span>
+        </strong>
+
+    </div>
+
+
+    <div class="overdue-followups-list">
+
+        {% if overdue_followups %}
+
+            {% for task in overdue_followups %}
+
+                <div class="overdue-followup-card">
+
+                    <!-- Customer -->
+                    <div class="overdue-customer">
+
+                        <div class="overdue-avatar">
+                            {{ task.lead.first_name|first|upper }}{{ task.lead.last_name|first|upper }}
+                        </div>
+
+                        <div class="overdue-customer-info">
+
+                            <a
+                                href="{% url 'lead_detail' task.lead.lead_id %}"
+                                class="overdue-customer-name"
+                            >
+                                {{ task.lead.first_name }}
+                                {{ task.lead.last_name }}
+                            </a>
+
+                            {% if task.lead.company %}
+
+                                <div class="overdue-company">
+                                    {{ task.lead.company }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Task -->
+                    <div class="overdue-task-info">
+
+                        <span class="overdue-label-small">
+                            FOLLOW-UP
+                        </span>
+
+                        <div class="overdue-task-title">
+                            {{ task.title }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- Due Date -->
+                    <div class="overdue-due-info">
+
+                        <span class="overdue-label-small">
+                            DUE
+                        </span>
+
+                        <div class="overdue-due-date">
+                            {{ task.due_date|date:"d M Y, h:i A" }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- Priority + Status -->
+                    <div class="overdue-status-info">
+
+                        <span class="
+                            overdue-priority
+                            {% if task.priority == 'HIGH' %}
+                                priority-high
+                            {% elif task.priority == 'MEDIUM' %}
+                                priority-medium
+                            {% else %}
+                                priority-low
+                            {% endif %}
+                        ">
+                            {{ task.get_priority_display }}
+                        </span>
+
+                        <span class="overdue-status-badge">
+                            Overdue
+                        </span>
+
+                    </div>
+
+
+                    <!-- Action -->
+                    <div class="overdue-action">
+
+                        <a
+                            href="{% url 'lead_detail' task.lead.lead_id %}"
+                            class="overdue-view-btn"
+                        >
+                            View Lead
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="work-empty">
+
+                <div class="work-empty-icon">
+                    ✓
+                </div>
+
+                <strong>
+                    No overdue follow-ups
+                </strong>
+
+                <span>
+                    Great! Nothing is waiting for your attention.
+                </span>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+        <!-- TODAY'S FOLLOW-UPS -->
+
+        <section class="work-panel">
+
+            <div class="work-panel-header">
+
+                <div class="work-panel-title">
+
+                    <div class="work-panel-icon icon-primary">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Today's Follow-ups
+                        </h2>
+
+                        <p>
+                            Customers you need to contact today.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <strong style="color:#2563eb;">
+                    {{ todays_followups|length }}
+                </strong>
+
+            </div>
+
+
+            <div class="work-list">
+
+                {% if todays_followups %}
+
+                    {% for lead in todays_followups %}
+
+                        <div class="work-row">
+
+                            <div class="work-avatar">
+
+                                {{ lead.first_name|first|upper }}{{ lead.last_name|first|upper }}
+
+                            </div>
+
+
+                            <div class="work-row-main">
+
+                                <a
+                                    href="{% url 'lead_detail' lead.lead_id %}"
+                                    class="work-row-name"
+                                >
+                                    {{ lead.first_name }} {{ lead.last_name }}
+                                </a>
+
+                                <div class="work-row-meta">
+
+                                    <span>
+                                        {{ lead.lead_id }}
+                                    </span>
+
+                                    {% if lead.company %}
+                                        <span>•</span>
+                                        <span>{{ lead.company }}</span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="work-row-time">
+
+                                {{ lead.next_follow_up|date:"h:i A" }}
+
+                            </div>
+
+
+                            <div class="work-row-actions">
+
+                                <a
+                                    href="tel:{{ lead.phone }}"
+                                    class="work-mini-action"
+                                    title="Call"
+                                >
+                                    ☎
+                                </a>
+
+                                <a
+                                    href="{% url 'lead_detail' lead.lead_id %}"
+                                    class="work-mini-action"
+                                    title="Open Lead"
+                                >
+                                    →
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="work-empty">
+
+                        <div class="work-empty-icon">
+                            ✓
+                        </div>
+
+                        <strong>
+                            No follow-ups scheduled for today
+                        </strong>
+
+                        <span>
+                            There is nothing scheduled for today.
+                        </span>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =====================================================
+         HOT LEADS
+         ===================================================== -->
+
+    <section class="work-panel" style="margin-bottom:20px;">
+
+        <div class="work-panel-header">
+
+            <div class="work-panel-title">
+
+                <div class="work-panel-icon icon-orange">
+                    !
+                </div>
+
+                <div>
+
+                    <h2>
+                        Hot Leads
+                    </h2>
+
+                    <p>
+                        High-interest opportunities that need attention.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="{% url 'lead_list' %}?temperature=HOT"
+                class="work-panel-link"
+            >
+                View all →
+            </a>
+
+        </div>
+
+
+        <div class="hot-lead-grid">
+
+            {% if hot_leads %}
+
+                {% for lead in hot_leads %}
+
+                    <div class="hot-lead-card">
+
+                        <div class="hot-lead-top">
+
+                            <div class="hot-lead-person">
+
+                                <div class="hot-lead-avatar">
+                                    {{ lead.first_name|first|upper }}{{ lead.last_name|first|upper }}
+                                </div>
+
+                                <div>
+
+                                    <a
+                                        href="{% url 'lead_detail' lead.lead_id %}"
+                                        class="hot-lead-name"
+                                    >
+                                        {{ lead.first_name }} {{ lead.last_name }}
+                                    </a>
+
+                                    <div class="hot-lead-company">
+
+                                        {{ lead.company|default:"No company" }}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="hot-badge">
+                                HOT
+                            </span>
+
+                        </div>
+
+
+                        <div class="hot-lead-details">
+
+                            <span class="hot-lead-value">
+                                ₹{{ lead.lead_value|floatformat:0 }}
+                            </span>
+
+                            <span class="hot-lead-status">
+                                {{ lead.get_status_display }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="work-empty" style="grid-column:1/-1;">
+                    <strong>No hot leads</strong>
+                    <span>Hot opportunities will appear here.</span>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PENDING TASKS
+         ===================================================== -->
+
+    <section class="work-panel" style="margin-bottom:20px;">
+
+        <div class="work-panel-header">
+
+            <div class="work-panel-title">
+
+                <div class="work-panel-icon icon-primary">
+                    ✓
+                </div>
+
+                <div>
+
+                    <h2>
+                        Pending Tasks
+                    </h2>
+
+                    <p>
+                        Tasks that still need to be completed.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <strong style="color:#2563eb;">
+                {{ pending_tasks|length }}
+            </strong>
+
+        </div>
+
+
+        <div class="task-list">
+
+            {% if pending_tasks %}
+
+                {% for task in pending_tasks %}
+
+                    <div class="task-row">
+
+                        <div class="task-check">
+                            □
+                        </div>
+
+
+                        <div class="task-main">
+
+                            <div class="task-title">
+                                {{ task.title }}
+                            </div>
+
+
+                            {% if task.lead %}
+
+                                <div class="task-lead">
+
+                                    Lead:
+
+                                    <a
+                                        href="{% url 'lead_detail' task.lead.lead_id %}"
+                                        style="color:#2563eb;text-decoration:none;font-weight:600;"
+                                    >
+                                        {{ task.lead.first_name }}
+                                        {{ task.lead.last_name }}
+                                    </a>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <div class="task-due">
+
+                                Due:
+                                {{ task.due_date|date:"d M Y, h:i A" }}
+
+                                {% if task.is_overdue %}
+                                    · OVERDUE
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'complete_task' task.id %}"
+                            class="task-complete-form"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="task-complete-btn"
+                            >
+                                Complete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="work-empty">
+
+                    <div class="work-empty-icon">
+                        ✓
+                    </div>
+
+                    <strong>
+                        No pending tasks
+                    </strong>
+
+                    <span>
+                        You are all caught up.
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         COMPLETED TODAY
+         ===================================================== -->
+
+    <section class="work-panel completed-panel">
+
+        <div class="work-panel-header">
+
+            <div class="work-panel-title">
+
+                <div class="work-panel-icon icon-green">
+                    ✓
+                </div>
+
+                <div>
+
+                    <h2>
+                        Completed Today
+                    </h2>
+
+                    <p>
+                        Tasks completed today.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <strong style="color:#16a34a;">
+                {{ completed_tasks_today|length }}
+            </strong>
+
+        </div>
+
+
+        <div class="completed-list">
+
+            {% if completed_tasks_today %}
+
+                {% for task in completed_tasks_today %}
+
+                    <div class="completed-row">
+
+                        <div class="completed-check">
+                            ✓
+                        </div>
+
+
+                        <div>
+
+                            <div class="completed-title">
+                                {{ task.title }}
+                            </div>
+
+                            {% if task.lead %}
+
+                                <div style="margin-top:4px;color:#94a3b8;font-size:11px;">
+                                    {{ task.lead.first_name }}
+                                    {{ task.lead.last_name }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <span class="completed-status">
+                            COMPLETED
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="work-empty">
+
+                    <div class="work-empty-icon">
+                        ✓
+                    </div>
+
+                    <strong>
+                        No tasks completed today
+                    </strong>
+
+                    <span>
+                        Completed work will appear here.
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+</div>
+
+{% endblock %}

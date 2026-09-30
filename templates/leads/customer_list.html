@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+            <div class="breadcrumb">
+                Workspace / Customers
+            </div>
+
+            <h1>Customers</h1>
+
+            <p>
+                Manage customers converted from qualified leads.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- CUSTOMER SUMMARY -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Customer Directory</h2>
+                <p>
+                    Customers created from successfully converted leads.
+                </p>
+            </div>
+
+            <div>
+                <strong>
+                    {{ customers|length }} Customer{{ customers|length|pluralize }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <!-- CUSTOMER TABLE -->
+        {% if customers %}
+
+        <div class="table-wrapper">
+
+            <table class="crm-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Assigned To</th>
+                        <th>Created</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for customer in customers %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ customer.customer_id }}
+                            </strong>
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{ customer.first_name }}
+                                {{ customer.last_name }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ customer.phone }}
+                        </td>
+
+
+                        <td>
+
+                            {% if customer.email %}
+                                {{ customer.email }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if customer.company %}
+                                {{ customer.company }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if customer.assigned_to %}
+
+                                {{ customer.assigned_to.get_full_name|default:customer.assigned_to.username }}
+
+                            {% else %}
+
+                                Unassigned
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            {{ customer.created_at|date:"d M Y, h:i A" }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <!-- EMPTY STATE -->
+
+        <div class="empty-detail">
+
+            <h3>No customers yet</h3>
+
+            <p>
+                Customers will appear here when a Won lead is converted.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

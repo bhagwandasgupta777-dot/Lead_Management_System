@@ -1,0 +1,364 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}LeadFlow{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- SIDEBAR -->
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-logo-wrapper">
+            {% if company_settings and company_settings.company_logo %}
+                <img
+                    src="{{ company_settings.company_logo.url }}"
+                    alt="{{ company_settings.company_name|default:'Company Logo' }}"
+                    class="brand-logo"
+                >
+            {% else %}
+                <div class="brand-mark">L</div>
+            {% endif %}
+        </div>
+
+        <div class="brand-text">
+            <div class="brand-name">
+                {{ company_settings.company_name|default:"LeadFlow" }}
+            </div>
+
+            <div class="brand-subtitle">
+                Sales workspace
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- WORKSPACE -->
+    <div class="sidebar-section">
+
+        <div class="sidebar-label">
+            WORKSPACE
+        </div>
+
+
+        <!-- Overview -->
+        <a
+            href="/dashboard/"
+            class="nav-item {% if request.path == '/dashboard/' %}active{% endif %}"
+        >
+            <span class="nav-icon">⌂</span>
+            <span>Overview</span>
+        </a>
+
+
+        <!-- My Work Today -->
+        <a
+            href="{% url 'my_work_today' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'my_work_today' %}active{% endif %}"
+        >
+            <span class="nav-icon">✓</span>
+            <span>My Work Today</span>
+        </a>
+
+
+        <!-- Lead Inbox -->
+       <a
+    href="{% url 'lead_inbox' %}"
+    class="nav-item {% if request.resolver_match.url_name == 'lead_inbox' %}active{% endif %}"
+>
+    <span class="nav-icon">▣</span>
+    <span>Lead Inbox</span>
+</a>
+
+
+        <a
+    href="{% url 'lead_list' %}"
+    class="nav-item {% if request.resolver_match.url_name == 'lead_list' or request.resolver_match.url_name == 'lead_detail' or request.resolver_match.url_name == 'create_lead' or request.resolver_match.url_name == 'lead_stage_workflow' %}active{% endif %}"
+>
+    <span class="nav-icon">◷</span>
+    <span>My Leads</span>
+</a>
+
+
+        <!-- Follow-ups -->
+       <a
+    href="{% url 'follow_up_list' %}"
+    class="nav-item {% if request.resolver_match.url_name == 'follow_up_list' %}active{% endif %}"
+>
+    <span class="nav-icon">✓</span>
+    <span>Follow-ups</span>
+</a>
+
+
+        <!-- Pipeline -->
+        <a
+            href="{% url 'pipeline' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'pipeline' %}active{% endif %}"
+        >
+            <span class="nav-icon">▱</span>
+            <span>Pipeline</span>
+        </a>
+
+    </div>
+
+
+    <!-- RELATIONSHIPS -->
+    <div class="sidebar-section">
+
+        <div class="sidebar-label">
+            RELATIONSHIPS
+        </div>
+
+
+        <!-- Customers -->
+        <a
+            href="{% url 'customer_list' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}"
+        >
+            <span class="nav-icon">□</span>
+            <span>Customers</span>
+        </a>
+
+
+       
+
+
+       {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+    <!-- Tasks -->
+    <a
+        href="{% url 'admin_task_list' %}"
+        class="nav-item {% if request.resolver_match.url_name == 'admin_task_list' %}active{% endif %}"
+    >
+        <span class="nav-icon">□</span>
+        <span>Tasks</span>
+    </a>
+{% endif %}
+
+    </div>
+
+
+    <!-- INSIGHTS -->
+    <div class="sidebar-section">
+
+        <div class="sidebar-label">
+            INSIGHTS
+        </div>
+
+
+       {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+    <!-- Reports -->
+    <a
+        href="{% url 'admin_reports' %}"
+        class="nav-item {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}"
+    >
+        <span class="nav-icon">□</span>
+        <span>Reports</span>
+    </a>
+{% endif %}
+
+    </div>
+
+
+    <!-- BOTTOM -->
+    <div class="sidebar-bottom">
+
+
+        {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+    <!-- Settings -->
+    <a
+        href="{% url 'admin_settings' %}"
+        class="nav-item {% if request.resolver_match.url_name == 'admin_settings' %}active{% endif %}"
+    >
+        <span class="nav-icon">⚙</span>
+        <span>Settings</span>
+    </a>
+{% endif %}
+
+
+        <!-- Help -->
+        <a
+            href="{% url 'help' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'help' %}active{% endif %}"
+        >
+            <span class="nav-icon">?</span>
+            <span>Help</span>
+        </a>
+
+
+        <div class="user-box">
+
+            <div class="user-avatar">
+                A
+            </div>
+
+            <div class="user-details">
+                <strong>Admin</strong>
+                <span>Administrator</span>
+            </div>
+
+            <span class="user-menu">•••</span>
+
+        </div>
+
+    </div>
+
+</aside>
+
+        <!-- MAIN -->
+        <main class="main-area">
+
+            <!-- TOP BAR -->
+            <header class="topbar">
+
+                <div class="global-search">
+
+                    <span class="search-icon">⌕</span>
+
+                    <input
+                        type="text"
+                        placeholder="Search leads, customers, companies..."
+                    >
+
+                    <span class="search-shortcut">
+                        Ctrl K
+                    </span>
+
+                </div>
+
+
+                <div class="topbar-actions">
+
+                    <a href="{% url 'help' %}" class="topbar-help" title="Help">
+    <span>?</span>
+</a>
+
+                    <a href="{% url 'notification_list' %}" class="topbar-button notification-button">
+    🔔
+
+    {% if unread_notifications > 0 %}
+        <span class="notification-count">
+            {{ unread_notifications }}
+        </span>
+    {% endif %}
+</a>
+
+                  <div class="topbar-user-wrapper">
+
+    <button type="button" class="topbar-user" onclick="toggleUserMenu()">
+
+        <div class="topbar-avatar">
+            {{ request.user.username|first|upper }}
+        </div>
+
+        <div class="topbar-user-info">
+            <strong>{{ request.user.username }}</strong>
+            <span>{{ request.user.get_role_display }}</span>
+        </div>
+
+        <span class="dropdown-arrow">⌄</span>
+
+    </button>
+
+
+    <div class="user-dropdown" id="userDropdown">
+
+        <div class="profile-header">
+
+            <div class="profile-avatar">
+                {{ request.user.username|first|upper }}
+            </div>
+
+            <div class="profile-details">
+                <strong>{{ request.user.username }}</strong>
+                <span>{{ request.user.get_role_display }}</span>
+            </div>
+
+        </div>
+
+
+        <div class="profile-divider"></div>
+
+
+        <a href="{% url 'logout' %}" class="profile-logout">
+
+            <span class="logout-icon">↪</span>
+
+            <span>Sign out</span>
+
+        </a>
+
+    </div>
+
+</div>
+
+                </div>
+
+            </header>
+
+
+            <!-- PAGE CONTENT -->
+            <div class="page-content">
+
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    <span class="message-text">
+                        {{ message }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="message-close"
+                        onclick="this.parentElement.remove()"
+                    >
+                        ×
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+</div>
+
+        </main>
+
+    </div>
+
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+    function toggleUserMenu() {
+        const dropdown = document.getElementById("userDropdown");
+        dropdown.classList.toggle("show");
+    }
+
+    document.addEventListener("click", function(event) {
+        const wrapper = document.querySelector(".topbar-user-wrapper");
+        const dropdown = document.getElementById("userDropdown");
+
+        if (wrapper && dropdown && !wrapper.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+</script>
+
+</body>
+
+</html>

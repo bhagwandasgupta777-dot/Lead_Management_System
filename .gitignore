@@ -1,0 +1,25 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Environment / secrets
+.env
+
+# Django
+db.sqlite3
+
+# Uploaded files
+media/
+
+# Collected static files
+staticfiles/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+sent_emails/

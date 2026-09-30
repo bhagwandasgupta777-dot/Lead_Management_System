@@ -1,0 +1,241 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Edit Deal{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+
+            <div class="breadcrumb">
+                Workspace / Deals / {{ deal.deal_id }} / Edit
+            </div>
+
+            <h1>Edit Deal</h1>
+
+            <p>
+                Update the information for {{ deal.deal_id }}.
+            </p>
+
+        </div>
+
+        <div>
+
+            <a
+                href="{% url 'deal_detail' deal.deal_id %}"
+                class="detail-action"
+            >
+                ← Back to Deal
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- DEAL FORM -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>Deal Information</h2>
+
+                <p>
+                    Update the customer deal details.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+
+            <div class="form-grid">
+
+
+                <!-- DEAL ID -->
+                <div class="form-group">
+
+                    <label>
+                        Deal ID
+                    </label>
+
+                    <input
+                        type="text"
+                        value="{{ deal.deal_id }}"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- CUSTOMER -->
+                <div class="form-group">
+
+                    <label>
+                        Customer
+                    </label>
+
+                    <input
+                        type="text"
+                        value="{{ deal.customer.first_name }} {{ deal.customer.last_name }}"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- DEAL TITLE -->
+                <div class="form-group">
+
+                    <label for="title">
+                        Deal Title
+                    </label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        id="title"
+                        value="{{ deal.title }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DEAL VALUE -->
+                <div class="form-group">
+
+                    <label for="deal_value">
+                        Deal Value (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        name="deal_value"
+                        id="deal_value"
+                        min="0"
+                        step="0.01"
+                        value="{{ deal.deal_value }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- EXPECTED CLOSE DATE -->
+                <div class="form-group">
+
+                    <label for="expected_close_date">
+                        Expected Close Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="expected_close_date"
+                        id="expected_close_date"
+                        value="{{ deal.expected_close_date|date:'Y-m-d' }}"
+                    >
+
+                </div>
+
+
+                <!-- ASSIGNED TO -->
+                {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+
+                <div class="form-group">
+
+                    <label for="assigned_to">
+                        Assigned To
+                    </label>
+
+                    <select
+                        name="assigned_to"
+                        id="assigned_to"
+                    >
+
+                        <option value="">
+                            Unassigned
+                        </option>
+
+                        {% for user in sales_users %}
+
+                            <option
+                                value="{{ user.id }}"
+                                {% if deal.assigned_to and deal.assigned_to.id == user.id %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{ user.get_full_name|default:user.username }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+            <!-- NOTES -->
+            <div class="form-group form-group-full">
+
+                <label for="notes">
+                    Notes
+                </label>
+
+                <textarea
+                    name="notes"
+                    id="notes"
+                    rows="5"
+                    placeholder="Add important information about this deal..."
+                >{{ deal.notes }}</textarea>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'deal_detail' deal.deal_id %}"
+                    class="detail-action"
+                >
+                    Cancel
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}
+```

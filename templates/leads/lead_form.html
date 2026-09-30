@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block title %}New Lead{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <div class="workspace-header">
+        <div>
+            <div class="breadcrumb">Workspace / Leads / New Lead</div>
+            <h1>Create New Lead</h1>
+            <p>Add a new sales opportunity to your CRM.</p>
+        </div>
+
+        <a href="{% url 'lead_list' %}" class="secondary-btn">
+            ← Back to Leads
+        </a>
+    </div>
+
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="crm-message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    <form method="post" class="workspace-card lead-form">
+
+        {% csrf_token %}
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Contact Information</h2>
+                <p>Basic information about the potential customer.</p>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>First Name <span>*</span></label>
+                    <input
+                        type="text"
+                        name="first_name"
+                        value="{{ form_data.first_name|default:'' }}"
+                        required
+                        placeholder="Enter first name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input
+                        type="text"
+                        name="last_name"
+                        value="{{ form_data.last_name|default:'' }}"
+                        placeholder="Enter last name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Phone <span>*</span></label>
+                    <input
+                        type="tel"
+                        name="phone"
+                        value="{{ form_data.phone|default:'' }}"
+                        required
+                        placeholder="Enter phone number"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>WhatsApp Number</label>
+                    <input
+                        type="tel"
+                        name="whatsapp_number"
+                        value="{{ form_data.whatsapp_number|default:'' }}"
+                        placeholder="Enter WhatsApp number"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ form_data.email|default:'' }}"
+                        placeholder="customer@example.com"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Company</label>
+                    <input
+                        type="text"
+                        name="company"
+                        value="{{ form_data.company|default:'' }}"
+                        placeholder="Company name"
+                    >
+                </div>
+
+                <div class="form-group">
+    <label>Location</label>
+    <input
+        type="text"
+        name="location"
+        value="{{ form_data.location|default:'' }}"
+        placeholder="Enter customer location"
+    >
+</div>
+
+<div class="form-group">
+    <label>Category</label>
+    <input
+        type="text"
+        name="category"
+        value="{{ form_data.category|default:'' }}"
+        maxlength="100"
+        placeholder="e.g. Hospital"
+    >
+</div>
+
+<div class="form-group">
+    <label>Total Employees</label>
+    <input
+        type="number"
+        name="total_employees"
+        value="{{ form_data.total_employees|default:'' }}"
+        min="0"
+        placeholder="e.g. 1500"
+    >
+</div>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-divider"></div>
+
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Lead Qualification</h2>
+                <p>Classify the opportunity so your team knows what to prioritize.</p>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Lead Source</label>
+
+                    <select name="source">
+
+                        <option value="WEBSITE"
+                            {% if form_data.source|default:'OTHER' == 'WEBSITE' %}selected{% endif %}>
+                            Website
+                        </option>
+
+                        <option value="WHATSAPP"
+                            {% if form_data.source == 'WHATSAPP' %}selected{% endif %}>
+                            WhatsApp
+                        </option>
+
+                        <option value="FACEBOOK"
+                            {% if form_data.source == 'FACEBOOK' %}selected{% endif %}>
+                            Facebook
+                        </option>
+
+                        <option value="INSTAGRAM"
+                            {% if form_data.source == 'INSTAGRAM' %}selected{% endif %}>
+                            Instagram
+                        </option>
+
+                        <option value="GOOGLE_ADS"
+                            {% if form_data.source == 'GOOGLE_ADS' %}selected{% endif %}>
+                            Google Ads
+                        </option>
+
+                        <option value="REFERRAL"
+                            {% if form_data.source == 'REFERRAL' %}selected{% endif %}>
+                            Referral
+                        </option>
+
+                        <option value="PHONE"
+                            {% if form_data.source == 'PHONE' %}selected{% endif %}>
+                            Phone Call
+                        </option>
+
+                        <option value="WALK_IN"
+                            {% if form_data.source == 'WALK_IN' %}selected{% endif %}>
+                            Walk-in
+                        </option>
+
+                        <option value="EMAIL"
+                            {% if form_data.source == 'EMAIL' %}selected{% endif %}>
+                            Email
+                        </option>
+
+                        <option value="JUSTDIAL"
+                            {% if form_data.source == 'JUSTDIAL' %}selected{% endif %}>
+                            Justdial
+                        </option>
+
+                        <option value="OTHER"
+                            {% if form_data.source|default:'OTHER' == 'OTHER' %}selected{% endif %}>
+                            Other
+                        </option>
+
+                    </select>
+                </div>
+
+<div class="form-group">
+    <label for="assigned_to">Assigned To</label>
+
+    {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+
+        <select name="assigned_to" id="assigned_to">
+            <option value="">Select Sales Employee</option>
+
+            {% for user in sales_users %}
+                <option value="{{ user.id }}"
+                    {% if form_data.assigned_to == user.id|stringformat:"s" %}
+                        selected
+                    {% endif %}>
+                    {{ user.get_full_name|default:user.username }}
+                </option>
+            {% endfor %}
+        </select>
+
+    {% else %}
+
+        <input type="text"
+               value="{{ request.user.get_full_name|default:request.user.username }}"
+               readonly>
+
+    {% endif %}
+</div>
+
+
+<div class="form-group">
+
+    <label>Temperature</label>
+
+    <select name="temperature" id="temperature">
+
+        <option value="HOT"
+            {% if form_data.temperature|default:'WARM' == 'HOT' %}selected{% endif %}>
+            Hot
+        </option>
+
+        <option value="WARM"
+            {% if form_data.temperature|default:'WARM' == 'WARM' %}selected{% endif %}>
+            Warm
+        </option>
+
+        <option value="COLD"
+            {% if form_data.temperature|default:'WARM' == 'COLD' %}selected{% endif %}>
+            Cold
+        </option>
+
+    </select>
+
+</div>
+
+
+<div class="form-group">
+
+    <label>Priority</label>
+
+    <select name="priority" id="priority">
+
+        <option value="HIGH"
+            {% if form_data.priority|default:'MEDIUM' == 'HIGH' %}selected{% endif %}>
+            High
+        </option>
+
+        <option value="MEDIUM"
+            {% if form_data.priority|default:'MEDIUM' == 'MEDIUM' %}selected{% endif %}>
+            Medium
+        </option>
+
+        <option value="LOW"
+            {% if form_data.priority|default:'MEDIUM' == 'LOW' %}selected{% endif %}>
+            Low
+        </option>
+
+    </select>
+
+</div>
+
+<script>
+    const temperatureField = document.getElementById("temperature");
+    const priorityField = document.getElementById("priority");
+
+    function updatePriority() {
+        const temperature = temperatureField.value;
+
+        // Enable all priority options first
+        Array.from(priorityField.options).forEach(option => {
+            option.disabled = false;
+        });
+
+        // Set priority according to temperature
+        if (temperature === "HOT") {
+            priorityField.value = "HIGH";
+
+            Array.from(priorityField.options).forEach(option => {
+                if (option.value !== "HIGH" && option.value !== "") {
+                    option.disabled = true;
+                }
+            });
+        }
+
+        else if (temperature === "WARM") {
+            priorityField.value = "MEDIUM";
+
+            Array.from(priorityField.options).forEach(option => {
+                if (option.value !== "MEDIUM" && option.value !== "") {
+                    option.disabled = true;
+                }
+            });
+        }
+
+        else if (temperature === "COLD") {
+            priorityField.value = "LOW";
+
+            Array.from(priorityField.options).forEach(option => {
+                if (option.value !== "LOW" && option.value !== "") {
+                    option.disabled = true;
+                }
+            });
+        }
+    }
+
+    // User can change Temperature
+    temperatureField.addEventListener("change", updatePriority);
+
+    // Set correct Priority when page loads
+    updatePriority();
+</script>
+                <div class="form-group">
+                    <label>Estimated Lead Value</label>
+
+                    <div class="input-with-prefix">
+                        <span>₹</span>
+
+                        <input
+                            type="number"
+                            name="lead_value"
+                            value="{{ form_data.lead_value|default:'' }}"
+                            min="0"
+                            step="0.01"
+                            placeholder="0"
+                        >
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Next Follow-up</label>
+
+                    <input
+                        type="datetime-local"
+                        name="next_follow_up"
+                        value="{{ form_data.next_follow_up|default:'' }}"
+                    >
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-divider"></div>
+
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Notes</h2>
+                <p>Add useful information about the lead.</p>
+            </div>
+
+            <div class="form-group">
+
+                <label>Lead Notes</label>
+
+                <textarea
+                    name="notes"
+                    rows="5"
+                    placeholder="Requirements, conversation notes, customer expectations..."
+                >{{ form_data.notes|default:'' }}</textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-footer">
+
+            <a href="{% url 'lead_list' %}" class="secondary-btn">
+                Cancel
+            </a>
+
+            <button type="submit" class="add-lead-btn">
+                Create Lead
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,829 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="reports-page">
+
+    <!-- =========================
+         Page Header
+         ========================= -->
+
+    <div class="page-header">
+        <div>
+            <h1>Reports</h1>
+            <p>
+                Monitor lead activity, pipeline progress, acquisition sources,
+                and sales team performance.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- =========================
+         Pipeline Overview
+         ========================= -->
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <h2>Pipeline Overview</h2>
+                <p>
+                    Current distribution of leads across the sales pipeline.
+                </p>
+            </div>
+        </div>
+
+
+        <div class="pipeline-grid">
+
+            <!-- Total Leads -->
+
+            <a
+                href="{% url 'lead_list' %}"
+                class="pipeline-card total"
+            >
+                <div class="pipeline-top">
+                    <span>Total Leads</span>
+                    <span class="pipeline-icon">◎</span>
+                </div>
+
+                <strong>{{ total_leads }}</strong>
+
+                <small>All leads</small>
+            </a>
+
+
+            <!-- New -->
+
+            <a
+                href="{% url 'lead_list' %}?status=NEW"
+                class="pipeline-card"
+            >
+                <div class="pipeline-top">
+                    <span>New</span>
+                    <span class="pipeline-icon">＋</span>
+                </div>
+
+                <strong>{{ new_leads }}</strong>
+
+                <small>New enquiries</small>
+            </a>
+
+
+            <!-- Contacted -->
+
+            <a
+                href="{% url 'lead_list' %}?status=CONTACTED"
+                class="pipeline-card"
+            >
+                <div class="pipeline-top">
+                    <span>Contacted</span>
+                    <span class="pipeline-icon">↗</span>
+                </div>
+
+                <strong>{{ contacted_leads }}</strong>
+
+                <small>Contacted leads</small>
+            </a>
+
+
+            <!-- Qualified -->
+
+            <a
+                href="{% url 'lead_list' %}?status=QUALIFIED"
+                class="pipeline-card"
+            >
+                <div class="pipeline-top">
+                    <span>Qualified</span>
+                    <span class="pipeline-icon">✓</span>
+                </div>
+
+                <strong>{{ qualified_leads }}</strong>
+
+                <small>Qualified leads</small>
+            </a>
+
+
+            <!-- Proposal -->
+
+            <a
+                href="{% url 'lead_list' %}?status=PROPOSAL"
+                class="pipeline-card"
+            >
+                <div class="pipeline-top">
+                    <span>Proposal</span>
+                    <span class="pipeline-icon">▤</span>
+                </div>
+
+                <strong>{{ proposal_leads }}</strong>
+
+                <small>Proposal stage</small>
+            </a>
+
+
+            <!-- Negotiation -->
+
+            <a
+                href="{% url 'lead_list' %}?status=NEGOTIATION"
+                class="pipeline-card"
+            >
+                <div class="pipeline-top">
+                    <span>Negotiation</span>
+                    <span class="pipeline-icon">↔</span>
+                </div>
+
+                <strong>{{ negotiation_leads }}</strong>
+
+                <small>In negotiation</small>
+            </a>
+
+
+            <!-- Won -->
+
+            <a
+                href="{% url 'lead_list' %}?status=WON"
+                class="pipeline-card"
+            >
+                <div class="pipeline-top">
+                    <span>Won</span>
+                    <span class="pipeline-icon">✓</span>
+                </div>
+
+                <strong>{{ won_leads }}</strong>
+
+                <small>Converted leads</small>
+            </a>
+
+
+            <!-- Lost -->
+
+            <a
+                href="{% url 'lead_list' %}?status=LOST"
+                class="pipeline-card"
+            >
+                <div class="pipeline-top">
+                    <span>Lost</span>
+                    <span class="pipeline-icon">×</span>
+                </div>
+
+                <strong>{{ lost_leads }}</strong>
+
+                <small>Lost leads</small>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         Lead Sources
+         ========================= -->
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <h2>Lead Sources</h2>
+                <p>
+                    Understand which channels are generating enquiries.
+                </p>
+            </div>
+        </div>
+
+
+        <div class="source-grid">
+
+            {% for item in lead_source_report %}
+
+                <a
+                    href="{% url 'lead_list' %}?source={{ item.value }}"
+                    class="source-card"
+                >
+
+                    <div class="source-info">
+
+                        <div class="source-title">
+                            {{ item.label }}
+                        </div>
+
+
+                        <div class="source-bar">
+
+                            <div
+                                class="source-bar-fill"
+                                style="width:
+                                {% if total_leads %}
+                                    {% widthratio item.count total_leads 100 %}
+                                {% else %}
+                                    0
+                                {% endif %}%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="source-count">
+                        {{ item.count }}
+                    </div>
+
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         Sales Employee Performance
+         ========================= -->
+
+    <div class="report-section">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Sales Employee Performance</h2>
+
+                <p>
+                    Overview of lead assignments and task activity
+                    by Sales Employee.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="performance-table-wrapper">
+
+            <table class="performance-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Sales Employee
+                        </th>
+
+                        <th>
+                            Total Leads
+                        </th>
+
+                        <th>
+                            New
+                        </th>
+
+                        <th>
+                            Won
+                        </th>
+
+                        <th>
+                            Lost
+                        </th>
+
+                        <th>
+                            Pending Tasks
+                        </th>
+
+                        <th>
+                            Completed Tasks
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in sales_performance %}
+
+                        <tr>
+
+                            <td>
+
+    <a
+        href="{% url 'lead_list' %}?assigned_to={{ item.user_id }}"
+        class="employee-link"
+    >
+
+        <div class="employee-cell">
+
+            <div class="employee-avatar">
+                {{ item.user.username|first|upper }}
+            </div>
+
+            <div>
+
+                <div class="employee-name">
+                    {{ item.user.username }}
+                </div>
+
+                <div class="employee-role">
+                    Sales Employee
+                </div>
+
+            </div>
+
+        </div>
+
+    </a>
+
+</td>
+
+                            <td>
+                                <span class="table-number">
+                                    {{ item.total_leads }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span class="table-number">
+                                    {{ item.new_leads }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span class="table-number">
+                                    {{ item.won_leads }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span class="table-number">
+                                    {{ item.lost_leads }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span class="task-count pending">
+                                    {{ item.pending_tasks }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span class="task-count completed">
+                                    {{ item.completed_tasks }}
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="empty-performance"
+                            >
+                                No active Sales Employees found.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================
+   Main Reports Page
+   ========================= */
+
+.reports-page {
+    max-width: 1400px;
+}
+
+
+/* =========================
+   Report Section
+   ========================= */
+
+.report-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+
+.section-heading {
+    margin-bottom: 22px;
+}
+
+
+.section-heading h2 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+
+.section-heading p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* =========================
+   Pipeline
+   ========================= */
+
+.pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+
+.pipeline-card {
+    display: block;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+
+.pipeline-card:hover {
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+}
+
+
+.pipeline-card.total {
+    background: #f8fafc;
+}
+
+
+.pipeline-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+
+.pipeline-top span:first-child {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+
+.pipeline-icon {
+    font-size: 17px;
+    color: #94a3b8;
+}
+
+
+.pipeline-card strong {
+    display: block;
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 9px;
+}
+
+
+.pipeline-card small {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+
+/* =========================
+   Lead Sources
+   ========================= */
+
+.source-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+
+.source-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 15px 16px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    text-decoration: none;
+    color: inherit;
+
+    transition: all 0.2s ease;
+}
+
+
+.source-card:hover {
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+}
+
+
+.source-info {
+    flex: 1;
+    min-width: 0;
+}
+
+
+.source-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+
+.source-bar {
+    width: 100%;
+    height: 6px;
+
+    background: #f1f5f9;
+
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.employee-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.employee-link:hover .employee-name {
+    text-decoration: underline;
+}
+
+
+.source-bar-fill {
+    height: 100%;
+
+    background: #64748b;
+
+    border-radius: 20px;
+
+    min-width: 0;
+}
+
+
+.source-count {
+    min-width: 42px;
+
+    text-align: right;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    color: #1e293b;
+
+    margin-left: 18px;
+}
+
+
+/* =========================
+   Sales Employee Performance
+   ========================= */
+
+.performance-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+
+.performance-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+
+.performance-table th {
+    padding: 13px 14px;
+
+    text-align: left;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #64748b;
+
+    background: #f8fafc;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    white-space: nowrap;
+}
+
+
+.performance-table td {
+    padding: 15px 14px;
+
+    font-size: 13px;
+
+    color: #334155;
+
+    border-bottom: 1px solid #f1f5f9;
+
+    white-space: nowrap;
+}
+
+
+.performance-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+
+.performance-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+
+/* Employee */
+
+.employee-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+
+.employee-avatar {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f1f5f9;
+
+    color: #475569;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    flex-shrink: 0;
+}
+
+
+.employee-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+
+.employee-role {
+    margin-top: 2px;
+
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+
+/* Numbers */
+
+.table-number {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+
+/* Tasks */
+
+.task-count {
+    display: inline-flex;
+
+    min-width: 30px;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+.task-count.pending {
+    background: #f8fafc;
+    color: #475569;
+}
+
+
+.task-count.completed {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+
+/* Empty State */
+
+.empty-performance {
+    text-align: center !important;
+
+    padding: 32px !important;
+
+    color: #94a3b8 !important;
+
+    font-size: 13px !important;
+}
+
+
+/* =========================
+   Tablet
+   ========================= */
+
+@media (max-width: 1000px) {
+
+    .pipeline-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .source-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 600px) {
+
+    .report-section {
+        padding: 18px;
+    }
+
+
+    .pipeline-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .source-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .section-heading h2 {
+        font-size: 17px;
+    }
+
+
+    .performance-table {
+        min-width: 850px;
+    }
+
+}
+
+</style>
+
+{% endblock %}

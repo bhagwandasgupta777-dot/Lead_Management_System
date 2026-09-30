@@ -1,0 +1,544 @@
+{% extends "base.html" %}
+
+{% block title %}Lead Inbox{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace lead-inbox-page">
+
+    <!-- HEADER -->
+    <div class="workspace-header lead-inbox-header">
+
+        <div>
+            <div class="breadcrumb">
+                Workspace / Lead Inbox
+            </div>
+
+            <div class="inbox-title-row">
+                <div>
+                    <h1>Lead Inbox</h1>
+                    <p>
+                        Review incoming leads and take the next sales action.
+                    </p>
+                </div>
+
+                <span class="inbox-live-status">
+                    <span class="live-dot"></span>
+                    Live Inbox
+                </span>
+            </div>
+        </div>
+
+       {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+    <a href="{% url 'create_lead' %}" class="add-lead-btn">
+        + New Lead
+    </a>
+{% endif %}
+
+    </div>
+
+
+    <!-- SUMMARY -->
+    <div class="inbox-summary-grid">
+
+        <!-- NEW LEADS -->
+        <div class="inbox-summary-card">
+
+            <div class="summary-icon summary-icon-blue">
+                +
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    New Leads
+                </span>
+
+                <strong>
+                    {{ new_leads_count|default:"0" }}
+                </strong>
+
+                <small>
+                    Ready for action
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- HOT LEADS -->
+        <div class="inbox-summary-card">
+
+            <div class="summary-icon summary-icon-red">
+                !
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Hot Leads
+                </span>
+
+                <strong>
+                    {{ hot_leads_count|default:"0" }}
+                </strong>
+
+                <small>
+                    High interest
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOLLOW UPS -->
+        <div class="inbox-summary-card">
+
+            <div class="summary-icon summary-icon-orange">
+                →
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Follow-ups
+                </span>
+
+                <strong>
+                    {{ follow_up_count|default:"0" }}
+                </strong>
+
+                <small>
+                    Scheduled follow-ups
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- INBOX STATUS -->
+        <div class="inbox-summary-card">
+
+            <div class="summary-icon summary-icon-green">
+                ✓
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Inbox Status
+                </span>
+
+                <strong>
+                    Active
+                </strong>
+
+                <small>
+                    Monitoring new leads
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- QUICK FILTERS -->
+    <div class="inbox-toolbar">
+
+        <div>
+            <h2>
+                Incoming Leads
+            </h2>
+
+            <p>
+                Start with the newest leads and work through your next actions.
+            </p>
+        </div>
+
+
+        <div class="inbox-filters">
+
+            <!-- ALL -->
+            <a
+                href="{% url 'lead_inbox' %}"
+                class="inbox-filter {% if not temperature_filter and not priority_filter %}active{% endif %}"
+            >
+                All
+
+                <span class="filter-count">
+                    {{ new_leads_count }}
+                </span>
+            </a>
+
+
+            <!-- HOT -->
+            <a
+                href="?temperature=HOT"
+                class="inbox-filter {% if temperature_filter == 'HOT' %}active{% endif %}"
+            >
+                Hot
+
+                <span class="filter-count">
+                    {{ hot_leads_count }}
+                </span>
+            </a>
+
+
+            <!-- HIGH PRIORITY -->
+            <a
+                href="?priority=HIGH"
+                class="inbox-filter {% if priority_filter == 'HIGH' %}active{% endif %}"
+            >
+                High Priority
+
+                <span class="filter-count">
+                    {{ high_priority_count }}
+                </span>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- LEADS -->
+    {% if leads %}
+
+    <div class="lead-inbox-list">
+
+        {% for lead in leads %}
+
+        <div class="lead-inbox-card">
+
+
+            <!-- LEFT SIDE -->
+            <div class="lead-card-main">
+
+
+                <!-- LEAD HEADER -->
+                <div class="lead-card-top">
+
+                    <div class="lead-avatar">
+                        {{ lead.first_name|first|upper }}
+                    </div>
+
+
+                    <div class="lead-card-heading">
+
+                        <div class="lead-name-row">
+
+                            <h3>
+                                {{ lead.first_name }}
+                                {{ lead.last_name }}
+                            </h3>
+
+
+                            {% if lead.temperature == "HOT" %}
+
+                                <span class="inbox-badge badge-hot">
+                                    Hot
+                                </span>
+
+                            {% elif lead.temperature == "WARM" %}
+
+                                <span class="inbox-badge badge-warm">
+                                    Warm
+                                </span>
+
+                            {% else %}
+
+                                <span class="inbox-badge badge-cold">
+                                    Cold
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="lead-id">
+                            {{ lead.lead_id }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONTACT DETAILS -->
+                <div class="lead-contact-row">
+
+                    <span>
+                        ☎ {{ lead.phone }}
+                    </span>
+
+
+                    {% if lead.company %}
+
+                        <span>
+                            🏢 {{ lead.company }}
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if lead.location %}
+
+                        <span>
+                            📍 {{ lead.location }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- LEAD INFORMATION -->
+                <div class="lead-info-row">
+
+
+                    <!-- SOURCE -->
+                    <div class="lead-info-item">
+
+                        <span>
+                            Source
+                        </span>
+
+                        <strong>
+                            {{ lead.get_source_display }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- PRIORITY -->
+                    <div class="lead-info-item">
+
+                        <span>
+                            Priority
+                        </span>
+
+                        <strong class="priority-text">
+                            {{ lead.get_priority_display }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- SCORE -->
+                    <div class="lead-info-item">
+
+                        <span>
+                            Lead Score
+                        </span>
+
+                        <strong>
+
+                            <span class="lead-score
+                                {% if lead.lead_score >= 80 %}
+                                    score-high
+                                {% elif lead.lead_score >= 60 %}
+                                    score-medium
+                                {% else %}
+                                    score-low
+                                {% endif %}
+                            ">
+                                {{ lead.lead_score }}
+                            </span>
+
+                        </strong>
+
+                    </div>
+
+
+                    <!-- ASSIGNED TO -->
+                    {% if lead.assigned_to %}
+
+                        <div class="lead-info-item">
+
+                            <span>
+                                Assigned To
+                            </span>
+
+                            <strong>
+                                {{ lead.assigned_to.get_full_name|default:lead.assigned_to.username }}
+                            </strong>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- NEXT ACTION -->
+                <div class="lead-next-action">
+
+                    <span class="next-action-icon">
+                        →
+                    </span>
+
+
+                    <div>
+
+                        <span>
+                            Next Action
+                        </span>
+
+
+                        {% if lead.next_follow_up %}
+
+
+                            {% if lead.followup_state == "OVERDUE" %}
+
+                                <strong class="followup-overdue">
+                                    Follow-up overdue
+                                </strong>
+
+                                <small class="followup-overdue">
+                                    {{ lead.next_follow_up|date:"d M Y, h:i A" }}
+                                </small>
+
+
+                            {% elif lead.followup_state == "TODAY" %}
+
+                                <strong class="followup-today">
+                                    Follow-up today
+                                </strong>
+
+                                <small class="followup-today">
+                                    {{ lead.next_follow_up|date:"d M Y, h:i A" }}
+                                </small>
+
+
+                            {% elif lead.followup_state == "UPCOMING" %}
+
+                                <strong class="followup-upcoming">
+                                    Follow-up scheduled
+                                </strong>
+
+                                <small class="followup-upcoming">
+                                    {{ lead.next_follow_up|date:"d M Y, h:i A" }}
+                                </small>
+
+
+                            {% else %}
+
+                                <strong>
+                                    Follow-up scheduled
+                                </strong>
+
+                                <small>
+                                    {{ lead.next_follow_up|date:"d M Y, h:i A" }}
+                                </small>
+
+                            {% endif %}
+
+
+                        {% else %}
+
+                            <strong>
+                                Contact customer
+                            </strong>
+
+                            <small>
+                                No follow-up scheduled
+                            </small>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT SIDE ACTIONS -->
+            <div class="lead-card-actions">
+
+                <div class="lead-action-label">
+                    Quick Actions
+                </div>
+
+
+                <!-- CALL -->
+                <a
+                    href="tel:{{ lead.phone }}"
+                    class="inbox-action primary-action"
+                >
+                    <span>☎</span>
+                    Call
+                </a>
+
+
+                <!-- WHATSAPP -->
+                {% if lead.whatsapp_number %}
+
+                    <a
+                        href="https://wa.me/{{ lead.whatsapp_number }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="inbox-action whatsapp-action"
+                    >
+                        <span>◉</span>
+                        WhatsApp
+                    </a>
+
+                {% endif %}
+
+
+                <!-- OPEN LEAD -->
+                <a
+                    href="{% url 'lead_detail' lead.lead_id %}"
+                    class="inbox-action open-action"
+                >
+                    Open Lead
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- EMPTY STATE -->
+    {% else %}
+
+        <div class="inbox-empty-state">
+
+            <div class="empty-check">
+                ✓
+            </div>
+
+            <h3>
+                Your inbox is clear
+            </h3>
+
+            <p>
+                There are no new leads waiting for action right now.
+            </p>
+
+            <a
+                href="{% url 'create_lead' %}"
+                class="primary-btn"
+            >
+                + Add Lead
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
