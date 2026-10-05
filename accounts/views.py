@@ -7,6 +7,7 @@ from django.utils import timezone
 from datetime import datetime, time, timedelta
 from django.core.mail import send_mail
 from django.conf import settings
+from django.views.decorators.cache import never_cache
 
 from leads.models import Lead, LeadTask, LeadActivity, Notification
 from .models import User

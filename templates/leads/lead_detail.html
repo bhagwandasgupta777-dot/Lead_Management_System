@@ -1205,9 +1205,8 @@
 
 
     <!-- TIMELINE -->
-    <div class="timeline">
-
-        {% for activity in activities %}
+    <div class="timeline activity-timeline-scroll">
+    {% for activity in activities %}
 
         <div class="timeline-item">
 
@@ -1288,9 +1287,8 @@
             </div>
 
 
-            <div class="task-list">
-
-                {% for task in tasks %}
+            <div class="task-list lead-tasks-scroll">
+    {% for task in tasks %}
 
                 <div class="detail-task">
 
@@ -1542,6 +1540,64 @@
 </section>
 
 </div>
+<style>
+
+/* =========================================================
+   ACTIVITY TIMELINE SCROLL
+   ========================================================= */
+
+.activity-timeline-scroll {
+    max-height: 420px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+}
+
+
+/* =========================================================
+   TASKS SCROLL
+   ========================================================= */
+
+.lead-tasks-scroll {
+    height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.activity-timeline-scroll::-webkit-scrollbar,
+.lead-tasks-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.activity-timeline-scroll::-webkit-scrollbar-thumb,
+.lead-tasks-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.activity-timeline-scroll::-webkit-scrollbar-track,
+.lead-tasks-scroll::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+
+/* Firefox */
+
+.activity-timeline-scroll,
+.lead-tasks-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+</style>
 <script>
 function toggleNotesEdit() {
 
@@ -1570,7 +1626,5 @@ function toggleNotesEdit() {
     }
 }
 </script>
-
-
 
 {% endblock %}

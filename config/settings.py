@@ -26,10 +26,17 @@ load_dotenv(BASE_DIR / ".env")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "web-production-dffe6.up.railway.app",
+    "127.0.0.1",
+    "localhost",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://web-production-dffe6.up.railway.app",
+]
 
 
 # Application definition
@@ -55,6 +62,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "config.middleware.NoCacheAuthenticatedMiddleware",
+
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -138,6 +147,9 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
@@ -145,20 +157,38 @@ STORAGES = {
 
 
 # Email
-MAILERS = {
-    "default": {
-        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
-        "OPTIONS": {
-            "host": "smtp.gmail.com",
-            "port": 587,
-            "username": "bhagwandasgupta2002@gmail.com",
-            "password": "eainqhzzskwuyvef",
-            "use_tls": True,
-        },
-    },
-}
+# ---------------------------------------------------------
+# EMAIL SETTINGS
+# ---------------------------------------------------------
 
-DEFAULT_FROM_EMAIL = "bhagwandasgupta2002@gmail.com"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = os.getenv(
+    "EMAIL_HOST",
+    "smtp.gmail.com"
+)
+
+EMAIL_PORT = int(
+    os.getenv("EMAIL_PORT", "587")
+)
+
+EMAIL_USE_TLS = os.getenv(
+    "EMAIL_USE_TLS",
+    "True"
+).lower() == "true"
+
+EMAIL_HOST_USER = os.getenv(
+    "EMAIL_HOST_USER"
+)
+
+EMAIL_HOST_PASSWORD = os.getenv(
+    "EMAIL_HOST_PASSWORD"
+)
+
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    EMAIL_HOST_USER
+)
 
 
 AUTH_USER_MODEL = "accounts.User"
@@ -167,4 +197,4 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Authentication redirects
 LOGIN_URL = "/"
 LOGIN_REDIRECT_URL = "/dashboard/"
-LOGOUT_REDIRECT_URL = "/login/"
+LOGOUT_REDIRECT_URL = "/"

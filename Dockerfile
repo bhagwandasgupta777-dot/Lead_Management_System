@@ -12,10 +12,18 @@ WORKDIR /app
 # Install system packages required by mysqlclient
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        ca-certificates \
         default-libmysqlclient-dev \
         build-essential \
         pkg-config \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# Add Avast Web/Mail Shield Root certificate
+COPY avast-root.cer /usr/local/share/ca-certificates/avast-root.crt
+
+# Trust the Avast certificate inside Docker
+RUN update-ca-certificates
 
 # Copy requirements first for better Docker caching
 COPY requirements.txt .

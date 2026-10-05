@@ -59,6 +59,11 @@ urlpatterns = [
     path("notifications/<int:notification_id>/read/",views.mark_notification_read,name="mark_notification_read"),
     path("help/", views.help_page, name="help"),
     path("report-issue/", views.report_issue, name="report_issue"),
+    path(
+    "customers/<str:customer_id>/",
+    views.customer_detail,
+    name="customer_detail",
+),
     path("<str:lead_id>/", lead_detail, name="lead_detail"),
     path("leads/<str:lead_id>/move-next/",views.move_to_next_stage,name="move_to_next_stage"),
     path(

@@ -81,12 +81,17 @@
 
                         <td>
 
-                            <strong>
-                                {{ customer.first_name }}
-                                {{ customer.last_name }}
-                            </strong>
+    <a
+        href="{% url 'customer_detail' customer.customer_id %}"
+        class="customer-name-link"
+    >
+        <strong>
+            {{ customer.first_name }}
+            {{ customer.last_name }}
+        </strong>
+    </a>
 
-                        </td>
+</td>
 
 
                         <td>
@@ -164,5 +169,17 @@
     </section>
 
 </div>
+
+<style>
+.customer-name-link {
+    color: #111827;
+    text-decoration: none;
+}
+
+.customer-name-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+</style>
 
 {% endblock %}

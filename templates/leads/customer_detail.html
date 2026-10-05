@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Details{% endblock %}
+
+{% block content %}
+
+<div class="crm-workspace">
+
+    <!-- HEADER -->
+    <div class="workspace-header">
+
+        <div>
+            <div class="breadcrumb">
+                Workspace / Customers / {{ customer.customer_id }}
+            </div>
+
+            <h1>
+                {{ customer.first_name }}
+                {{ customer.last_name }}
+            </h1>
+
+            <p>
+                Customer details and information.
+            </p>
+        </div>
+
+        <div>
+            <a href="{% url 'customer_list' %}" class="back-btn">
+                ← Back to Customers
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- CUSTOMER INFORMATION -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+            <div>
+                <h2>Customer Information</h2>
+                <p>
+                    Details of this customer.
+                </p>
+            </div>
+        </div>
+
+
+        <div class="customer-detail-grid">
+
+            <!-- CUSTOMER ID -->
+            <div class="detail-item">
+                <span>Customer ID</span>
+                <strong>
+                    {{ customer.customer_id }}
+                </strong>
+            </div>
+
+
+            <!-- FIRST NAME -->
+            <div class="detail-item">
+                <span>First Name</span>
+                <strong>
+                    {{ customer.first_name|default:"—" }}
+                </strong>
+            </div>
+
+
+            <!-- LAST NAME -->
+            <div class="detail-item">
+                <span>Last Name</span>
+                <strong>
+                    {{ customer.last_name|default:"—" }}
+                </strong>
+            </div>
+
+
+            <!-- PHONE -->
+            <div class="detail-item">
+                <span>Phone</span>
+                <strong>
+                    {{ customer.phone|default:"—" }}
+                </strong>
+            </div>
+
+
+            <!-- EMAIL -->
+            <div class="detail-item">
+                <span>Email</span>
+                <strong>
+                    {{ customer.email|default:"—" }}
+                </strong>
+            </div>
+
+
+            <!-- COMPANY -->
+            <div class="detail-item">
+                <span>Company</span>
+                <strong>
+                    {{ customer.company|default:"—" }}
+                </strong>
+            </div>
+
+
+            <!-- ASSIGNED TO -->
+            <div class="detail-item">
+                <span>Assigned To</span>
+
+                <strong>
+                    {% if customer.assigned_to %}
+                        {{ customer.assigned_to.get_full_name|default:customer.assigned_to.username }}
+                    {% else %}
+                        Unassigned
+                    {% endif %}
+                </strong>
+            </div>
+
+
+            <!-- STATUS -->
+            <div class="detail-item">
+                <span>Status</span>
+                <strong>
+                    {{ customer.get_status_display }}
+                </strong>
+            </div>
+
+
+            <!-- CREATED -->
+            <div class="detail-item">
+                <span>Created</span>
+                <strong>
+                    {{ customer.created_at|date:"d M Y, h:i A" }}
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CONTACT ACTIONS -->
+    <section class="workspace-card">
+
+        <div class="section-heading">
+            <div>
+                <h2>Quick Actions</h2>
+                <p>
+                    Contact this customer directly.
+                </p>
+            </div>
+        </div>
+
+        <div class="customer-actions">
+
+            {% if customer.phone %}
+                <a
+                    href="tel:{{ customer.phone }}"
+                    class="customer-action-btn"
+                >
+                    ☎ Call Customer
+                </a>
+            {% endif %}
+
+
+            {% if customer.email %}
+                <a
+                    href="mailto:{{ customer.email }}"
+                    class="customer-action-btn"
+                >
+                    ✉ Email Customer
+                </a>
+            {% endif %}
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<style>
+
+.customer-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.detail-item {
+    padding: 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.detail-item span {
+    display: block;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.detail-item strong {
+    display: block;
+    font-size: 15px;
+    color: #111827;
+    word-break: break-word;
+}
+
+.customer-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.customer-action-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #111827;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.customer-action-btn:hover {
+    opacity: 0.9;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #111827;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-btn:hover {
+    background: #e5e7eb;
+}
+
+
+@media (max-width: 900px) {
+
+    .customer-detail-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .customer-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+{% endblock %}

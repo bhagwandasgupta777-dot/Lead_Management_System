@@ -23,3 +23,8 @@ staticfiles/
 .DS_Store
 Thumbs.db
 sent_emails/
+
+avast-root.cer
+lead_management_backup.sql
+lead_management_backup_3307.sql
+.env

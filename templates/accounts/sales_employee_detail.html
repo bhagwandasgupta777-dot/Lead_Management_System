@@ -191,9 +191,9 @@
         </div>
 
 
-        <div class="employee-table-wrapper">
+        <div class="employee-table-wrapper assigned-leads-scroll">
 
-            <table class="employee-table">
+    <table class="employee-table">
 
                 <thead>
                     <tr>
@@ -281,9 +281,9 @@
         </div>
 
 
-        <div class="employee-table-wrapper">
+        <div class="employee-table-wrapper assigned-tasks-scroll">
 
-            <table class="employee-table">
+    <table class="employee-table">
 
                 <thead>
                     <tr>
@@ -635,6 +635,53 @@
 .employee-filter-btn.active span {
     background: rgba(255, 255, 255, 0.2);
     color: #ffffff;
+}
+/* ASSIGNED LEADS SCROLL */
+
+.assigned-leads-scroll {
+    max-height: 420px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+
+/* ASSIGNED TASKS SCROLL */
+
+.assigned-tasks-scroll {
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+
+/* KEEP TABLE HEADER VISIBLE */
+
+.assigned-leads-scroll .employee-table thead th,
+.assigned-tasks-scroll .employee-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #f8fafc;
+}
+
+
+/* SCROLLBAR */
+
+.assigned-leads-scroll::-webkit-scrollbar,
+.assigned-tasks-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.assigned-leads-scroll::-webkit-scrollbar-thumb,
+.assigned-tasks-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.assigned-leads-scroll::-webkit-scrollbar-track,
+.assigned-tasks-scroll::-webkit-scrollbar-track {
+    background: #f8fafc;
 }
 
 </style>

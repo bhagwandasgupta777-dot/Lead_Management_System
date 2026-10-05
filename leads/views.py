@@ -2356,6 +2356,33 @@ def customer_list(request):
             "customers": customers,
         },
     )
+@login_required
+def customer_detail(request, customer_id):
+
+    # Admin and Manager can view any active customer.
+    if request.user.role in ["ADMIN", "MANAGER"]:
+        customer = get_object_or_404(
+            Customer.objects.select_related("assigned_to"),
+            customer_id=customer_id,
+            status=Customer.Status.ACTIVE,
+        )
+
+    # Sales Employee can view only their own active customers.
+    else:
+        customer = get_object_or_404(
+            Customer.objects.select_related("assigned_to"),
+            customer_id=customer_id,
+            assigned_to=request.user,
+            status=Customer.Status.ACTIVE,
+        )
+
+    return render(
+        request,
+        "leads/customer_detail.html",
+        {
+            "customer": customer,
+        },
+    )
 
 @login_required
 def deal_list(request):
@@ -3038,6 +3065,10 @@ def complete_task(request, task_id):
         id=task_id
     )
 
+    # ---------------------------------------------------------
+    # PERMISSION CHECK
+    # ---------------------------------------------------------
+
     # Sales Employee can only complete their own tasks.
     if request.user.role == "SALES":
         if task.assigned_to != request.user:
@@ -3046,6 +3077,10 @@ def complete_task(request, task_id):
                 "You do not have permission to complete this task."
             )
             return redirect("dashboard")
+
+    # ---------------------------------------------------------
+    # COMPLETE TASK
+    # ---------------------------------------------------------
 
     if task.status == LeadTask.Status.PENDING:
 
@@ -3059,12 +3094,50 @@ def complete_task(request, task_id):
             ]
         )
 
+        # -----------------------------------------------------
+        # UPDATE LEAD NEXT FOLLOW-UP
+        # -----------------------------------------------------
+
+        if task.lead:
+
+            # Find the next pending follow-up for this lead.
+            next_pending_task = LeadTask.objects.filter(
+                lead=task.lead,
+                status=LeadTask.Status.PENDING,
+                due_date__isnull=False
+            ).exclude(
+                id=task.id
+            ).order_by(
+                "due_date"
+            ).first()
+
+            if next_pending_task:
+
+                # Another pending follow-up exists.
+                task.lead.next_follow_up = next_pending_task.due_date
+                task.lead.save(
+                    update_fields=[
+                        "next_follow_up"
+                    ]
+                )
+
+            else:
+
+                # No pending follow-up remains.
+                task.lead.next_follow_up = None
+                task.lead.save(
+                    update_fields=[
+                        "next_follow_up"
+                    ]
+                )
+
         messages.success(
             request,
             f"Task '{task.title}' marked as completed."
         )
 
     else:
+
         messages.info(
             request,
             "This task is already completed or cancelled."

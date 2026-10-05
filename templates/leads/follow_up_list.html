@@ -60,7 +60,7 @@
 
         {% if overdue_tasks %}
 
-            <div class="followup-list">
+            <div class="followup-list followup-scroll">
 
                 {% for task in overdue_tasks %}
 
@@ -200,7 +200,7 @@
 
     {% if today_tasks %}
 
-        <div class="followup-list">
+        <div class="followup-list followup-scroll">
 
             {% for task in today_tasks %}
 
@@ -361,7 +361,7 @@
 
         {% if upcoming_tasks %}
 
-            <div class="followup-list">
+            <div class="followup-list followup-scroll">
 
                 {% for task in upcoming_tasks %}
 
@@ -486,5 +486,39 @@
     </section>
 
 </div>
+<style>
+/* =========================================================
+   FOLLOW-UP LIST SCROLL
+   ========================================================= */
+
+.followup-scroll {
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    box-sizing: border-box;
+}
+
+/* Chrome / Edge / Safari */
+.followup-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.followup-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.followup-scroll::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+/* Firefox */
+.followup-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+</style>
 
 {% endblock %}

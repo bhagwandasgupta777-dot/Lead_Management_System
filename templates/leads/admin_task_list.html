@@ -258,7 +258,32 @@
 
 .admin-task-table-wrapper {
     width: 100%;
+    max-height: 450px;
+    overflow-y: auto;
     overflow-x: auto;
+}
+
+/* Keep table header visible while scrolling */
+.admin-task-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f8fafc;
+}
+
+/* Scrollbar */
+.admin-task-table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.admin-task-table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.admin-task-table-wrapper::-webkit-scrollbar-track {
+    background: #f8fafc;
 }
 
 .admin-task-table {

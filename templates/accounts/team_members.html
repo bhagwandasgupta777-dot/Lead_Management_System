@@ -563,6 +563,38 @@
     }
 
 }
+ .assigned-table-scroll {
+        max-height: 420px;
+        overflow-y: auto;
+        overflow-x: auto;
+        border-radius: 10px;
+    }
+
+    .assigned-table-scroll table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .assigned-table-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #ffffff;
+    }
+
+    .assigned-table-scroll::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .assigned-table-scroll::-webkit-scrollbar-thumb {
+        background: #b8b8b8;
+        border-radius: 10px;
+    }
+
+    .assigned-table-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
 
 </style>
 
