@@ -19,11 +19,7 @@ RUN apt-get update \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Add Avast Web/Mail Shield Root certificate
-COPY avast-root.cer /usr/local/share/ca-certificates/avast-root.crt
 
-# Trust the Avast certificate inside Docker
-RUN update-ca-certificates
 
 # Copy requirements first for better Docker caching
 COPY requirements.txt .
