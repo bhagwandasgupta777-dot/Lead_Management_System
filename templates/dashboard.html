@@ -375,76 +375,75 @@
                         </div>
 
 
-                        <!-- DOCUMENT -->
+                      <!-- DOCUMENT -->
 
-                        <div class="crm-lead-document">
+<div class="crm-lead-document">
 
-                            <small>
-                                DOCUMENT
-                            </small>
+    <small>
+        DOCUMENT
+    </small>
 
-                            {% with documents=lead.documents.all %}
+    {% with documents=lead.documents.all %}
 
-                                {% if documents %}
+        {% if documents %}
 
-                                <div class="document-pill document-present">
+            <div class="document-pill document-present">
 
-                                    <span class="document-check">
-                                        ✓
-                                    </span>
+                <span class="document-check">
+                    ✓
+                </span>
 
-                                    <div>
+                <div>
 
-                                        <strong>
-                                            Uploaded
-                                        </strong>
+                    <strong>
+                        Uploaded
+                    </strong>
 
-                                        {% for document in documents|slice:":1" %}
+                    {% for document in documents %}
 
-                                        <a
-                                            href="{{ document.file.url }}"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            title="View {{ document.original_name|default:document.file.name }}"
-                                        >
-                                            {{ document.original_name|default:document.file.name }}
-                                        </a>
+                        <a
+                            href="{{ document.file.url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="View {{ document.original_name|default:document.file.name }}"
+                            style="display:block; margin-top:4px;"
+                        >
+                            {{ document.original_name|default:document.file.name }}
+                        </a>
 
-                                        {% endfor %}
+                    {% endfor %}
 
-                                    </div>
+                </div>
 
-                                </div>
+            </div>
 
-                                {% else %}
+        {% else %}
 
-                                <div class="document-pill document-missing">
+            <div class="document-pill document-missing">
 
-                                    <span class="document-warning">
-                                        !
-                                    </span>
+                <span class="document-warning">
+                    !
+                </span>
 
-                                    <div>
+                <div>
 
-                                        <strong>
-                                            Not uploaded
-                                        </strong>
+                    <strong>
+                        Not uploaded
+                    </strong>
 
-                                        <span>
-                                            No document yet
-                                        </span>
+                    <span>
+                        No document yet
+                    </span>
 
-                                    </div>
+                </div>
 
-                                </div>
+            </div>
 
-                                {% endif %}
+        {% endif %}
 
-                            {% endwith %}
+    {% endwith %}
 
-                        </div>
-
-
+</div>
                         <!-- ACTIONS -->
 
                         <div class="crm-lead-actions">
