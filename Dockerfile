@@ -33,8 +33,8 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Django application port
-EXPOSE 8000
+# Railway provides the PORT environment variable
+EXPOSE 8080
 
 # Start Django using Gunicorn
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8080}"]
