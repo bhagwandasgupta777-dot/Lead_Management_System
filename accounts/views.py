@@ -11,7 +11,7 @@ from django.views.decorators.cache import never_cache
 
 from leads.models import Lead, LeadTask, LeadActivity, Notification
 from .models import User
-
+import os
 def login_view(request):
     if request.user.is_authenticated:
         return redirect("dashboard")
@@ -563,7 +563,7 @@ def add_sales_employee(request):
         user.save()
 
         # -----------------------------------------
-        # SEND LOGIN CREDENTIALS EMAIL
+        # LOGIN URL
         # -----------------------------------------
 
         login_url = "https://web-production-dffe6.up.railway.app/"
@@ -593,15 +593,40 @@ Admin
 Lead Management System
 """
 
+        # -----------------------------------------
+        # SEND EMAIL USING RESEND API
+        # -----------------------------------------
+
+        import json
+        import urllib.request
+
+        resend_api_key = os.getenv("RESEND_API_KEY")
+
         try:
 
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
+            email_data = {
+                "from": "Lead Management System <onboarding@resend.dev>",
+                "to": [email],
+                "subject": subject,
+                "text": message,
+            }
+
+            api_request = urllib.request.Request(
+                "https://api.resend.com/emails",
+                data=json.dumps(email_data).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {resend_api_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
             )
+
+            with urllib.request.urlopen(
+                api_request,
+                timeout=15
+            ) as response:
+
+                response.read()
 
             messages.success(
                 request,
