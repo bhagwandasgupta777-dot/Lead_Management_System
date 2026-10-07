@@ -566,7 +566,7 @@ def add_sales_employee(request):
         # SEND LOGIN CREDENTIALS EMAIL
         # -----------------------------------------
 
-        login_url = request.build_absolute_uri("/")
+        login_url = "https://web-production-dffe6.up.railway.app/"
 
         subject = (
             "Your Lead Management System Login Credentials"
