@@ -649,6 +649,327 @@ Lead Management System
     return render(
         request,
         "accounts/add_sales_employee.html"
+    )@login_required
+def add_sales_employee(request):
+
+    # Only Admin can create Sales Employees
+    if request.user.role != User.Role.ADMIN:
+        messages.error(
+            request,
+            "You are not allowed to create Sales Employees."
+        )
+        return redirect("dashboard")
+
+    if request.method == "POST":
+
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip().lower()
+        password = request.POST.get("password", "")
+        confirm_password = request.POST.get("confirm_password", "")
+
+        errors = []
+
+        # -----------------------------------------
+        # FIRST NAME
+        # -----------------------------------------
+
+        if not first_name:
+
+            errors.append(
+                "First name is required."
+            )
+
+        elif len(first_name) < 2:
+
+            errors.append(
+                "First name must contain at least 2 characters."
+            )
+
+        elif not first_name.replace(" ", "").isalpha():
+
+            errors.append(
+                "First name can contain letters and spaces only."
+            )
+
+        # -----------------------------------------
+        # LAST NAME
+        # -----------------------------------------
+
+        if last_name:
+
+            if not last_name.replace(" ", "").isalpha():
+
+                errors.append(
+                    "Last name can contain letters and spaces only."
+                )
+
+        # -----------------------------------------
+        # EMAIL
+        # -----------------------------------------
+
+        if not email:
+
+            errors.append(
+                "Email address is required."
+            )
+
+        else:
+
+            from django.core.validators import validate_email
+            from django.core.exceptions import ValidationError
+
+            try:
+
+                validate_email(email)
+
+            except ValidationError:
+
+                errors.append(
+                    "Enter a valid email address."
+                )
+
+        # -----------------------------------------
+        # USERNAME
+        # -----------------------------------------
+
+        if not username:
+
+            errors.append(
+                "Username is required."
+            )
+
+        else:
+
+            if len(username) < 4:
+
+                errors.append(
+                    "Username must contain at least 4 characters."
+                )
+
+            if len(username) > 30:
+
+                errors.append(
+                    "Username cannot contain more than 30 characters."
+                )
+
+            if " " in username:
+
+                errors.append(
+                    "Username cannot contain spaces."
+                )
+
+            if not username.replace("_", "").replace("-", "").isalnum():
+
+                errors.append(
+                    "Username can contain only letters, numbers, "
+                    "underscores and hyphens."
+                )
+
+            if User.objects.filter(
+                username__iexact=username
+            ).exists():
+
+                errors.append(
+                    "This username is already in use."
+                )
+
+        # -----------------------------------------
+        # EMAIL UNIQUE
+        # -----------------------------------------
+
+        if email and User.objects.filter(
+            email__iexact=email
+        ).exists():
+
+            errors.append(
+                "This email address is already registered."
+            )
+
+        # -----------------------------------------
+        # PASSWORD
+        # -----------------------------------------
+
+        if not password:
+
+            errors.append(
+                "Password is required."
+            )
+
+        else:
+
+            if len(password) < 8:
+
+                errors.append(
+                    "Password must contain at least 8 characters."
+                )
+
+            if len(password) > 128:
+
+                errors.append(
+                    "Password cannot contain more than 128 characters."
+                )
+
+            if password.isdigit():
+
+                errors.append(
+                    "Password must contain at least one letter."
+                )
+
+            if password.isalpha():
+
+                errors.append(
+                    "Password should contain numbers or special characters."
+                )
+
+        # -----------------------------------------
+        # CONFIRM PASSWORD
+        # -----------------------------------------
+
+        if not confirm_password:
+
+            errors.append(
+                "Please confirm the password."
+            )
+
+        elif password != confirm_password:
+
+            errors.append(
+                "Passwords do not match."
+            )
+
+        # -----------------------------------------
+        # SHOW ERRORS
+        # -----------------------------------------
+
+        if errors:
+
+            for error in errors:
+
+                messages.error(
+                    request,
+                    error
+                )
+
+            return render(
+                request,
+                "accounts/add_sales_employee.html"
+            )
+
+        # -----------------------------------------
+        # CREATE USER
+        # -----------------------------------------
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            role=User.Role.SALES,
+        )
+
+        user.is_active = True
+        user.save()
+
+        # -----------------------------------------
+        # LOGIN URL
+        # -----------------------------------------
+
+        login_url = "https://web-production-dffe6.up.railway.app/"
+
+        subject = (
+            "Your Lead Management System Login Credentials"
+        )
+
+        message = f"""
+Hello {first_name},
+
+Your Sales Employee account has been created for the Lead Management System.
+
+Your login credentials are:
+
+Username: {username}
+Email: {email}
+Password: {password}
+
+Login here:
+{login_url}
+
+Please log in using these credentials and change your password after your first login.
+
+Regards,
+Admin
+Lead Management System
+"""
+
+        # -----------------------------------------
+        # SEND EMAIL USING RESEND API
+        # -----------------------------------------
+
+        import json
+        import urllib.request
+
+        resend_api_key = os.getenv("RESEND_API_KEY")
+
+        try:
+
+            email_data = {
+                "from": "Lead Management System <onboarding@resend.dev>",
+                "to": [email],
+                "subject": subject,
+                "text": message,
+            }
+
+            api_request = urllib.request.Request(
+                "https://api.resend.com/emails",
+                data=json.dumps(email_data).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {resend_api_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+
+            with urllib.request.urlopen(
+                api_request,
+                timeout=15
+            ) as response:
+
+                response_data = response.read().decode("utf-8")
+
+                print(
+                    "RESEND SUCCESS:",
+                    response_data
+                )
+
+            messages.success(
+                request,
+                f"Sales Employee {first_name} {last_name} "
+                f"created successfully. "
+                f"Login credentials have been sent to {email}."
+            )
+
+        except Exception as e:
+
+            print(
+                "RESEND EMAIL ERROR:",
+                str(e)
+            )
+
+            messages.warning(
+                request,
+                f"Sales Employee {first_name} {last_name} "
+                f"was created, but the credentials email "
+                f"could not be sent."
+            )
+
+        return redirect("team_members")
+
+    return render(
+        request,
+        "accounts/add_sales_employee.html"
     )
 @login_required
 def sales_employee_detail(request, user_id):
