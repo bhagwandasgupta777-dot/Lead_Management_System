@@ -223,20 +223,55 @@
             <!-- TOP BAR -->
             <header class="topbar">
 
-                <div class="global-search">
+              <!-- GLOBAL SEARCH -->
+<div class="global-search-wrapper">
 
-                    <span class="search-icon">⌕</span>
+    <div class="global-search" id="globalSearch">
 
-                    <input
-                        type="text"
-                        placeholder="Search leads, customers, companies..."
-                    >
+        <span class="search-icon">⌕</span>
 
-                    <span class="search-shortcut">
-                        Ctrl K
-                    </span>
+        <input
+            type="text"
+            id="globalSearchInput"
+            placeholder="Search leads, customers, companies..."
+            autocomplete="off"
+        >
 
-                </div>
+        <span class="search-shortcut">
+            Ctrl K
+        </span>
+
+    </div>
+
+
+    <!-- SEARCH RESULTS -->
+    <div
+        class="global-search-results"
+        id="globalSearchResults"
+    >
+
+        <div class="search-results-header">
+
+            <span>Search results</span>
+
+            <span class="search-results-hint">
+                ESC to close
+            </span>
+
+        </div>
+
+
+        <div id="globalSearchResultList">
+
+            <div class="search-empty">
+                Start typing to search leads...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 
                 <div class="topbar-actions">

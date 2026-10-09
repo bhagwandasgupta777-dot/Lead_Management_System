@@ -96,6 +96,17 @@
     box-shadow: 0 2px 8px rgba(15, 23, 42, .035);
     transition: transform .2s ease, box-shadow .2s ease;
 }
+.work-summary-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.work-summary-link:hover {
+    color: inherit;
+    text-decoration: none;
+}
 
 .work-summary-card:hover {
     transform: translateY(-2px);
@@ -1009,7 +1020,7 @@
 
         <!-- TODAY -->
 
-        <div class="work-summary-card summary-today">
+        <a href="{% url 'follow_up_list' %}" class="work-summary-card summary-today work-summary-link">
 
             <div class="work-summary-top">
 
@@ -1033,12 +1044,12 @@
 
             </div>
 
-        </div>
+        </a>
 
 
         <!-- OVERDUE -->
 
-        <div class="work-summary-card summary-overdue">
+        <a href="{% url 'follow_up_list' %}" class="work-summary-card summary-overdue work-summary-link">
 
             <div class="work-summary-top">
 
@@ -1062,12 +1073,12 @@
 
             </div>
 
-        </div>
+        </a>
 
 
         <!-- NEW -->
 
-        <div class="work-summary-card summary-new">
+        <a href="{% url 'lead_inbox' %}" class="work-summary-card summary-new work-summary-link">
 
             <div class="work-summary-top">
 
@@ -1091,12 +1102,12 @@
 
             </div>
 
-        </div>
+        </a>
 
 
         <!-- HOT -->
 
-        <div class="work-summary-card summary-hot">
+        <a href="{% url 'lead_list' %}?temperature=HOT" class="work-summary-card summary-hot work-summary-link">
 
             <div class="work-summary-top">
 
@@ -1120,7 +1131,7 @@
 
             </div>
 
-        </div>
+        </a>
 
     </div>
 

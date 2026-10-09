@@ -7,9 +7,11 @@
 <div class="crm-workspace">
 
     <!-- HEADER -->
+
     <div class="workspace-header">
 
         <div>
+
             <div class="breadcrumb">
                 Workspace / Leads / {{ lead.lead_id }} / Add Follow-up
             </div>
@@ -22,30 +24,39 @@
                     {{ lead.first_name }} {{ lead.last_name }}
                 </strong>.
             </p>
+
         </div>
 
         <div class="lead-detail-actions">
+
             <a
                 href="{% url 'lead_detail' lead.lead_id %}"
                 class="secondary-btn"
             >
                 ← Back to Lead
             </a>
+
         </div>
 
     </div>
 
 
     <!-- FOLLOW-UP FORM -->
+
     <section class="workspace-card">
 
         <div class="section-heading">
+
             <div>
+
                 <h2>Follow-up Details</h2>
+
                 <p>
                     Create a task so the customer action is not missed.
                 </p>
+
             </div>
+
         </div>
 
 
@@ -55,8 +66,11 @@
 
             <div class="form-grid">
 
+
                 <!-- TITLE -->
+
                 <div class="form-group">
+
                     <label for="title">
                         Follow-up Title
                     </label>
@@ -66,13 +80,17 @@
                         id="title"
                         name="title"
                         placeholder="Example: Call customer"
+                        value="{{ form_data.title }}"
                         required
                     >
+
                 </div>
 
 
                 <!-- DESCRIPTION -->
+
                 <div class="form-group">
+
                     <label for="description">
                         Description
                     </label>
@@ -82,12 +100,15 @@
                         name="description"
                         rows="4"
                         placeholder="Example: Discuss quotation and pricing."
-                    ></textarea>
+                    >{{ form_data.description }}</textarea>
+
                 </div>
 
 
                 <!-- DUE DATE -->
+
                 <div class="form-group">
+
                     <label for="due_date">
                         Due Date
                     </label>
@@ -96,13 +117,17 @@
                         type="date"
                         id="due_date"
                         name="due_date"
+                        value="{{ form_data.due_date }}"
                         required
                     >
+
                 </div>
 
 
                 <!-- DUE TIME -->
+
                 <div class="form-group">
+
                     <label for="due_time">
                         Due Time
                     </label>
@@ -111,13 +136,17 @@
                         type="time"
                         id="due_time"
                         name="due_time"
+                        value="{{ form_data.due_time }}"
                         required
                     >
+
                 </div>
 
 
                 <!-- PRIORITY -->
+
                 <div class="form-group">
+
                     <label for="priority">
                         Priority
                     </label>
@@ -129,26 +158,31 @@
                     >
 
                         {% for value, label in priority_choices %}
+
                             <option
                                 value="{{ value }}"
-                                {% if value == "MEDIUM" %}
+                                {% if form_data.priority == value %}
                                     selected
                                 {% endif %}
                             >
                                 {{ label }}
                             </option>
+
                         {% endfor %}
 
                     </select>
+
                 </div>
 
 
                 <!-- ASSIGNED TO -->
+
                 <div class="form-group">
 
                     <label for="assigned_to">
                         Assigned To
                     </label>
+
 
                     {% if request.user.role == "SALES" %}
 
@@ -178,8 +212,15 @@
 
                             {% for user in sales_users %}
 
-                                <option value="{{ user.id }}">
+                                <option
+                                    value="{{ user.id }}"
+                                    {% if form_data.assigned_to|stringformat:"s" == user.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+
                                     {{ user.get_full_name|default:user.username }}
+
                                 </option>
 
                             {% endfor %}
@@ -190,10 +231,12 @@
 
                 </div>
 
+
             </div>
 
 
             <!-- ACTIONS -->
+
             <div class="form-actions">
 
                 <a

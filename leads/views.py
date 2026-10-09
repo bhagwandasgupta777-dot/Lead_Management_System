@@ -13,7 +13,7 @@ from django.core.validators import validate_email
 from PIL import Image
 from accounts.models import User
 from .models import CompanySettings,CURRENCY_CHOICES,TIMEZONE_CHOICES
-
+from django.http import JsonResponse
 # ============================================================
 # LEAD STAGE WORKFLOW
 # ============================================================
@@ -1243,23 +1243,47 @@ def add_follow_up(request, lead_id):
             is_active=True
         )
 
+    # Default form values
+    form_data = {
+        "title": "",
+        "description": "",
+        "due_date": "",
+        "due_time": "",
+        "priority": LeadTask.Priority.MEDIUM,
+        "assigned_to": "",
+    }
+
     if request.method == "POST":
 
-        title = request.POST.get("title", "").strip()
-        description = request.POST.get("description", "").strip()
-        due_date = request.POST.get("due_date", "").strip()
-        due_time = request.POST.get("due_time", "").strip()
-        priority = request.POST.get(
-            "priority",
-            LeadTask.Priority.MEDIUM
-        ).strip()
-        assigned_to_id = request.POST.get("assigned_to", "").strip()
+        # Keep all values entered by the user
+        form_data = {
+            "title": request.POST.get("title", "").strip(),
+            "description": request.POST.get("description", "").strip(),
+            "due_date": request.POST.get("due_date", "").strip(),
+            "due_time": request.POST.get("due_time", "").strip(),
+            "priority": request.POST.get(
+                "priority",
+                LeadTask.Priority.MEDIUM
+            ).strip(),
+            "assigned_to": request.POST.get(
+                "assigned_to",
+                ""
+            ).strip(),
+        }
+
+        title = form_data["title"]
+        description = form_data["description"]
+        due_date = form_data["due_date"]
+        due_time = form_data["due_time"]
+        priority = form_data["priority"]
+        assigned_to_id = form_data["assigned_to"]
 
         # -----------------------------
         # REQUIRED FIELD VALIDATION
         # -----------------------------
 
         if not title or not due_date or not due_time:
+
             messages.error(
                 request,
                 "Title, due date and due time are required."
@@ -1272,6 +1296,7 @@ def add_follow_up(request, lead_id):
                     "lead": lead,
                     "sales_users": sales_users,
                     "priority_choices": LeadTask.Priority.choices,
+                    "form_data": form_data,
                 }
             )
 
@@ -1285,6 +1310,7 @@ def add_follow_up(request, lead_id):
         }
 
         if priority not in valid_priorities:
+
             messages.error(
                 request,
                 "Please select a valid priority."
@@ -1297,6 +1323,7 @@ def add_follow_up(request, lead_id):
                     "lead": lead,
                     "sales_users": sales_users,
                     "priority_choices": LeadTask.Priority.choices,
+                    "form_data": form_data,
                 }
             )
 
@@ -1305,6 +1332,7 @@ def add_follow_up(request, lead_id):
         # -----------------------------
 
         try:
+
             due_datetime = timezone.datetime.strptime(
                 f"{due_date} {due_time}",
                 "%Y-%m-%d %H:%M"
@@ -1316,6 +1344,7 @@ def add_follow_up(request, lead_id):
             )
 
         except ValueError:
+
             messages.error(
                 request,
                 "Please enter a valid date and time."
@@ -1328,6 +1357,7 @@ def add_follow_up(request, lead_id):
                     "lead": lead,
                     "sales_users": sales_users,
                     "priority_choices": LeadTask.Priority.choices,
+                    "form_data": form_data,
                 }
             )
 
@@ -1336,6 +1366,7 @@ def add_follow_up(request, lead_id):
         # -----------------------------
 
         if due_datetime <= timezone.now():
+
             messages.error(
                 request,
                 "Follow-up date and time must be in the future."
@@ -1348,6 +1379,7 @@ def add_follow_up(request, lead_id):
                     "lead": lead,
                     "sales_users": sales_users,
                     "priority_choices": LeadTask.Priority.choices,
+                    "form_data": form_data,
                 }
             )
 
@@ -1364,6 +1396,7 @@ def add_follow_up(request, lead_id):
             ).first()
 
             if not assigned_user:
+
                 messages.error(
                     request,
                     "Please select a valid Sales Employee."
@@ -1376,10 +1409,12 @@ def add_follow_up(request, lead_id):
                         "lead": lead,
                         "sales_users": sales_users,
                         "priority_choices": LeadTask.Priority.choices,
+                        "form_data": form_data,
                     }
                 )
 
         else:
+
             assigned_user = request.user
 
         # -----------------------------
@@ -1395,9 +1430,11 @@ def add_follow_up(request, lead_id):
         ).first()
 
         if duplicate_task:
+
             messages.warning(
                 request,
-                f"A pending follow-up with the same title, employee and due time already exists."
+                "A pending follow-up with the same title, "
+                "employee and due time already exists."
             )
 
             return redirect(
@@ -1461,6 +1498,7 @@ def add_follow_up(request, lead_id):
             "lead": lead,
             "sales_users": sales_users,
             "priority_choices": LeadTask.Priority.choices,
+            "form_data": form_data,
         }
     )
 @login_required
@@ -5298,3 +5336,47 @@ def lead_stage_workflow(request, lead_id):
 
         }
     )
+
+def global_search(request):
+    query = request.GET.get("q", "").strip()
+
+    if not query:
+        return JsonResponse({
+            "results": []
+        })
+
+    # Search matching leads
+    leads = Lead.objects.filter(
+        Q(first_name__icontains=query)
+        | Q(last_name__icontains=query)
+        | Q(company__icontains=query)
+        | Q(email__icontains=query)
+        | Q(phone__icontains=query)
+        | Q(whatsapp_number__icontains=query)
+        | Q(lead_id__icontains=query)
+    )
+
+    # Sales Employee can search ONLY their assigned leads
+    if request.user.role == User.Role.SALES:
+        leads = leads.filter(
+            assigned_to=request.user
+        )
+
+    # Admin and Manager can search all leads
+    leads = leads.order_by("-created_at")[:10]
+
+    results = []
+
+    for lead in leads:
+        full_name = f"{lead.first_name} {lead.last_name}".strip()
+
+        results.append({
+            "lead_id": lead.lead_id,
+            "name": full_name,
+            "company": lead.company or "",
+            "url": f"/leads/{lead.lead_id}/",
+        })
+
+    return JsonResponse({
+        "results": results
+    })

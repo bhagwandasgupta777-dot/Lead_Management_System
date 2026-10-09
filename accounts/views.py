@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render,get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.db.models import Sum
 from django.utils import timezone
 from datetime import datetime, time, timedelta
@@ -11,14 +11,40 @@ from django.views.decorators.cache import never_cache
 
 from leads.models import Lead, LeadTask, LeadActivity, Notification
 from .models import User
+
 import os
 def login_view(request):
+
+    # If user is already logged in,
+    # send them to the correct dashboard
     if request.user.is_authenticated:
+
+        if request.user.role == User.Role.ADMIN:
+            return redirect("dashboard")
+
+        elif request.user.role == User.Role.MANAGER:
+            return redirect("dashboard")
+
+        elif request.user.role == User.Role.SALES:
+            return redirect("dashboard")
+
         return redirect("dashboard")
 
+    # -----------------------------------------
+    # LOGIN
+    # -----------------------------------------
+
     if request.method == "POST":
-        username = request.POST.get("username", "").strip()
-        password = request.POST.get("password", "")
+
+        username = request.POST.get(
+            "username",
+            ""
+        ).strip()
+
+        password = request.POST.get(
+            "password",
+            ""
+        )
 
         user = authenticate(
             request,
@@ -27,12 +53,23 @@ def login_view(request):
         )
 
         if user is not None:
-            login(request, user)
+
+            login(
+                request,
+                user
+            )
+
             return redirect("dashboard")
 
-        messages.error(request, "Invalid username or password.")
+        messages.error(
+            request,
+            "Invalid username or password."
+        )
 
-    return render(request, "accounts/login.html")
+    return render(
+        request,
+        "accounts/login.html"
+    )
 
 
 @login_required
@@ -365,19 +402,16 @@ def add_sales_employee(request):
         # -----------------------------------------
 
         if not first_name:
-
             errors.append(
                 "First name is required."
             )
 
         elif len(first_name) < 2:
-
             errors.append(
                 "First name must contain at least 2 characters."
             )
 
         elif not first_name.replace(" ", "").isalpha():
-
             errors.append(
                 "First name can contain letters and spaces only."
             )
@@ -389,7 +423,6 @@ def add_sales_employee(request):
         if last_name:
 
             if not last_name.replace(" ", "").isalpha():
-
                 errors.append(
                     "Last name can contain letters and spaces only."
                 )
@@ -410,11 +443,9 @@ def add_sales_employee(request):
             from django.core.exceptions import ValidationError
 
             try:
-
                 validate_email(email)
 
             except ValidationError:
-
                 errors.append(
                     "Enter a valid email address."
                 )
@@ -432,28 +463,42 @@ def add_sales_employee(request):
         else:
 
             if len(username) < 4:
-
                 errors.append(
                     "Username must contain at least 4 characters."
                 )
 
-            if len(username) > 30:
-
+            if len(username) > 100:
                 errors.append(
-                    "Username cannot contain more than 30 characters."
+                    "Username cannot contain more than 100 characters."
                 )
 
             if " " in username:
-
                 errors.append(
                     "Username cannot contain spaces."
                 )
 
-            if not username.replace("_", "").replace("-", "").isalnum():
+            # Allow:
+            # letters
+            # numbers
+            # dots
+            # underscores
+            # hyphens
+            # @ symbol
 
+            allowed_username_characters = (
+                "abcdefghijklmnopqrstuvwxyz"
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "0123456789"
+                "._-@"
+            )
+
+            if any(
+                character not in allowed_username_characters
+                for character in username
+            ):
                 errors.append(
-                    "Username can contain only letters, numbers, "
-                    "underscores and hyphens."
+                    "Username can contain letters, numbers, "
+                    "dots, underscores, hyphens and @."
                 )
 
             if User.objects.filter(
@@ -489,25 +534,21 @@ def add_sales_employee(request):
         else:
 
             if len(password) < 8:
-
                 errors.append(
                     "Password must contain at least 8 characters."
                 )
 
             if len(password) > 128:
-
                 errors.append(
                     "Password cannot contain more than 128 characters."
                 )
 
             if password.isdigit():
-
                 errors.append(
                     "Password must contain at least one letter."
                 )
 
             if password.isalpha():
-
                 errors.append(
                     "Password should contain numbers or special characters."
                 )
@@ -566,11 +607,19 @@ def add_sales_employee(request):
         # LOGIN URL
         # -----------------------------------------
 
-        login_url = "https://web-production-dffe6.up.railway.app/"
+        login_url = request.build_absolute_uri("/")
+
+        # -----------------------------------------
+        # EMAIL SUBJECT
+        # -----------------------------------------
 
         subject = (
             "Your Lead Management System Login Credentials"
         )
+
+        # -----------------------------------------
+        # EMAIL MESSAGE
+        # -----------------------------------------
 
         message = f"""
 Hello {first_name},
@@ -594,355 +643,20 @@ Lead Management System
 """
 
         # -----------------------------------------
-        # SEND EMAIL USING RESEND API
+        # SEND EMAIL USING GMAIL SMTP
         # -----------------------------------------
 
-        import json
-        import urllib.request
-
-        resend_api_key = os.getenv("RESEND_API_KEY")
+        from django.core.mail import send_mail
 
         try:
 
-            email_data = {
-                "from": "Lead Management System <onboarding@resend.dev>",
-                "to": [email],
-                "subject": subject,
-                "text": message,
-            }
-
-            api_request = urllib.request.Request(
-                "https://api.resend.com/emails",
-                data=json.dumps(email_data).encode("utf-8"),
-                headers={
-                    "Authorization": f"Bearer {resend_api_key}",
-                    "Content-Type": "application/json",
-                },
-                method="POST",
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
             )
-
-            with urllib.request.urlopen(
-                api_request,
-                timeout=15
-            ) as response:
-
-                response.read()
-
-            messages.success(
-                request,
-                f"Sales Employee {first_name} {last_name} "
-                f"created successfully. "
-                f"Login credentials have been sent to {email}."
-            )
-
-        except Exception as e:
-
-            messages.warning(
-                request,
-                f"Sales Employee {first_name} {last_name} "
-                f"was created, but the credentials email "
-                f"could not be sent."
-            )
-
-        return redirect("team_members")
-
-    return render(
-        request,
-        "accounts/add_sales_employee.html"
-    )@login_required
-def add_sales_employee(request):
-
-    # Only Admin can create Sales Employees
-    if request.user.role != User.Role.ADMIN:
-        messages.error(
-            request,
-            "You are not allowed to create Sales Employees."
-        )
-        return redirect("dashboard")
-
-    if request.method == "POST":
-
-        first_name = request.POST.get("first_name", "").strip()
-        last_name = request.POST.get("last_name", "").strip()
-        username = request.POST.get("username", "").strip()
-        email = request.POST.get("email", "").strip().lower()
-        password = request.POST.get("password", "")
-        confirm_password = request.POST.get("confirm_password", "")
-
-        errors = []
-
-        # -----------------------------------------
-        # FIRST NAME
-        # -----------------------------------------
-
-        if not first_name:
-
-            errors.append(
-                "First name is required."
-            )
-
-        elif len(first_name) < 2:
-
-            errors.append(
-                "First name must contain at least 2 characters."
-            )
-
-        elif not first_name.replace(" ", "").isalpha():
-
-            errors.append(
-                "First name can contain letters and spaces only."
-            )
-
-        # -----------------------------------------
-        # LAST NAME
-        # -----------------------------------------
-
-        if last_name:
-
-            if not last_name.replace(" ", "").isalpha():
-
-                errors.append(
-                    "Last name can contain letters and spaces only."
-                )
-
-        # -----------------------------------------
-        # EMAIL
-        # -----------------------------------------
-
-        if not email:
-
-            errors.append(
-                "Email address is required."
-            )
-
-        else:
-
-            from django.core.validators import validate_email
-            from django.core.exceptions import ValidationError
-
-            try:
-
-                validate_email(email)
-
-            except ValidationError:
-
-                errors.append(
-                    "Enter a valid email address."
-                )
-
-        # -----------------------------------------
-        # USERNAME
-        # -----------------------------------------
-
-        if not username:
-
-            errors.append(
-                "Username is required."
-            )
-
-        else:
-
-            if len(username) < 4:
-
-                errors.append(
-                    "Username must contain at least 4 characters."
-                )
-
-            if len(username) > 30:
-
-                errors.append(
-                    "Username cannot contain more than 30 characters."
-                )
-
-            if " " in username:
-
-                errors.append(
-                    "Username cannot contain spaces."
-                )
-
-            if not username.replace("_", "").replace("-", "").isalnum():
-
-                errors.append(
-                    "Username can contain only letters, numbers, "
-                    "underscores and hyphens."
-                )
-
-            if User.objects.filter(
-                username__iexact=username
-            ).exists():
-
-                errors.append(
-                    "This username is already in use."
-                )
-
-        # -----------------------------------------
-        # EMAIL UNIQUE
-        # -----------------------------------------
-
-        if email and User.objects.filter(
-            email__iexact=email
-        ).exists():
-
-            errors.append(
-                "This email address is already registered."
-            )
-
-        # -----------------------------------------
-        # PASSWORD
-        # -----------------------------------------
-
-        if not password:
-
-            errors.append(
-                "Password is required."
-            )
-
-        else:
-
-            if len(password) < 8:
-
-                errors.append(
-                    "Password must contain at least 8 characters."
-                )
-
-            if len(password) > 128:
-
-                errors.append(
-                    "Password cannot contain more than 128 characters."
-                )
-
-            if password.isdigit():
-
-                errors.append(
-                    "Password must contain at least one letter."
-                )
-
-            if password.isalpha():
-
-                errors.append(
-                    "Password should contain numbers or special characters."
-                )
-
-        # -----------------------------------------
-        # CONFIRM PASSWORD
-        # -----------------------------------------
-
-        if not confirm_password:
-
-            errors.append(
-                "Please confirm the password."
-            )
-
-        elif password != confirm_password:
-
-            errors.append(
-                "Passwords do not match."
-            )
-
-        # -----------------------------------------
-        # SHOW ERRORS
-        # -----------------------------------------
-
-        if errors:
-
-            for error in errors:
-
-                messages.error(
-                    request,
-                    error
-                )
-
-            return render(
-                request,
-                "accounts/add_sales_employee.html"
-            )
-
-        # -----------------------------------------
-        # CREATE USER
-        # -----------------------------------------
-
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            role=User.Role.SALES,
-        )
-
-        user.is_active = True
-        user.save()
-
-        # -----------------------------------------
-        # LOGIN URL
-        # -----------------------------------------
-
-        login_url = "https://web-production-dffe6.up.railway.app/"
-
-        subject = (
-            "Your Lead Management System Login Credentials"
-        )
-
-        message = f"""
-Hello {first_name},
-
-Your Sales Employee account has been created for the Lead Management System.
-
-Your login credentials are:
-
-Username: {username}
-Email: {email}
-Password: {password}
-
-Login here:
-{login_url}
-
-Please log in using these credentials and change your password after your first login.
-
-Regards,
-Admin
-Lead Management System
-"""
-
-        # -----------------------------------------
-        # SEND EMAIL USING RESEND API
-        # -----------------------------------------
-
-        import json
-        import urllib.request
-
-        resend_api_key = os.getenv("RESEND_API_KEY")
-
-        try:
-
-            email_data = {
-                "from": "Lead Management System <onboarding@resend.dev>",
-                "to": [email],
-                "subject": subject,
-                "text": message,
-            }
-
-            api_request = urllib.request.Request(
-                "https://api.resend.com/emails",
-                data=json.dumps(email_data).encode("utf-8"),
-                headers={
-                    "Authorization": f"Bearer {resend_api_key}",
-                    "Content-Type": "application/json",
-                },
-                method="POST",
-            )
-
-            with urllib.request.urlopen(
-                api_request,
-                timeout=15
-            ) as response:
-
-                response_data = response.read().decode("utf-8")
-
-                print(
-                    "RESEND SUCCESS:",
-                    response_data
-                )
 
             messages.success(
                 request,
@@ -954,7 +668,7 @@ Lead Management System
         except Exception as e:
 
             print(
-                "RESEND EMAIL ERROR:",
+                "EMAIL ERROR:",
                 str(e)
             )
 

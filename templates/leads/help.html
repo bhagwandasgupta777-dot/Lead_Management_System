@@ -1388,9 +1388,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 articleCategory === selectedCategory;
 
 
-            const searchMatches =
-                !searchTerm ||
-                searchData.includes(searchTerm);
+            const searchWords = searchTerm.split(/\s+/).filter(Boolean);
+
+const searchMatches =
+    !searchTerm ||
+    searchWords.every(function (word) {
+        return searchData.includes(word);
+    });
 
 
             if (categoryMatches && searchMatches) {

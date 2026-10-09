@@ -31,8 +31,9 @@
             </a>
 
            {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
-    <a href="{% url 'edit_lead' lead.lead_id %}" class="...">
-        Edit Lead
+    <a href="{% url 'edit_lead' lead.lead_id %}" class="edit-lead-btn">
+        <span class="edit-lead-icon">✎</span>
+        <span>Edit Lead</span>
     </a>
 {% endif %}
         </div>
@@ -121,22 +122,7 @@
         {% endif %}
     </strong>
 </div>
-<div class="detail-field">
-    <span>Lead Score</span>
-    <strong>
-        <span class="lead-score
-            {% if lead.lead_score >= 80 %}
-                score-high
-            {% elif lead.lead_score >= 60 %}
-                score-medium
-            {% else %}
-                score-low
-            {% endif %}
-        ">
-            {{ lead.lead_score }} / 100
-        </span>
-    </strong>
-</div>
+
 
 <div class="detail-field">
     <span>Lead Source</span>
@@ -251,156 +237,7 @@
         {% endif %}
     </strong>
 
-    <!-- DOCUMENT STATUS -->
-    {% with documents=lead.documents.all %}
-        {% if documents %}
-
-            <div style="
-                margin-top: 14px;
-                padding: 12px 14px;
-                border-radius: 10px;
-                background: #eff8ff;
-                border: 1px solid #b2ddff;
-            ">
-
-                <div style="
-                    font-size: 12px;
-                    font-weight: 700;
-                    color: #175cd3;
-                    text-transform: uppercase;
-                    letter-spacing: 0.3px;
-                    margin-bottom: 6px;
-                ">
-                    📄 Required Document
-                </div>
-
-                <div style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                ">
-
-                    <div>
-                        <div style="
-                            font-weight: 700;
-                            color: #101828;
-                            margin-bottom: 4px;
-                        ">
-                            🟢 Document Uploaded
-                        </div>
-
-                        {% for document in documents %}
-                            <div style="
-                                font-size: 13px;
-                                color: #475467;
-                                margin-top: 4px;
-                            ">
-                                {{ document.original_name|default:document.file.name }}
-
-                                {% if document.file_size %}
-                                    · {{ document.file_size|filesizeformat }}
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-
-                    {% for document in documents %}
-                        <a
-                            href="{{ document.file.url }}"
-                            target="_blank"
-                            rel="noopener"
-                            style="
-                                display: inline-flex;
-                                align-items: center;
-                                gap: 6px;
-                                padding: 7px 12px;
-                                border-radius: 7px;
-                                background: #1570ef;
-                                color: #fff;
-                                text-decoration: none;
-                                font-size: 13px;
-                                font-weight: 600;
-                            "
-                        >
-                            View Document
-                        </a>
-                    {% endfor %}
-
-                </div>
-
-            </div>
-
-        {% else %}
-
-            <div style="
-                margin-top: 14px;
-                padding: 12px 14px;
-                border-radius: 10px;
-                background: #fffaeb;
-                border: 1px solid #fedf89;
-            ">
-
-                <div style="
-                    font-size: 12px;
-                    font-weight: 700;
-                    color: #b54708;
-                    text-transform: uppercase;
-                    letter-spacing: 0.3px;
-                    margin-bottom: 6px;
-                ">
-                    📄 Required Document
-                </div>
-
-                <div style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                ">
-
-                    <div>
-                        <div style="
-                            font-weight: 700;
-                            color: #7a2e0b;
-                            margin-bottom: 4px;
-                        ">
-                            🟠 Not uploaded yet
-                        </div>
-
-                        <div style="
-                            font-size: 13px;
-                            color: #667085;
-                        ">
-                            No document has been uploaded for this lead.
-                        </div>
-                    </div>
-
-                    <a
-                        href="#lead-documents"
-                        style="
-                            display: inline-flex;
-                            align-items: center;
-                            padding: 7px 12px;
-                            border-radius: 7px;
-                            background: #f79009;
-                            color: #fff;
-                            text-decoration: none;
-                            font-size: 13px;
-                            font-weight: 600;
-                        "
-                    >
-                        Upload Document
-                    </a>
-
-                </div>
-
-            </div>
-
-        {% endif %}
-    {% endwith %}
+ 
 </div>
 
                 {% if lead.status == "LOST" and lead.lost_reason %}
@@ -1037,75 +874,145 @@
 
 
     <!-- ASSIGNMENT HISTORY -->
-    <section class="workspace-card">
+<section class="workspace-card assignment-history-card">
 
-        <div class="section-heading">
-
-            <div>
-                <h2>Assignment History</h2>
-                <p>Track who handled this lead and when it was assigned.</p>
-            </div>
-
+    <div class="section-heading">
+        <div>
+            <h2>Assignment History</h2>
+            <p>Track who handled this lead and when it was assigned.</p>
         </div>
 
-        <div class="assignment-history">
+        <div class="assignment-count">
+            {{ assignment_history|length }}
+            <span>Assignments</span>
+        </div>
+    </div>
 
-            {% for assignment in assignment_history %}
+    <div class="assignment-timeline">
 
-            <div class="assignment-item">
+        {% for assignment in assignment_history %}
 
-                <div class="assignment-avatar">
-                    {% if assignment.assigned_to %}
-                        {{ assignment.assigned_to.username|first|upper }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </div>
+            <div class="assignment-timeline-item">
 
-                <div class="assignment-info">
+                <!-- Timeline -->
+                <div class="assignment-timeline-marker">
 
-                    <div class="assignment-top">
+                    <div class="assignment-avatar">
 
-                        <strong>
-                            {% if assignment.assigned_to %}
-                                {{ assignment.assigned_to.username }}
-                            {% else %}
-                                Unassigned
-                            {% endif %}
-                        </strong>
-
-                        <span>
-                            {{ assignment.assigned_at|company_datetime }}
-                        </span>
+                        {% if assignment.assigned_to %}
+                            {{ assignment.assigned_to.username|first|upper }}
+                        {% else %}
+                            —
+                        {% endif %}
 
                     </div>
 
-                    <p>
-                        Assigned by
-                        <strong>
-                            {% if assignment.assigned_by %}
-                                {{ assignment.assigned_by.username }}
-                            {% else %}
-                                System
+                    {% if not forloop.last %}
+                        <div class="assignment-line"></div>
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Assignment Content -->
+                <div class="assignment-content">
+
+                    <div class="assignment-content-header">
+
+                        <div>
+
+                            <strong class="assignment-user-name">
+
+                                {% if assignment.assigned_to %}
+
+                                    {% if assignment.assigned_to.get_full_name %}
+                                        {{ assignment.assigned_to.get_full_name }}
+                                    {% else %}
+                                        {{ assignment.assigned_to.username }}
+                                    {% endif %}
+
+                                {% else %}
+
+                                    Unassigned
+
+                                {% endif %}
+
+                            </strong>
+
+                            {% if assignment.assigned_to %}
+                                <span class="assignment-username">
+                                    @{{ assignment.assigned_to.username }}
+                                </span>
                             {% endif %}
+
+                        </div>
+
+                        <div class="assignment-date">
+
+                            <strong>
+                                {{ assignment.assigned_at|company_datetime }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="assignment-meta">
+
+                        <span class="assignment-action-icon">
+                            ✓
+                        </span>
+
+                        <span>
+                            Assigned by
+                        </span>
+
+                        <strong>
+
+                            {% if assignment.assigned_by %}
+
+                                {% if assignment.assigned_by.get_full_name %}
+                                    {{ assignment.assigned_by.get_full_name }}
+                                {% else %}
+                                    {{ assignment.assigned_by.username }}
+                                {% endif %}
+
+                            {% else %}
+
+                                System
+
+                            {% endif %}
+
                         </strong>
-                    </p>
+
+                    </div>
 
                 </div>
 
             </div>
 
-            {% empty %}
+        {% empty %}
 
-            <div class="empty-detail">
-                No assignment history available.
+            <div class="assignment-empty">
+
+                <div class="assignment-empty-icon">
+                    —
+                </div>
+
+                <strong>No assignment history</strong>
+
+                <p>
+                    Assignment changes for this lead will appear here.
+                </p>
+
             </div>
 
-            {% endfor %}
+        {% endfor %}
 
-        </div>
+    </div>
 
-    </section>
+</section>
 
 
     <!-- ACTIVITY + TASKS -->
@@ -1588,6 +1495,268 @@
     border-radius: 10px;
 }
 
+/* =========================================================
+   ASSIGNMENT HISTORY
+   ========================================================= */
+
+.assignment-history-card {
+    margin-top: 20px;
+}
+
+.assignment-count {
+    min-width: 85px;
+    padding: 8px 12px;
+    border: 1px solid #e4e7ec;
+    border-radius: 10px;
+    background: #f9fafb;
+    color: #344054;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.assignment-count span {
+    display: block;
+    margin-top: 2px;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+
+/* Timeline */
+
+.assignment-timeline {
+    margin-top: 24px;
+}
+
+.assignment-timeline-item {
+    display: flex;
+    gap: 16px;
+    position: relative;
+}
+
+
+/* Marker */
+
+.assignment-timeline-marker {
+    width: 42px;
+    min-width: 42px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.assignment-avatar {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eef4ff;
+    border: 2px solid #d6e4ff;
+
+    color: #175cd3;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    box-sizing: border-box;
+}
+
+
+/* Connecting line */
+
+.assignment-line {
+    width: 2px;
+    flex: 1;
+
+    min-height: 42px;
+
+    margin-top: 5px;
+
+    background: #e4e7ec;
+}
+
+
+/* Content */
+
+.assignment-content {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 2px 0 26px 0;
+}
+
+
+/* Top row */
+
+.assignment-content-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.assignment-user-name {
+    display: block;
+
+    color: #101828;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+
+.assignment-username {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #98a2b3;
+
+    font-size: 12px;
+}
+
+
+.assignment-date {
+    white-space: nowrap;
+
+    color: #667085;
+
+    font-size: 12px;
+}
+
+
+/* Assigned by */
+
+.assignment-meta {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 9px;
+
+    color: #667085;
+
+    font-size: 13px;
+}
+
+
+.assignment-meta strong {
+    color: #344054;
+
+    font-weight: 600;
+}
+
+
+.assignment-action-icon {
+    width: 20px;
+    height: 20px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ecfdf3;
+
+    color: #039855;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* Empty state */
+
+.assignment-empty {
+    padding: 35px 20px;
+
+    text-align: center;
+
+    border: 1px dashed #d0d5dd;
+    border-radius: 12px;
+
+    background: #f9fafb;
+}
+
+
+.assignment-empty-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 10px;
+
+    border-radius: 50%;
+
+    background: #f2f4f7;
+
+    color: #667085;
+
+    font-size: 18px;
+}
+
+
+.assignment-empty strong {
+    display: block;
+
+    color: #344054;
+
+    font-size: 14px;
+}
+
+
+.assignment-empty p {
+    margin: 5px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 13px;
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .assignment-content-header {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .assignment-date {
+        white-space: normal;
+    }
+
+    .assignment-timeline-item {
+        gap: 12px;
+    }
+
+    .assignment-timeline-marker {
+        width: 36px;
+        min-width: 36px;
+    }
+
+    .assignment-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+}
 
 /* Firefox */
 
@@ -1595,6 +1764,65 @@
 .lead-tasks-scroll {
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 #f8fafc;
+}
+/* =========================================================
+   EDIT LEAD BUTTON
+   ========================================================= */
+
+.edit-lead-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 42px;
+    padding: 0 17px;
+
+    border: 1px solid #175cd3;
+    border-radius: 9px;
+
+    background: #175cd3;
+    color: #ffffff !important;
+
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none !important;
+
+    box-shadow: 0 2px 5px rgba(16, 24, 40, 0.12);
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.edit-lead-btn:hover {
+    background: #1549b8;
+    border-color: #1549b8;
+    color: #ffffff !important;
+
+    box-shadow: 0 4px 10px rgba(16, 24, 40, 0.16);
+
+    transform: translateY(-1px);
+}
+
+.edit-lead-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(16, 24, 40, 0.12);
+}
+
+.edit-lead-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+
+    font-size: 17px;
+    line-height: 1;
 }
 
 </style>

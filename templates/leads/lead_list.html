@@ -91,19 +91,7 @@
         </option>
     {% endfor %}
 </select>
-<select name="sort" class="filter-select">
-    <option value="">Newest First</option>
 
-    <option value="score_high"
-        {% if request.GET.sort == "score_high" %}selected{% endif %}>
-        Lead Score: High to Low
-    </option>
-
-    <option value="score_low"
-        {% if request.GET.sort == "score_low" %}selected{% endif %}>
-        Lead Score: Low to High
-    </option>
-</select>
 
 
             <button type="submit" class="lead-search-btn">
@@ -174,7 +162,7 @@
                     <th>Status</th>
                     <th>Temperature</th>
                     <th>Priority</th>
-                    <th>Score</th>
+                    
                     <th>Value</th>
                     <th>Assigned To</th>
 
@@ -409,36 +397,7 @@
                     </td>
 
 
-                    <!-- SCORE -->
-
-                    <td>
-
-                        <div class="score-wrapper">
-
-                            <span class="score-number">
-                                {{ lead.lead_score }}
-                            </span>
-
-                            <div class="score-bar">
-
-                                <div
-                                    class="score-fill
-                                    {% if lead.lead_score >= 80 %}
-                                        score-high
-                                    {% elif lead.lead_score >= 60 %}
-                                        score-medium
-                                    {% else %}
-                                        score-low
-                                    {% endif %}"
-                                    style="width: {{ lead.lead_score }}%;"
-                                ></div>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
+                    
 
                     <!-- VALUE -->
 
@@ -493,7 +452,7 @@
                 <tr>
 
                     <td
-                        colspan="13"
+                        colspan="12"
                         class="production-empty-state"
                     >
 

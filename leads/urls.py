@@ -64,7 +64,9 @@ urlpatterns = [
     views.customer_detail,
     name="customer_detail",
 ),
+     path("global-search/", views.global_search, name="global_search"),
     path("<str:lead_id>/", lead_detail, name="lead_detail"),
+   
     path("leads/<str:lead_id>/move-next/",views.move_to_next_stage,name="move_to_next_stage"),
     path(
     "<str:lead_id>/stage/<str:stage>/",
@@ -82,6 +84,7 @@ path(
     views.update_lead_notes,
     name="update_lead_notes",
 ),
+
    
    
 ]
