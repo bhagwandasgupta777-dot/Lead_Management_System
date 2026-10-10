@@ -2057,6 +2057,7 @@ def my_work_today(request):
 
 
 
+
 @login_required
 def lead_inbox(request):
     """
@@ -2078,6 +2079,7 @@ def lead_inbox(request):
         - Search
         - Temperature filter
         - Priority filter
+        - Overdue follow-up filter
         - Follow-up status for every lead
     """
 
@@ -2091,24 +2093,19 @@ def lead_inbox(request):
     now = timezone.now()
     today = timezone.localdate()
 
-
     # ---------------------------------------------------------
-    # BASE QUERYSET
+    # BASE QUERYSET FOR COUNTS
     # ---------------------------------------------------------
 
     if request.user.role in ["ADMIN", "MANAGER"]:
-
         count_base = Lead.objects.filter(
             status=Lead.Status.NEW
         )
-
     else:
-
         count_base = Lead.objects.filter(
             status=Lead.Status.NEW,
             assigned_to=request.user
         )
-
 
     # ---------------------------------------------------------
     # COUNTS
@@ -2123,7 +2120,6 @@ def lead_inbox(request):
     high_priority_count = count_base.filter(
         priority=Lead.Priority.HIGH
     ).count()
-
 
     # ---------------------------------------------------------
     # FOLLOW-UP COUNTS
@@ -2141,7 +2137,6 @@ def lead_inbox(request):
         next_follow_up__lt=now
     ).count()
 
-
     # ---------------------------------------------------------
     # INBOX QUERYSET
     # ---------------------------------------------------------
@@ -2152,15 +2147,14 @@ def lead_inbox(request):
         status=Lead.Status.NEW
     )
 
+    # Sales employees can see only their assigned leads.
     if request.user.role == "SALES":
-
         inbox_leads = inbox_leads.filter(
             assigned_to=request.user
         )
 
-
     # ---------------------------------------------------------
-    # SEARCH
+    # SEARCH FILTER
     # ---------------------------------------------------------
 
     search = request.GET.get(
@@ -2169,7 +2163,6 @@ def lead_inbox(request):
     ).strip()
 
     if search:
-
         inbox_leads = inbox_leads.filter(
             Q(first_name__icontains=search)
             | Q(last_name__icontains=search)
@@ -2178,7 +2171,6 @@ def lead_inbox(request):
             | Q(company__icontains=search)
             | Q(lead_id__icontains=search)
         )
-
 
     # ---------------------------------------------------------
     # TEMPERATURE FILTER
@@ -2192,11 +2184,9 @@ def lead_inbox(request):
     if temperature_filter in dict(
         Lead.Temperature.choices
     ):
-
         inbox_leads = inbox_leads.filter(
             temperature=temperature_filter
         )
-
 
     # ---------------------------------------------------------
     # PRIORITY FILTER
@@ -2210,11 +2200,23 @@ def lead_inbox(request):
     if priority_filter in dict(
         Lead.Priority.choices
     ):
-
         inbox_leads = inbox_leads.filter(
             priority=priority_filter
         )
 
+    # ---------------------------------------------------------
+    # FOLLOW-UP STATUS FILTER
+    # ---------------------------------------------------------
+
+    followup_filter = request.GET.get(
+        "followup",
+        ""
+    ).strip().upper()
+
+    if followup_filter == "OVERDUE":
+        inbox_leads = inbox_leads.filter(
+            next_follow_up__lt=now
+        )
 
     # ---------------------------------------------------------
     # ORDER
@@ -2223,7 +2225,6 @@ def lead_inbox(request):
     leads = inbox_leads.order_by(
         "-created_at"
     )
-
 
     # ---------------------------------------------------------
     # FOLLOW-UP STATE
@@ -2235,38 +2236,31 @@ def lead_inbox(request):
     # ---------------------------------------------------------
 
     for lead in leads:
-
         if not lead.next_follow_up:
-
             lead.followup_state = "NONE"
 
         elif lead.next_follow_up < now:
-
             lead.followup_state = "OVERDUE"
 
         elif lead.next_follow_up.date() == today:
-
             lead.followup_state = "TODAY"
 
         else:
-
             lead.followup_state = "UPCOMING"
-
 
     # ---------------------------------------------------------
     # CONTEXT
     # ---------------------------------------------------------
 
     context = {
-
         "leads": leads,
 
-        # Summary
+        # Summary counts
         "new_leads_count": new_leads_count,
         "hot_leads_count": hot_leads_count,
         "high_priority_count": high_priority_count,
 
-        # Follow-ups
+        # Follow-up counts
         "follow_up_count": scheduled_followups_count,
         "scheduled_followups_count": scheduled_followups_count,
         "todays_followups_count": todays_followups_count,
@@ -2276,20 +2270,19 @@ def lead_inbox(request):
         "search": search,
         "temperature_filter": temperature_filter,
         "priority_filter": priority_filter,
+        "followup_filter": followup_filter,
 
-        "temperature_choices":
-            Lead.Temperature.choices,
-
-        "priority_choices":
-            Lead.Priority.choices,
+        # Filter choices
+        "temperature_choices": Lead.Temperature.choices,
+        "priority_choices": Lead.Priority.choices,
     }
-
 
     return render(
         request,
         "leads/lead_inbox.html",
         context
     )
+
 @login_required
 def convert_lead_to_customer(request, lead_id):
 

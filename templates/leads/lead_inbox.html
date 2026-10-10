@@ -22,10 +22,7 @@
                     </p>
                 </div>
 
-                <span class="inbox-live-status">
-                    <span class="live-dot"></span>
-                    Live Inbox
-                </span>
+                
             </div>
         </div>
 
@@ -38,113 +35,107 @@
     </div>
 
 
-    <!-- SUMMARY -->
-    <div class="inbox-summary-grid">
+   
+<!-- SUMMARY -->
+<div class="inbox-summary-grid">
 
-        <!-- NEW LEADS -->
-        <div class="inbox-summary-card">
+    <!-- NEW LEADS -->
+    <a href="{% url 'lead_inbox' %}"
+       class="inbox-summary-card"
+       style="text-decoration: none; color: inherit;">
 
-            <div class="summary-icon summary-icon-blue">
-                +
-            </div>
-
-            <div class="summary-content">
-
-                <span class="summary-label">
-                    New Leads
-                </span>
-
-                <strong>
-                    {{ new_leads_count|default:"0" }}
-                </strong>
-
-                <small>
-                    Ready for action
-                </small>
-
-            </div>
-
+        <div class="summary-icon summary-icon-blue">
+            +
         </div>
 
+        <div class="summary-content">
+            <span class="summary-label">New Leads</span>
 
-        <!-- HOT LEADS -->
-        <div class="inbox-summary-card">
+            <strong>
+                {{ new_leads_count|default:"0" }}
+            </strong>
 
-            <div class="summary-icon summary-icon-red">
-                !
-            </div>
-
-            <div class="summary-content">
-
-                <span class="summary-label">
-                    Hot Leads
-                </span>
-
-                <strong>
-                    {{ hot_leads_count|default:"0" }}
-                </strong>
-
-                <small>
-                    High interest
-                </small>
-
-            </div>
-
+            <small>Ready for action</small>
         </div>
 
+    </a>
 
-        <!-- FOLLOW UPS -->
-        <div class="inbox-summary-card">
 
-            <div class="summary-icon summary-icon-orange">
-                →
-            </div>
+    <!-- HOT LEADS -->
+    <a href="?temperature=HOT"
+       class="inbox-summary-card"
+       style="text-decoration: none; color: inherit;">
 
-            <div class="summary-content">
-
-                <span class="summary-label">
-                    Follow-ups
-                </span>
-
-                <strong>
-                    {{ follow_up_count|default:"0" }}
-                </strong>
-
-                <small>
-                    Scheduled follow-ups
-                </small>
-
-            </div>
-
+        <div class="summary-icon summary-icon-red">
+            !
         </div>
 
+        <div class="summary-content">
+            <span class="summary-label">Hot Leads</span>
 
-        <!-- INBOX STATUS -->
-        <div class="inbox-summary-card">
+            <strong>
+                {{ hot_leads_count|default:"0" }}
+            </strong>
 
-            <div class="summary-icon summary-icon-green">
-                ✓
-            </div>
-
-            <div class="summary-content">
-
-                <span class="summary-label">
-                    Inbox Status
-                </span>
-
-                <strong>
-                    Active
-                </strong>
-
-                <small>
-                    Monitoring new leads
-                </small>
-
-            </div>
-
+            <small>High interest</small>
         </div>
 
-    </div>
+    </a>
+
+
+    <!-- FOLLOW-UPS -->
+    <a href="?followup=SCHEDULED"
+       class="inbox-summary-card"
+       style="text-decoration: none; color: inherit;">
+
+        <div class="summary-icon summary-icon-orange">
+            →
+        </div>
+
+        <div class="summary-content">
+            <span class="summary-label">Follow-ups</span>
+
+            <strong>
+                {{ follow_up_count|default:"0" }}
+            </strong>
+
+            <small>Scheduled follow-ups</small>
+        </div>
+
+    </a>
+
+
+    <!-- OVERDUE FOLLOW-UPS -->
+    <a href="?followup=OVERDUE"
+       class="inbox-summary-card overdue-followups-card"
+       style="text-decoration: none; color: inherit;">
+
+        <div class="summary-icon summary-icon-orange">
+            !
+        </div>
+
+        <div class="summary-content">
+            <span class="summary-label">Overdue Follow-ups</span>
+
+            <strong>
+                {{ overdue_followups_count|default:"0" }}
+            </strong>
+
+            <small>
+                {% if overdue_followups_count > 0 %}
+                    Follow-ups need attention
+                {% else %}
+                    No overdue follow-ups
+                {% endif %}
+            </small>
+        </div>
+
+    </a>
+
+</div>
+
+
+
 
 
     <!-- QUICK FILTERS -->
@@ -189,17 +180,7 @@
             </a>
 
 
-            <!-- HIGH PRIORITY -->
-            <a
-                href="?priority=HIGH"
-                class="inbox-filter {% if priority_filter == 'HIGH' %}active{% endif %}"
-            >
-                High Priority
-
-                <span class="filter-count">
-                    {{ high_priority_count }}
-                </span>
-            </a>
+         
 
         </div>
 
@@ -328,33 +309,6 @@
                         </strong>
 
                     </div>
-
-
-                    <!-- SCORE -->
-                    <div class="lead-info-item">
-
-                        <span>
-                            Lead Score
-                        </span>
-
-                        <strong>
-
-                            <span class="lead-score
-                                {% if lead.lead_score >= 80 %}
-                                    score-high
-                                {% elif lead.lead_score >= 60 %}
-                                    score-medium
-                                {% else %}
-                                    score-low
-                                {% endif %}
-                            ">
-                                {{ lead.lead_score }}
-                            </span>
-
-                        </strong>
-
-                    </div>
-
 
                     <!-- ASSIGNED TO -->
                     {% if lead.assigned_to %}
