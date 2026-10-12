@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 
+from django.core.validators import RegexValidator
 
 class Lead(models.Model):
 
@@ -51,13 +52,26 @@ class Lead(models.Model):
         blank=True
     )
 
+    
     phone = models.CharField(
-        max_length=20
+        max_length=20,
+        validators=[
+            RegexValidator(
+                regex=r"^[6-9]\d{9}$",
+                message="Enter a valid 10-digit Indian mobile number."
+            )
+        ]
     )
 
     whatsapp_number = models.CharField(
         max_length=20,
-        blank=True
+        blank=True,
+        validators=[
+            RegexValidator(
+                regex=r"^[6-9]\d{9}$",
+                message="Enter a valid 10-digit Indian mobile number."
+            )
+        ]
     )
 
     email = models.EmailField(

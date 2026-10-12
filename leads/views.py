@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 import re
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.core.validators import validate_email
 from PIL import Image
 from accounts.models import User
@@ -489,10 +490,20 @@ def move_to_next_stage(request, lead_id):
 from django.shortcuts import get_object_or_404
 
 
+
 @login_required
 def lead_detail(request, lead_id):
+    # Admin and Manager can view all leads.
+    # Sales Employees can view only their assigned leads.
+    if request.user.role in ["ADMIN", "MANAGER"]:
+        lead_queryset = Lead.objects.all()
+    else:
+        lead_queryset = Lead.objects.filter(
+            assigned_to=request.user
+        )
+
     lead = get_object_or_404(
-        Lead.objects.select_related("assigned_to"),
+        lead_queryset.select_related("assigned_to"),
         lead_id=lead_id
     )
 
@@ -504,14 +515,13 @@ def lead_detail(request, lead_id):
         "assigned_by"
     ).all()
 
-    # Get active Sales Employees for assignment dropdown
+    # Get active Sales Employees for assignment dropdown.
     User = get_user_model()
     sales_users = User.objects.filter(
         role=User.Role.SALES,
         is_active=True
     ).order_by("username")
 
-    # Existing stage data - only used for viewing saved stage details
     stage_data = lead.stage_data or {}
     selected_stage = request.GET.get("stage", "").upper()
 
@@ -528,6 +538,7 @@ def lead_detail(request, lead_id):
             "selected_stage": selected_stage,
         },
     )
+
 @login_required
 def assign_lead(request, lead_id):
 
@@ -646,6 +657,38 @@ def create_lead(request):
 
         phone = request.POST.get("phone", "").strip()
         email = request.POST.get("email", "").strip()
+        whatsapp_number = request.POST.get(
+           "whatsapp_number", ""
+        ).strip()
+
+        # Validate Indian mobile numbers
+        phone_validator = RegexValidator(
+            regex=r"^[6-9]\d{9}$",
+            message="Enter a valid 10-digit Indian mobile number."
+        )
+
+        try:
+            phone_validator(phone)
+
+            if whatsapp_number:
+                phone_validator(whatsapp_number)
+
+        except ValidationError as error:
+            messages.error(request, error.messages[0])
+
+            return render(
+                request,
+                "leads/lead_form.html",
+                {
+                    "form_data": request.POST,
+                    "source_choices": Lead.Source.choices,
+                    "temperature_choices": Lead.Temperature.choices,
+                    "priority_choices": Lead.Priority.choices,
+                    "sales_users": sales_users,
+                }
+            )
+        
+
 
         # =========================================================
         # DUPLICATE PHONE CHECK
@@ -876,15 +919,33 @@ def edit_lead(request, lead_id):
             ""
         ).strip()
 
+        
         lead.whatsapp_number = request.POST.get(
             "whatsapp_number",
             ""
         ).strip()
 
+        # Validate Indian mobile numbers
+        phone_validator = RegexValidator(
+            regex=r"^[6-9]\d{9}$",
+            message="Enter a valid 10-digit Indian mobile number."
+        )
+
+        try:
+            phone_validator(lead.phone)
+
+            if lead.whatsapp_number:
+                phone_validator(lead.whatsapp_number)
+
+        except ValidationError as error:
+            messages.error(request, error.messages[0])
+            return redirect("edit_lead", lead_id=lead_id)
+
         lead.email = request.POST.get(
             "email",
             ""
         ).strip()
+
 
         lead.company = request.POST.get(
             "company",
