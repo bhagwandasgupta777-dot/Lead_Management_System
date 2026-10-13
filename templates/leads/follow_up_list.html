@@ -127,12 +127,14 @@
 
                         <div class="followup-actions">
 
-                            <a
-                                href="tel:{{ task.lead.phone }}"
-                                title="Call"
-                            >
-                                ☎
-                            </a>
+                           <button
+    type="button"
+    class="crm-action"
+    title="Call"
+    onclick="openCallModal('{{ task.lead.lead_id|escapejs }}', '{{ task.lead.first_name|escapejs }} {{ task.lead.last_name|escapejs }}', '{{ task.lead.phone|escapejs }}')"
+>
+    ☎
+</button>
 
                             {% if task.lead.whatsapp_number %}
 
@@ -274,12 +276,14 @@
                     <!-- ACTIONS -->
                     <div class="followup-actions">
 
-                        <a
-                            href="tel:{{ task.lead.phone }}"
-                            title="Call"
-                        >
-                            ☎
-                        </a>
+                        <button
+    type="button"
+    class="work-mini-action"
+    title="Call"
+    onclick="openCallModal('{{ task.lead.lead_id|escapejs }}', '{{ task.lead.first_name|escapejs }} {{ task.lead.last_name|escapejs }}', '{{ task.lead.phone|escapejs }}')"
+>
+    ☎
+</button>
 
 
                         {% if task.lead.whatsapp_number %}
@@ -428,12 +432,14 @@
 
                         <div class="followup-actions">
 
-                            <a
-                                href="tel:{{ task.lead.phone }}"
-                                title="Call"
-                            >
-                                ☎
-                            </a>
+                           <button
+    type="button"
+    class="work-mini-action"
+    title="Call"
+    onclick="openCallModal('{{ task.lead.lead_id|escapejs }}', '{{ task.lead.first_name|escapejs }} {{ task.lead.last_name|escapejs }}', '{{ task.lead.phone|escapejs }}')"
+>
+    ☎
+</button>
 
                             {% if task.lead.whatsapp_number %}
 

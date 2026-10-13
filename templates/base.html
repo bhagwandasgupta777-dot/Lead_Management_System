@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}LeadFlow{% endblock %}</title>
+    <title>Enfocar IT Solutions</title>
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
@@ -133,7 +133,7 @@
         </a>
 
 
-       
+
 
 
        {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
@@ -375,6 +375,168 @@
         </main>
 
     </div>
+
+<!-- GLOBAL CALL LEAD MODAL -->
+<div id="callLeadModal" class="call-modal-overlay" hidden>
+    <div class="call-modal" role="dialog" aria-modal="true"
+         aria-labelledby="callModalTitle">
+
+        <div class="call-modal-header">
+            <div>
+                <h2 id="callModalTitle">Call Lead</h2>
+                <p>Contact your lead and record the outcome.</p>
+            </div>
+
+            <button type="button" class="call-modal-close"
+                    onclick="closeCallModal()" aria-label="Close">×</button>
+        </div>
+
+        <div class="call-modal-contact">
+            <div class="call-modal-avatar">☎</div>
+            <div>
+                <strong id="callLeadName">Lead name</strong>
+                <p id="callLeadPhone">Phone number</p>
+                <small id="callLeadId"></small>
+            </div>
+        </div>
+
+        <div class="call-modal-actions">
+            <a id="callStartLink" class="call-start-button" href="#">
+                ☎ Start Call
+            </a>
+
+            <button type="button" class="call-copy-button"
+                    onclick="copyCallPhone()">
+                Copy Number
+            </button>
+        </div>
+
+        <hr>
+
+        <!-- CALL OUTCOME FORM -->
+        <form id="callOutcomeForm" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="callOutcome">Call Outcome *</label>
+
+                <select id="callOutcome" name="call_outcome" required>
+                    <option value="">Select call outcome</option>
+                    <option value="CONNECTED">Connected</option>
+                    <option value="NO_ANSWER">No Answer</option>
+                    <option value="BUSY">Busy</option>
+                    <option value="CALLBACK">Call Back Requested</option>
+                    <option value="WRONG_NUMBER">Wrong Number</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="callDescription">Call Notes</label>
+
+                <textarea
+                    id="callDescription"
+                    name="description"
+                    rows="3"
+                    placeholder="What happened during the call?"
+                ></textarea>
+            </div>
+
+            <div class="call-modal-actions">
+                <button type="submit" class="call-start-button">
+                    Save Outcome
+                </button>
+
+                <button type="button" class="call-copy-button"
+                        onclick="closeCallModal()">
+                    Cancel
+                </button>
+            </div>
+        </form>
+
+        <p class="call-modal-note">
+            Start Call opens your device's calling application.
+            Save Outcome records the result in the CRM.
+        </p>
+    </div>
+</div>
+
+
+<script>
+(function () {
+    let currentCallPhone = "";
+
+    window.openCallModal = function (leadId, leadName, phone) {
+        currentCallPhone = String(phone || "").trim();
+
+        document.getElementById("callLeadId").textContent =
+            leadId ? "Lead ID: " + leadId : "Customer call";
+
+        document.getElementById("callLeadName").textContent =
+            leadName || "Unknown contact";
+
+        document.getElementById("callLeadPhone").textContent =
+            currentCallPhone || "No phone number available";
+
+        const startLink = document.getElementById("callStartLink");
+
+        if (currentCallPhone) {
+            startLink.href = "tel:" + currentCallPhone;
+            startLink.style.pointerEvents = "auto";
+            startLink.style.opacity = "1";
+        } else {
+            startLink.href = "#";
+            startLink.style.pointerEvents = "none";
+            startLink.style.opacity = "0.5";
+        }
+
+        // Set the URL for the selected lead's call outcome.
+        const form = document.getElementById("callOutcomeForm");
+
+        if (leadId) {
+            form.action =
+                "/leads/" + encodeURIComponent(leadId) + "/call-outcome/";
+            form.reset();
+        } else {
+            form.action = "";
+        }
+
+        document.getElementById("callLeadModal").hidden = false;
+    };
+
+    window.closeCallModal = function () {
+        document.getElementById("callLeadModal").hidden = true;
+    };
+
+    window.copyCallPhone = async function () {
+        if (!currentCallPhone) {
+            alert("No phone number available.");
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(currentCallPhone);
+            alert("Phone number copied.");
+        } catch (error) {
+            alert("Please copy this number manually: " + currentCallPhone);
+        }
+    };
+
+    document.addEventListener("click", function (event) {
+        const modal = document.getElementById("callLeadModal");
+
+        if (event.target === modal) {
+            window.closeCallModal();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            window.closeCallModal();
+        }
+    });
+})();
+</script>
+
 
 
     <script src="{% static 'js/main.js' %}"></script>

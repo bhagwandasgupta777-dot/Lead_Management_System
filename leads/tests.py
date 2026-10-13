@@ -326,3 +326,347 @@ class TaskAccessPermissionTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+class LeadCreationTests(TestCase):
+
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username="creationadmin",
+            email="creationadmin@example.com",
+            password="TestPassword123",
+            role="ADMIN",
+        )
+
+        self.employee = User.objects.create_user(
+            username="creationemployee",
+            email="creationemployee@example.com",
+            password="TestPassword123",
+            role="SALES",
+        )
+
+        self.valid_data = {
+            "first_name": "Amit",
+            "last_name": "Patel",
+            "phone": "9876543212",
+            "whatsapp_number": "9876543213",
+            "email": "amit@example.com",
+            "company": "Example Company",
+            "location": "Mumbai",
+            "category": "IT",
+            "source": "WEBSITE",
+            "temperature": "WARM",
+            "priority": "MEDIUM",
+        }
+
+    def test_admin_can_open_create_lead_form(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.get(reverse("create_lead"))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_employee_cannot_create_lead(self):
+        self.client.force_login(self.employee)
+
+        response = self.client.post(
+            reverse("create_lead"),
+            self.valid_data,
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("lead_list"),
+            fetch_redirect_response=False,
+        )
+        self.assertFalse(
+            Lead.objects.filter(phone=self.valid_data["phone"]).exists()
+        )
+
+    def test_invalid_phone_does_not_create_lead(self):
+        self.client.force_login(self.admin)
+
+        data = self.valid_data.copy()
+        data["phone"] = "12345"
+
+        response = self.client.post(reverse("create_lead"), data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Lead.objects.filter(phone="12345").exists())
+
+    def test_invalid_whatsapp_number_does_not_create_lead(self):
+        self.client.force_login(self.admin)
+
+        data = self.valid_data.copy()
+        data["whatsapp_number"] = "12345"
+
+        response = self.client.post(reverse("create_lead"), data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            Lead.objects.filter(phone=self.valid_data["phone"]).exists()
+        )
+
+    def test_duplicate_phone_is_rejected(self):
+        self.client.force_login(self.admin)
+
+        Lead.objects.create(
+            first_name="Existing",
+            phone=self.valid_data["phone"],
+            assigned_to=self.employee,
+        )
+
+        response = self.client.post(
+            reverse("create_lead"),
+            self.valid_data,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            Lead.objects.filter(phone=self.valid_data["phone"]).count(),
+            1,
+        )
+
+    def test_duplicate_email_is_rejected(self):
+        self.client.force_login(self.admin)
+
+        Lead.objects.create(
+            first_name="Existing",
+            phone="9876543214",
+            email=self.valid_data["email"],
+            assigned_to=self.employee,
+        )
+
+        response = self.client.post(
+            reverse("create_lead"),
+            self.valid_data,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            Lead.objects.filter(phone=self.valid_data["phone"]).exists()
+        )
+
+    def test_admin_can_create_lead(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            reverse("create_lead"),
+            self.valid_data,
+        )
+
+        self.assertEqual(Lead.objects.filter(
+            phone=self.valid_data["phone"]
+        ).count(), 1)
+
+        lead = Lead.objects.get(phone=self.valid_data["phone"])
+
+        self.assertEqual(lead.first_name, "Amit")
+        self.assertEqual(lead.assigned_to, self.admin)
+        self.assertRedirects(
+            response,
+            reverse("lead_stage_workflow", kwargs={"lead_id": lead.lead_id}),
+            fetch_redirect_response=False,
+        )
+
+
+
+class LeadEditingTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username="edit_admin",
+            email="edit_admin@example.com",
+            password="testpass123",
+            role="ADMIN",
+        )
+
+        self.employee = User.objects.create_user(
+            username="edit_employee",
+            email="edit_employee@example.com",
+            password="testpass123",
+            role="SALES",
+        )
+
+        self.lead = Lead.objects.create(
+            first_name="Amit",
+            last_name="Patel",
+            phone="9876543212",
+            whatsapp_number="9876543213",
+            email="amit@example.com",
+            company="Example Company",
+            assigned_to=self.employee,
+        )
+
+        self.edit_url = reverse(
+            "edit_lead",
+            kwargs={"lead_id": self.lead.lead_id},
+        )
+
+    def test_admin_can_open_edit_lead_form(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.get(self.edit_url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_employee_cannot_edit_lead(self):
+        self.client.force_login(self.employee)
+
+        response = self.client.get(self.edit_url)
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "lead_detail",
+                kwargs={"lead_id": self.lead.lead_id},
+            ),
+        )
+
+        self.lead.refresh_from_db()
+        self.assertEqual(self.lead.first_name, "Amit")
+
+    def test_invalid_phone_does_not_update_lead(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            self.edit_url,
+            {
+                "first_name": "Updated",
+                "last_name": "Patel",
+                "phone": "123",
+                "whatsapp_number": "9876543213",
+            },
+        )
+
+        self.assertRedirects(response, self.edit_url)
+
+        self.lead.refresh_from_db()
+        self.assertEqual(self.lead.phone, "9876543212")
+        self.assertEqual(self.lead.first_name, "Amit")
+
+    def test_invalid_whatsapp_does_not_update_lead(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            self.edit_url,
+            {
+                "first_name": "Updated",
+                "last_name": "Patel",
+                "phone": "9876543212",
+                "whatsapp_number": "123",
+            },
+        )
+
+        self.assertRedirects(response, self.edit_url)
+
+        self.lead.refresh_from_db()
+        self.assertEqual(self.lead.whatsapp_number, "9876543213")
+        self.assertEqual(self.lead.first_name, "Amit")
+
+
+
+class WonToLostTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username="wonlost_admin",
+            email="wonlost_admin@example.com",
+            password="testpass123",
+            role="ADMIN",
+        )
+
+        self.employee = User.objects.create_user(
+            username="wonlost_employee",
+            email="wonlost_employee@example.com",
+            password="testpass123",
+            role="SALES",
+        )
+
+        self.lead = Lead.objects.create(
+            first_name="Test",
+            last_name="Customer",
+            phone="9876543210",
+            status=Lead.Status.WON,
+            assigned_to=self.employee,
+        )
+
+    def test_admin_can_open_won_to_lost_form(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse(
+                "lead_stage_workflow",
+                kwargs={"lead_id": self.lead.lead_id},
+            ),
+            {"stage": "LOST"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "leads/lead_stage_workflow.html",
+        )
+        self.assertTrue(response.context["won_to_lost"])
+
+    def test_admin_can_change_won_lead_to_lost(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            reverse(
+                "lead_stage_workflow",
+                kwargs={"lead_id": self.lead.lead_id},
+            ) + "?stage=LOST",
+            {
+                "lost_reason": "Customer cancelled the deal",
+            },
+        )
+
+        self.lead.refresh_from_db()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.lead.status, Lead.Status.LOST)
+        self.assertEqual(
+            self.lead.lost_reason,
+            "Customer cancelled the deal",
+        )
+
+        self.assertTrue(
+            LeadActivity.objects.filter(
+                lead=self.lead,
+                activity_type=LeadActivity.ActivityType.STATUS_CHANGE,
+                description__contains="Lead changed from Won to Lost",
+                created_by=self.admin,
+            ).exists()
+        )
+
+    def test_admin_cannot_change_won_to_lost_without_reason(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            reverse(
+                "lead_stage_workflow",
+                kwargs={"lead_id": self.lead.lead_id},
+            ) + "?stage=LOST",
+            {
+                "lost_reason": "",
+            },
+        )
+
+        self.lead.refresh_from_db()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.lead.status, Lead.Status.WON)
+        self.assertEqual(self.lead.lost_reason, "")
+
+    def test_employee_cannot_change_won_to_lost(self):
+        self.client.force_login(self.employee)
+        self.client.post(
+            reverse(
+                "lead_stage_workflow",
+                kwargs={"lead_id": self.lead.lead_id},
+            ) + "?stage=LOST",
+            {
+                "lost_reason": "Customer cancelled the deal",
+            },
+        )
+
+        self.lead.refresh_from_db()
+
+        self.assertEqual(self.lead.status, Lead.Status.WON)

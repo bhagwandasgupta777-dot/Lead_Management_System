@@ -15641,3 +15641,158 @@ input {
         width: 100%;
     }
 }
+/* CALL LEAD MODAL */
+.call-modal-overlay[hidden] {
+    display: none !important;
+}
+
+.call-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.60);
+}
+
+.call-modal {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px;
+    background: #ffffff;
+    color: #172033;
+    border-radius: 16px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+}
+
+.call-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.call-modal-header h2 {
+    margin: 0 0 6px;
+    font-size: 22px;
+}
+
+.call-modal-header p,
+.call-modal-contact p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.call-modal-close {
+    border: 0;
+    background: #f1f5f9;
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.call-modal-contact {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 24px 0;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+
+.call-modal-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 22px;
+}
+
+.call-modal-contact strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.call-modal-contact small {
+    display: block;
+    margin-top: 5px;
+    color: #64748b;
+}
+
+.call-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.call-start-button,
+.call-copy-button {
+    flex: 1;
+    min-width: 130px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 14px;
+    border-radius: 9px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.call-start-button {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.call-copy-button {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+}
+
+.call-modal-note {
+    margin: 16px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+/* FIX: ENSURE CALL MODAL IS VISIBLE AND CLICKABLE */
+#callLeadModal:not([hidden]) {
+    display: flex !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 999999 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    pointer-events: auto !important;
+}
+
+#callLeadModal .call-modal {
+    position: relative;
+    z-index: 1000000;
+    pointer-events: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#callLeadModal button,
+#callLeadModal a {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}

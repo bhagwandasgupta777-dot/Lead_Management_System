@@ -422,13 +422,14 @@
 
 
                 <!-- CALL -->
-                <a
-                    href="tel:{{ lead.phone }}"
-                    class="inbox-action primary-action"
-                >
-                    <span>☎</span>
-                    Call
-                </a>
+               <button
+    type="button"
+    class="inbox-action primary-action"
+    onclick="openCallModal('{{ lead.lead_id|escapejs }}', '{{ lead.first_name|escapejs }} {{ lead.last_name|escapejs }}', '{{ lead.phone|escapejs }}')"
+>
+    <span>☎</span>
+    Call
+</button>
 
 
                 <!-- WHATSAPP -->

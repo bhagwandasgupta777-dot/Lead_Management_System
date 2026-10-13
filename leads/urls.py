@@ -46,6 +46,11 @@ urlpatterns = [
     path("document/<int:document_id>/delete/",delete_lead_document,name="delete_lead_document",),
     path("<str:lead_id>/edit/", edit_lead, name="edit_lead"),
     path("<str:lead_id>/activity/add/", add_activity, name="add_activity"),
+    path(
+    "<str:lead_id>/call-outcome/",
+    views.save_call_outcome,
+    name="save_call_outcome",
+),
     path("<str:lead_id>/assign/", assign_lead, name="assign_lead"),
     path("tasks/create/", views.create_task, name="create_task"),
     path("tasks/", views.admin_task_list, name="admin_task_list"),

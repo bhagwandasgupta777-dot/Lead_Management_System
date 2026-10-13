@@ -237,7 +237,7 @@
         {% endif %}
     </strong>
 
- 
+
 </div>
 
                 {% if lead.status == "LOST" and lead.lost_reason %}
@@ -380,9 +380,13 @@
                 Next step: Contact the customer and understand their requirement.
             </p>
 
-            <a href="tel:{{ lead.phone }}" class="primary-btn">
-                ☎ Contact Customer
-            </a>
+            <button
+    type="button"
+    class="primary-btn"
+    onclick="openCallModal('{{ lead.lead_id|escapejs }}', '{{ lead.first_name|escapejs }} {{ lead.last_name|escapejs }}', '{{ lead.phone|escapejs }}')"
+>
+    ☎ Contact Customer
+</button>
         </div>
 
 
@@ -748,10 +752,14 @@
         <div class="detail-quick-actions">
 
     <!-- CALL -->
-    <a href="tel:{{ lead.phone }}" class="detail-action">
-        <strong>☎</strong>
-        <span>Call Lead</span>
-    </a>
+   <button
+    type="button"
+    class="detail-action"
+    onclick="openCallModal('{{ lead.lead_id|escapejs }}', '{{ lead.first_name|escapejs }} {{ lead.last_name|escapejs }}', '{{ lead.phone|escapejs }}')"
+>
+    <strong>☎</strong>
+    <span>Call Lead</span>
+</button>
 
     <button
         type="button"
@@ -1018,7 +1026,7 @@
     <!-- ACTIVITY + TASKS -->
     <div class="lead-detail-grid">
 
-      
+
 
         <!-- ACTIVITY -->
 <section class="workspace-card">
@@ -1135,9 +1143,17 @@
 
                 </div>
 
-                <p>
-                    {{ activity.description }}
-                </p>
+
+{% if activity.activity_type == "CALL" and activity.call_outcome %}
+    <div class="call-outcome-label">
+        <strong>Call Outcome:</strong>
+        <span>{{ activity.get_call_outcome_display }}</span>
+    </div>
+{% endif %}
+
+<p>
+    {{ activity.description }}
+</p>
 
                 {% if activity.created_by %}
 

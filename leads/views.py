@@ -540,6 +540,52 @@ def lead_detail(request, lead_id):
     )
 
 @login_required
+def save_call_outcome(request, lead_id):
+    from django.contrib import messages
+    from django.http import HttpResponseNotAllowed
+    from django.utils import timezone
+    from django.shortcuts import redirect
+    from .models import Lead, LeadActivity
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    # Admin and Manager can access all leads.
+    # Sales Employees can access only their assigned leads.
+    if request.user.role in ["ADMIN", "MANAGER"]:
+        lead_queryset = Lead.objects.all()
+    else:
+        lead_queryset = Lead.objects.filter(
+            assigned_to=request.user
+        )
+
+    lead = get_object_or_404(lead_queryset, lead_id=lead_id)
+
+    outcome = request.POST.get("call_outcome", "").strip()
+    notes = request.POST.get("description", "").strip()
+
+    allowed_outcomes = {
+        choice[0] for choice in LeadActivity.CallOutcome.choices
+    }
+
+    if outcome not in allowed_outcomes:
+        messages.error(request, "Please select a valid call outcome.")
+        return redirect("lead_detail", lead_id=lead.lead_id)
+
+    # Save the call outcome in the lead's activity history.
+    LeadActivity.objects.create(
+        lead=lead,
+        activity_type=LeadActivity.ActivityType.CALL,
+        call_outcome=outcome,
+        description=notes or f"Call outcome: {outcome}",
+        created_by=request.user,
+    )
+
+    messages.success(request, "Call outcome saved successfully.")
+    return redirect("lead_detail", lead_id=lead.lead_id)
+
+
+@login_required
 def assign_lead(request, lead_id):
 
     if request.user.role not in ["ADMIN", "MANAGER"]:
@@ -5165,7 +5211,7 @@ def lead_stage_workflow(request, lead_id):
 
             if action == "exit":
 
-                lead.status = current_status
+                lead.status = stage
 
             # ------------------------------------------------
             # SAVE & CONTINUE

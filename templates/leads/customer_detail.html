@@ -152,14 +152,15 @@
 
         <div class="customer-actions">
 
-            {% if customer.phone %}
-                <a
-                    href="tel:{{ customer.phone }}"
-                    class="customer-action-btn"
-                >
-                    ☎ Call Customer
-                </a>
-            {% endif %}
+           {% if customer.phone %}
+    <button
+        type="button"
+        class="customer-action-btn"
+        onclick="openCallModal('{{ customer.lead.lead_id|default:''|escapejs }}', '{{ customer.first_name|escapejs }} {{ customer.last_name|escapejs }}', '{{ customer.phone|escapejs }}')"
+    >
+        ☎ Call Customer
+    </button>
+{% endif %}
 
 
             {% if customer.email %}

@@ -287,6 +287,7 @@ class LeadDocument(models.Model):
     def __str__(self):
         return f"{self.lead.lead_id} - {self.original_name}"
 
+
 class LeadActivity(models.Model):
 
     class ActivityType(models.TextChoices):
@@ -299,6 +300,14 @@ class LeadActivity(models.Model):
         FOLLOW_UP = "FOLLOW_UP", "Follow-up"
         TASK_COMPLETED = "TASK_COMPLETED", "Task Completed"
 
+    # NEW PART 1: Call outcomes
+    class CallOutcome(models.TextChoices):
+        CONNECTED = "CONNECTED", "Connected"
+        NO_ANSWER = "NO_ANSWER", "No Answer"
+        BUSY = "BUSY", "Busy"
+        CALLBACK = "CALLBACK", "Call Back Requested"
+        WRONG_NUMBER = "WRONG_NUMBER", "Wrong Number"
+
     lead = models.ForeignKey(
         Lead,
         on_delete=models.CASCADE,
@@ -308,6 +317,14 @@ class LeadActivity(models.Model):
     activity_type = models.CharField(
         max_length=20,
         choices=ActivityType.choices
+    )
+
+    # NEW PART 2: Store the call outcome
+    call_outcome = models.CharField(
+        max_length=20,
+        choices=CallOutcome.choices,
+        blank=True,
+        default=""
     )
 
     description = models.TextField()
@@ -329,6 +346,7 @@ class LeadActivity(models.Model):
 
     def __str__(self):
         return f"{self.lead.lead_id} - {self.activity_type}"
+
 
 
 class LeadTask(models.Model):

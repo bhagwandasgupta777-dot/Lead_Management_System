@@ -335,13 +335,12 @@
 
                             {% if lead.phone %}
 
-                                <a
-                                    href="tel:{{ lead.phone }}"
-                                    class="crm-action"
-                                    title="Call {{ lead.first_name }}"
-                                >
-                                    ☎
-                                </a>
+                            <button type="button"
+        class="crm-action"
+        title="Call {{ lead.first_name }}"
+        onclick="openCallModal('{{ lead.lead_id|escapejs }}', '{{ lead.first_name|escapejs }} {{ lead.last_name|escapejs }}', '{{ lead.phone|escapejs }}')">
+    ☎
+</button>
 
                             {% endif %}
 

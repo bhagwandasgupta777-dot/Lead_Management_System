@@ -1389,13 +1389,14 @@
 
                             <div class="work-row-actions">
 
-                                <a
-                                    href="tel:{{ lead.phone }}"
-                                    class="work-mini-action"
-                                    title="Call"
-                                >
-                                    ☎
-                                </a>
+                               <button
+    type="button"
+    class="work-mini-action"
+    title="Call"
+    onclick="openCallModal('{{ lead.lead_id|escapejs }}', '{{ lead.first_name|escapejs }} {{ lead.last_name|escapejs }}', '{{ lead.phone|escapejs }}')"
+>
+    ☎
+</button>
 
                                 <a
                                     href="{% url 'lead_detail' lead.lead_id %}"
