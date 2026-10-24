@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
-
+from django.utils import timezone
+message_time = models.DateTimeField(default=timezone.now)
 from django.core.validators import RegexValidator
 
 class Lead(models.Model):
@@ -913,3 +914,79 @@ class SupportTicket(models.Model):
 
     def __str__(self):
         return f"{self.ticket_id} - {self.subject}"
+
+
+class WhatsAppMessage(models.Model):
+
+    class Direction(models.TextChoices):
+        INCOMING = "INCOMING", "Customer to Team"
+        OUTGOING = "OUTGOING", "Team to Customer"
+
+    lead = models.ForeignKey(
+        Lead,
+        on_delete=models.CASCADE,
+        related_name="whatsapp_messages"
+    )
+
+    direction = models.CharField(
+        max_length=10,
+        choices=Direction.choices
+    )
+
+    message = models.TextField()
+
+    # Employee who manually records this conversation.
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="recorded_whatsapp_messages"
+    )
+
+    # When the actual conversation took place.
+    message_time = models.DateTimeField(
+        default=__import__("django.utils.timezone", fromlist=["now"]).now
+    )
+
+    # When the record was saved in the CRM.
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["message_time", "created_at"]
+
+    def __str__(self):
+        return f"{self.lead.lead_id} - {self.get_direction_display()}"
+
+
+class WhatsAppQuickReply(models.Model):
+
+    title = models.CharField(max_length=100)
+
+    message = models.TextField()
+
+    # Employee who created this template.
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="whatsapp_quick_replies"
+    )
+
+    # Shared templates can be used by permitted team members.
+    is_shared = models.BooleanField(default=False)
+
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self):
+        return self.title

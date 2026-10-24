@@ -1,0 +1,246 @@
+
+{% extends "base.html" %}
+
+{% block title %}WhatsApp Conversation - {{ lead.first_name }} {{ lead.last_name }}{% endblock %}
+
+{% block content %}
+<div class="wa-page">
+
+    <div class="wa-header">
+        <div>
+            <p class="wa-breadcrumb">Workspace / Leads / {{ lead.lead_id }} / WhatsApp</p>
+            <h1>WhatsApp Conversation</h1>
+            <p class="wa-subtitle">
+                {{ lead.first_name }} {{ lead.last_name }}
+                {% if lead.company %} · {{ lead.company }}{% endif %}
+                · {{ lead.lead_id }}
+            </p>
+        </div>
+
+        <a class="wa-back" href="{% url 'lead_detail' lead.lead_id %}">
+            ← Back to Lead
+        </a>
+    </div>
+
+    <div class="wa-contact-card">
+        <div>
+            <span class="wa-label">WhatsApp Number</span>
+            <strong>{{ lead.whatsapp_number|default:"No WhatsApp number saved" }}</strong>
+        </div>
+
+        {% if lead.whatsapp_number %}
+            <a class="wa-open"
+               href="https://wa.me/91{{ lead.whatsapp_number }}?text=Hello%20{{ lead.first_name|urlencode }}"
+               target="_blank"
+               rel="noopener noreferrer">
+                Open WhatsApp ↗
+            </a>
+        {% endif %}
+    </div>
+
+    <section class="wa-card">
+        <div class="wa-section-heading">
+            <div>
+                <h2>Conversation History</h2>
+                <p>Messages manually recorded by your team.</p>
+            </div>
+            <span class="wa-count">{{ conversation|length }} messages</span>
+        </div>
+
+        <div class="wa-messages">
+            {% for item in conversation %}
+                <div class="wa-message-row {% if item.direction == 'OUTGOING' %}wa-outgoing-row{% else %}wa-incoming-row{% endif %}">
+                    <div class="wa-message">
+                        <div class="wa-message-top">
+                            <strong>{{ item.get_direction_display }}</strong>
+                            <small>{{ item.message_time|date:"d M Y, h:i A" }}</small>
+                        </div>
+
+                        <p>{{ item.message|linebreaksbr }}</p>
+
+                        <small class="wa-author">
+                            {% if item.created_by %}
+                                Recorded by {{ item.created_by.get_full_name|default:item.created_by.username }}
+                            {% else %}
+                                Recorded by system
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="wa-empty">
+                    <div class="wa-empty-icon">◉</div>
+                    <h3>No messages recorded yet</h3>
+                    <p>Record your first customer conversation below.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="wa-card">
+        <div class="wa-section-heading">
+            <div>
+                <h2>Record a Message</h2>
+                <p>Save an incoming or outgoing message in your CRM.</p>
+            </div>
+        </div>
+
+        <form method="post" class="wa-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="record_message">
+
+            <label for="wa-direction">Message Direction</label>
+            <select name="direction" id="wa-direction" required>
+                <option value="INCOMING">Incoming — Customer sent to team</option>
+                <option value="OUTGOING">Outgoing — Team sent to customer</option>
+            </select>
+
+            <label for="wa-quick-reply">Use a Quick Reply (optional)</label>
+            <select id="wa-quick-reply">
+                <option value="">Choose a saved reply</option>
+                {% for reply in quick_replies %}
+                    <option value="{{ reply.message|escape }}">{{ reply.title }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="wa-message">Message</label>
+            <textarea
+                name="message"
+                id="wa-message"
+                rows="5"
+                maxlength="10000"
+                placeholder="Enter the message to record..."
+                required></textarea>
+
+            <div class="wa-form-actions">
+                <button type="submit" class="wa-save">Save Message</button>
+                <button type="button" class="wa-secondary" id="wa-fill-reply">Use Selected Reply</button>
+            </div>
+        </form>
+    </section>
+
+    <div class="wa-footer-note">
+        <strong>Important:</strong> This page stores messages manually. It does not automatically
+        receive WhatsApp messages or send them. Use Open WhatsApp to send a message, then record
+        the conversation here.
+    </div>
+</div>
+
+<style>
+.wa-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    color: #101828;
+}
+.wa-header, .wa-section-heading, .wa-contact-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+.wa-header { margin-bottom: 24px; flex-wrap: wrap; }
+.wa-breadcrumb { color: #667085; font-size: 13px; margin: 0 0 8px; }
+.wa-header h1 { margin: 0; font-size: 28px; }
+.wa-subtitle, .wa-section-heading p { color: #667085; margin: 7px 0 0; }
+.wa-back, .wa-open {
+    display: inline-block;
+    text-decoration: none;
+    padding: 11px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+.wa-back { color: #344054; border: 1px solid #d0d5dd; background: white; }
+.wa-open { background: #128c7e; color: white; }
+.wa-contact-card, .wa-card {
+    background: white;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(16,24,40,.04);
+}
+.wa-contact-card { flex-wrap: wrap; }
+.wa-label { display: block; color: #667085; font-size: 13px; margin-bottom: 6px; }
+.wa-section-heading { margin-bottom: 20px; }
+.wa-section-heading h2 { margin: 0; font-size: 19px; }
+.wa-count { background: #f2f4f7; padding: 7px 10px; border-radius: 20px; font-size: 12px; }
+.wa-messages {
+    max-height: 480px;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 10px;
+}
+.wa-message-row { display: flex; margin-bottom: 14px; }
+.wa-outgoing-row { justify-content: flex-end; }
+.wa-incoming-row { justify-content: flex-start; }
+.wa-message {
+    max-width: 80%;
+    min-width: 220px;
+    padding: 13px 15px;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+.wa-incoming-row .wa-message { background: white; border: 1px solid #e4e7ec; }
+.wa-outgoing-row .wa-message { background: #e7f8ed; border: 1px solid #ccebd7; }
+.wa-message-top { display: flex; justify-content: space-between; gap: 18px; font-size: 12px; }
+.wa-message-top small, .wa-author { color: #667085; }
+.wa-message p { margin: 12px 0; line-height: 1.55; }
+.wa-author { display: block; font-size: 11px; }
+.wa-empty { text-align: center; padding: 45px 15px; color: #667085; }
+.wa-empty-icon { font-size: 32px; color: #128c7e; }
+.wa-empty h3 { color: #344054; margin-bottom: 6px; }
+.wa-form { display: grid; gap: 10px; }
+.wa-form label { font-weight: 600; font-size: 13px; margin-top: 7px; }
+.wa-form select, .wa-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    font: inherit;
+    box-sizing: border-box;
+    background: white;
+}
+.wa-form textarea { resize: vertical; }
+.wa-form-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.wa-save, .wa-secondary {
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 17px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.wa-save { background: #175cd3; color: white; }
+.wa-secondary { background: #f2f4f7; color: #344054; }
+.wa-footer-note {
+    padding: 15px;
+    background: #fffaeb;
+    border: 1px solid #fedf89;
+    border-radius: 10px;
+    color: #7a2e0e;
+    line-height: 1.5;
+    font-size: 13px;
+}
+@media (max-width: 600px) {
+    .wa-page { padding: 12px; }
+    .wa-contact-card, .wa-section-heading { align-items: flex-start; }
+    .wa-message { max-width: 95%; min-width: 0; }
+    .wa-header h1 { font-size: 23px; }
+}
+</style>
+
+<script>
+document.getElementById("wa-fill-reply").addEventListener("click", function () {
+    const selector = document.getElementById("wa-quick-reply");
+    const messageBox = document.getElementById("wa-message");
+
+    if (selector.value) {
+        messageBox.value = selector.value;
+        messageBox.focus();
+    } else {
+        alert("Please choose a quick reply first.");
+    }
+});
+</script>
+{% endblock %}

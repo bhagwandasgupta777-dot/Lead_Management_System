@@ -771,29 +771,29 @@
     </button>
 
 
-    <!-- WHATSAPP -->
-    {% if lead.whatsapp_number %}
+   
+<!-- WHATSAPP -->
+{% if lead.whatsapp_number %}
 
-    <a
-        href="https://wa.me/{{ lead.whatsapp_number }}"
-        target="_blank"
-        rel="noopener"
-        class="detail-action"
-    >
-        <strong>◉</strong>
-        <span>WhatsApp</span>
-    </a>
+<a
+    href="{% url 'whatsapp_conversation' lead.lead_id %}"
+    class="detail-action"
+>
+    <strong>◉</strong>
+    <span>WhatsApp Conversation</span>
+</a>
 
-    <button
-        type="button"
-        class="detail-action"
-        onclick="prepareActivity('WHATSAPP')"
-    >
-        <strong>✓</strong>
-        <span>Log WhatsApp</span>
-    </button>
+<button
+    type="button"
+    class="detail-action"
+    onclick="prepareActivity('WHATSAPP')"
+>
+    <strong>✓</strong>
+    <span>Log WhatsApp</span>
+</button>
 
-    {% endif %}
+{% endif %}
+
 
 
     <!-- EMAIL -->

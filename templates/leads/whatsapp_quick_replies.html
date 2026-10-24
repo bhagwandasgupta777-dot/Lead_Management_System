@@ -1,0 +1,336 @@
+
+{% extends "base.html" %}
+
+{% block title %}WhatsApp Quick Replies{% endblock %}
+
+{% block content %}
+<style>
+    .wa-page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+        color: var(--text-primary, #1f2937);
+    }
+
+    .wa-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .wa-header h1 {
+        margin: 0 0 6px;
+        font-size: 27px;
+    }
+
+    .wa-muted {
+        color: var(--text-secondary, #6b7280);
+        font-size: 14px;
+    }
+
+    .wa-button {
+        display: inline-block;
+        border: 0;
+        border-radius: 8px;
+        padding: 11px 16px;
+        background: #167d62;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .wa-button:hover {
+        background: #11634e;
+        color: white;
+    }
+
+    .wa-card {
+        background: var(--card-bg, white);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 22px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
+    }
+
+    .wa-card h2 {
+        font-size: 19px;
+        margin: 0 0 8px;
+    }
+
+    .wa-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .wa-field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .wa-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .wa-field label {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .wa-field input,
+    .wa-field textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px 12px;
+        border: 1px solid var(--border-color, #d1d5db);
+        border-radius: 8px;
+        background: var(--input-bg, white);
+        color: inherit;
+        font: inherit;
+    }
+
+    .wa-field textarea {
+        min-height: 125px;
+        resize: vertical;
+    }
+
+    .wa-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 14px;
+    }
+
+    .wa-checkbox input {
+        width: auto;
+    }
+
+    .wa-reply {
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 11px;
+        padding: 17px;
+        margin-top: 13px;
+    }
+
+    .wa-reply-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .wa-reply h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+    }
+
+    .wa-message {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        line-height: 1.6;
+        margin: 10px 0 14px;
+    }
+
+    .wa-tag {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: #e7f5ef;
+        color: #176b50;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .wa-tag.private {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .wa-empty {
+        text-align: center;
+        padding: 28px 12px;
+    }
+
+    .wa-alert {
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    @media (max-width: 650px) {
+        .wa-page { padding: 14px; }
+        .wa-form-grid { grid-template-columns: 1fr; }
+        .wa-field.full { grid-column: auto; }
+        .wa-header h1 { font-size: 23px; }
+    }
+</style>
+
+<div class="wa-page">
+    <div class="wa-header">
+        <div>
+            <h1>WhatsApp Quick Replies</h1>
+            <div class="wa-muted">
+                Save frequently used messages to help your team reply consistently.
+            </div>
+        </div>
+
+        <a href="{% url 'lead_list' %}" class="wa-button">
+            Back to Leads
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="wa-alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="wa-card">
+        <h2>Create a quick reply</h2>
+        <p class="wa-muted">
+            Example: follow-up, demo confirmation, pricing enquiry, or thank-you message.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="wa-form-grid">
+                <div class="wa-field full">
+                    <label for="title">Template title</label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        maxlength="100"
+                        placeholder="e.g. Follow-up after demo"
+                        required
+                    >
+                </div>
+
+                <div class="wa-field full">
+                    <label for="message">Message text</label>
+                    <textarea
+                        id="message"
+                        name="message"
+                        placeholder="Hello, thank you for your interest. Would you like to schedule a demo?"
+                        required
+                    ></textarea>
+                    <span class="wa-muted">
+                        You can use placeholders such as {{customer_name}} and {{lead_id}}.
+                        Replace these manually before sending for now.
+                    </span>
+                </div>
+
+                {% if request.user.role == "ADMIN" or request.user.role == "MANAGER" %}
+                    <div class="wa-field full">
+                        <label class="wa-checkbox">
+                            <input type="checkbox" name="is_shared">
+                            Share this reply with the team
+                        </label>
+                        <span class="wa-muted">
+                            Shared replies can be used by other authorized team members.
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 18px;">
+                <button type="submit" class="wa-button">
+                    Save Quick Reply
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="wa-card">
+        <h2>Saved replies</h2>
+        <p class="wa-muted">
+            {{ quick_replies|length }} replies available to you.
+        </p>
+
+        {% for reply in quick_replies %}
+            <div class="wa-reply">
+                <div class="wa-reply-top">
+                    <div>
+                        <h3>{{ reply.title }}</h3>
+                        <span class="wa-tag">
+                            {% if reply.is_shared %}Team shared{% else %}Private{% endif %}
+                        </span>
+                    </div>
+                    <span class="wa-muted">
+                        Updated {{ reply.updated_at|date:"d M Y, h:i A" }}
+                    </span>
+                </div>
+
+                <div class="wa-message">{{ reply.message }}</div>
+
+                <button
+                    type="button"
+                    class="wa-button"
+                    onclick="copyReply(this)"
+                    data-message="{{ reply.message }}"
+                    style="background:#475569;"
+                >
+                    Copy Message
+                </button>
+            </div>
+        {% empty %}
+            <div class="wa-empty">
+                <h3>No quick replies yet</h3>
+                <p class="wa-muted">
+                    Create your first template using the form above.
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function copyReply(button) {
+        const message = button.dataset.message;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(message).then(() => {
+                button.textContent = "Copied!";
+                setTimeout(() => {
+                    button.textContent = "Copy Message";
+                }, 1500);
+            }).catch(() => {
+                fallbackCopy(message, button);
+            });
+        } else {
+            fallbackCopy(message, button);
+        }
+    }
+
+    function fallbackCopy(message, button) {
+        const textarea = document.createElement("textarea");
+        textarea.value = message;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            document.execCommand("copy");
+            button.textContent = "Copied!";
+            setTimeout(() => {
+                button.textContent = "Copy Message";
+            }, 1500);
+        } catch (error) {
+            alert("Copy failed. Please select and copy the message manually.");
+        }
+
+        textarea.remove();
+    }
+</script>
+{% endblock %}

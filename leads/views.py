@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.db import models
 from django.db.models import Q
 import re
 from django.core.exceptions import ValidationError
@@ -701,8 +702,61 @@ def create_lead(request):
 
     if request.method == "POST":
 
+        
         phone = request.POST.get("phone", "").strip()
         email = request.POST.get("email", "").strip()
+        whatsapp_number = request.POST.get(
+            "whatsapp_number", ""
+        ).strip()
+
+        company = request.POST.get("company", "").strip()
+        total_employees_raw = request.POST.get(
+            "total_employees", ""
+        ).strip()
+
+        # Validate mandatory fields
+        from django.core.validators import validate_email
+
+        validation_errors = []
+
+        if not email:
+            validation_errors.append("Email is required.")
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                validation_errors.append("Enter a valid email address.")
+
+        if not company:
+            validation_errors.append("Company name is required.")
+
+        try:
+            total_employees = int(total_employees_raw)
+            if total_employees < 1:
+                validation_errors.append(
+                    "Total employees must be at least 1."
+                )
+        except (ValueError, TypeError):
+            validation_errors.append(
+                "Enter a valid total employee count."
+            )
+
+        if validation_errors:
+            for error in validation_errors:
+                messages.error(request, error)
+
+            return render(
+                request,
+                "leads/lead_form.html",
+                {
+                    "form_data": request.POST,
+                    "source_choices": Lead.Source.choices,
+                    "temperature_choices": Lead.Temperature.choices,
+                    "priority_choices": Lead.Priority.choices,
+                    "sales_users": sales_users,
+                }
+            )
+
         whatsapp_number = request.POST.get(
            "whatsapp_number", ""
         ).strip()
@@ -826,10 +880,7 @@ def create_lead(request):
 
             email=email,
 
-            company=request.POST.get(
-                "company",
-                ""
-            ).strip(),
+            company=company,
 
             location=request.POST.get(
                 "location",
@@ -840,9 +891,7 @@ def create_lead(request):
                 ""
             ).strip(),
 
-            total_employees=request.POST.get(
-                "total_employees"
-            ) or None,
+            total_employees=total_employees,
 
             source=request.POST.get(
                 "source",
@@ -986,17 +1035,43 @@ def edit_lead(request, lead_id):
         except ValidationError as error:
             messages.error(request, error.messages[0])
             return redirect("edit_lead", lead_id=lead_id)
+       
+        # Only validate Email, Company and Total Employees
+        from django.core.validators import validate_email
 
-        lead.email = request.POST.get(
-            "email",
-            ""
+        email = request.POST.get("email", "").strip()
+        company = request.POST.get("company", "").strip()
+        total_employees_raw = request.POST.get(
+            "total_employees", ""
         ).strip()
 
+        if not email:
+            messages.error(request, "Email is required.")
+            return redirect("edit_lead", lead_id=lead_id)
 
-        lead.company = request.POST.get(
-            "company",
-            ""
-        ).strip()
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, "Enter a valid email address.")
+            return redirect("edit_lead", lead_id=lead_id)
+
+        if not company:
+            messages.error(request, "Company name is required.")
+            return redirect("edit_lead", lead_id=lead_id)
+
+        try:
+            total_employees = int(total_employees_raw)
+            if total_employees < 1:
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(
+                request,
+                "Total employees must be at least 1."
+            )
+            return redirect("edit_lead", lead_id=lead_id)
+
+        lead.email = email
+        lead.company = company
 
         lead.location = request.POST.get(
             "location",
@@ -1008,10 +1083,8 @@ def edit_lead(request, lead_id):
             ""
         ).strip()
 
-        lead.total_employees = (
-            request.POST.get("total_employees")
-            or None
-        )
+        lead.total_employees = total_employees
+
 
         # ---------------------------------------------------------
         # LEAD SOURCE
@@ -5480,3 +5553,111 @@ def global_search(request):
     return JsonResponse({
         "results": results
     })
+
+@login_required
+def whatsapp_conversation(request, lead_id):
+    # Admin and Manager can access all leads.
+    # Other users can access only their assigned leads.
+    if request.user.role in ["ADMIN", "MANAGER"]:
+        lead_queryset = Lead.objects.all()
+    else:
+        lead_queryset = Lead.objects.filter(assigned_to=request.user)
+
+    lead = get_object_or_404(lead_queryset, lead_id=lead_id)
+
+    from .models import WhatsAppMessage, WhatsAppQuickReply
+
+    if request.method == "POST":
+        action = request.POST.get("action", "").strip()
+
+        if action == "record_message":
+            message = request.POST.get("message", "").strip()
+            direction = request.POST.get("direction", "").strip()
+
+            allowed_directions = [
+                WhatsAppMessage.Direction.INCOMING,
+                WhatsAppMessage.Direction.OUTGOING,
+            ]
+
+            if not message:
+                messages.error(request, "Please enter a message.")
+            elif direction not in allowed_directions:
+                messages.error(request, "Please select a valid message direction.")
+            else:
+                WhatsAppMessage.objects.create(
+                    lead=lead,
+                    direction=direction,
+                    message=message,
+                    created_by=request.user,
+                )
+                messages.success(request, "Message recorded successfully.")
+
+        return redirect("whatsapp_conversation", lead_id=lead.lead_id)
+
+    conversation = lead.whatsapp_messages.select_related(
+        "created_by"
+    ).all()
+
+    if request.user.role in ["ADMIN", "MANAGER"]:
+        quick_replies = WhatsAppQuickReply.objects.filter(
+            is_active=True
+        ).filter(
+            models.Q(is_shared=True) | models.Q(created_by=request.user)
+        )
+    else:
+        quick_replies = WhatsAppQuickReply.objects.filter(
+            is_active=True
+        ).filter(
+            models.Q(is_shared=True) | models.Q(created_by=request.user)
+        )
+
+    return render(
+        request,
+        "leads/whatsapp_conversation.html",
+        {
+            "lead": lead,
+            "conversation": conversation,
+            "quick_replies": quick_replies,
+        },
+    )
+
+
+@login_required
+def whatsapp_quick_replies(request):
+    from .models import WhatsAppQuickReply
+
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        message = request.POST.get("message", "").strip()
+        is_shared = (
+            request.user.role in ["ADMIN", "MANAGER"]
+            and request.POST.get("is_shared") == "on"
+        )
+
+        if not title or not message:
+            messages.error(request, "Title and message are required.")
+        else:
+            WhatsAppQuickReply.objects.create(
+                title=title,
+                message=message,
+                created_by=request.user,
+                is_shared=is_shared,
+            )
+            messages.success(request, "Quick reply created successfully.")
+
+        return redirect("whatsapp_quick_replies")
+
+    if request.user.role in ["ADMIN", "MANAGER"]:
+        quick_replies = WhatsAppQuickReply.objects.filter(
+            models.Q(is_shared=True) | models.Q(created_by=request.user)
+        )
+    else:
+        quick_replies = WhatsAppQuickReply.objects.filter(
+            models.Q(is_shared=True) | models.Q(created_by=request.user)
+        )
+
+    return render(
+        request,
+        "leads/whatsapp_quick_replies.html",
+        {"quick_replies": quick_replies},
+    )

@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import Lead, LeadActivity, LeadTask, LeadAssignmentHistory, Customer, Deal, Notification
+
+from .models import (
+    Lead,
+    LeadActivity,
+    LeadTask,
+    LeadAssignmentHistory,
+    Customer,
+    Deal,
+    Notification,
+    WhatsAppMessage,
+    WhatsAppQuickReply,
+)
+
 
 
 @admin.register(Lead)
@@ -208,3 +220,35 @@ class NotificationAdmin(admin.ModelAdmin):
     )
 
     ordering = ("-created_at",)
+
+@admin.register(WhatsAppMessage)
+class WhatsAppMessageAdmin(admin.ModelAdmin):
+    list_display = (
+        "lead",
+        "direction",
+        "message_time",
+        "created_by",
+        "created_at",
+    )
+    list_filter = ("direction", "message_time")
+    search_fields = (
+        "lead__lead_id",
+        "lead__first_name",
+        "lead__last_name",
+        "message",
+    )
+    ordering = ("-message_time",)
+
+
+@admin.register(WhatsAppQuickReply)
+class WhatsAppQuickReplyAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "created_by",
+        "is_shared",
+        "is_active",
+        "created_at",
+    )
+    list_filter = ("is_shared", "is_active")
+    search_fields = ("title", "message")
+    ordering = ("title",)

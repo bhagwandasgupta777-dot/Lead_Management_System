@@ -94,6 +94,7 @@
                         type="email"
                         name="email"
                         value="{{ lead.email }}"
+                        required
                     >
                 </div>
 
@@ -105,6 +106,7 @@
                         type="text"
                         name="company"
                         value="{{ lead.company }}"
+                        required
                     >
                 </div>
 
@@ -136,6 +138,7 @@
         value="{{ lead.total_employees|default:'' }}"
         min="0"
         placeholder="e.g. 1500"
+        required
     >
 </div>
 
